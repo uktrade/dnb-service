@@ -1,10 +1,9 @@
-import csv
 import time
 import logging
 
 from django.core.management.base import BaseCommand, CommandError
 
-from dnb.ingest import CompanyResource, ValidationError
+from dnb.ingest import ingest_csv
 
 
 logger = logging.getLogger(__name__)
@@ -21,29 +20,9 @@ class Command(BaseCommand):
 
         try:
             with open(options['file'], 'rt', encoding='iso-8859-1') as fd:
-                csv_reader = csv.reader(fd)
-
-                heading = []
-                for row_number, row in enumerate(csv_reader, 1):
-                    assert len(row) == 112, f'incorrect number of rows on line {row_number}'
-
-                    if not heading:
-                        heading = row
-                        continue
-
-                    try:
-                        company = CompanyResource(row)
-                    except ValidationError as exc:
-                        logging.exception(f'Unable to process row {row_number}; raw data: {row}')
-                        continue
-
-                    try:
-                        _, company_obj = company.get_or_create()
-                    except:
-                        print(company.data)
-                        raise
+                stats = ingest_csv(fd, logger)
 
         except IOError:
-            raise CommandError('Unable to open file: {}'.format(options['file']))
-
-        self.stdout.write(self.style.SUCCESS('Took: {}'.format(time.time() - start_time)))
+            raise CommandError('Cannot open file: {}'.format(options['file']))
+        stats['time'] = time.time() - start_time
+        self.stdout.write(self.style.SUCCESS('Took: {time}; imported: {processed}; failed: {failed}'.format(stats)))

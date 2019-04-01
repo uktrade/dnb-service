@@ -1,3 +1,7 @@
+import csv
+
+from django.db.utils import DataError
+
 from .models import Company
 
 
@@ -119,16 +123,9 @@ CSV fields reference:
 """
 
 
-class ValidationError(Exception):
-    pass
-
-
-def to_int(index, required=False):
+def to_int(index):
     def extract(data):
         value = data[index]
-
-        if required and not value:
-            raise ValidationError('Field is empty')
 
         return int(value) if value else None
 
@@ -142,7 +139,7 @@ def to_bool(index, true_value, false_value):
             false_value: False,
         }
 
-        return _map.get(data[index], None)
+        return _map.get(data[index].upper(), None)
 
     return extract
 
@@ -169,8 +166,8 @@ def dnb_indicator_to_bool(index):
 
 class CompanyResource:
 
-    FIELD_MAPPING = {
-        'duns_number': to_int(5, required=True),
+    MAPPING = {
+        'duns_number': 5,
         'business_name': 6,
         'secondary_name': 7,
         'street_address': 9,
@@ -196,27 +193,65 @@ class CompanyResource:
 
     def __init__(self, csv_row):
 
-        self.raw_data = csv_row
         self.data = self.extract(csv_row)
+        self.errors = []
 
     @classmethod
     def extract(cls, raw_data):
         data = {}
 
-        for name, elem in cls.FIELD_MAPPING.items():
+        for name, elem in cls.MAPPING.items():
             if callable(elem):
-                try:
-                    data[name] = elem(raw_data)
-                except:  # noqa: E722
-                    raise ValidationError(f'cannot process key {name}')
+                data[name] = elem(raw_data)
             else:
                 data[name] = raw_data[elem]
 
         return data
 
+    def is_valid(self):
+
+        if not self.data['duns_number']:
+            return False
+        else:
+            return True
+
     def get_or_create(self):
-        assert self.data
+
+        assert self.is_valid()
 
         self.data['last_updated_source'] = Company.LAST_UPDATED_FILE
 
         return Company.objects.get_or_create(duns_number=self.data['duns_number'], defaults=self.data)
+
+
+def ingest_csv(fd, logger):
+    csv_reader = csv.reader(fd)
+
+    stats = {
+        'processed': 0,
+        'failed': 0,
+    }
+
+    heading = True
+    for row_number, row_data in enumerate(csv_reader, 1):
+        assert len(row_data) == 112, f'incorrect number of rows on line {row_number}'
+
+        if heading:
+            heading = False
+            continue
+
+        company_resource = CompanyResource(row_data)
+
+        if not company_resource.is_valid():
+            logger.warning(f'Cannot import row {row_number}; row data: {row_data}')
+
+            stats['failed'] += 1
+        else:
+            try:
+                _, company = company_resource.get_or_create()
+                stats['processed'] += 1
+            except DataError:
+                logger.exception('Cannot import row {row_number}; data {company_resource.data}')
+                stats['failed'] += 1
+
+        return stats
