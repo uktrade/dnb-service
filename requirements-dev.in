@@ -1,3 +1,17 @@
 -r requirements.txt
 
 pytest
+flake8
+
+pytest
+pytest-django
+pytest-mock
+pytest-cov
+
+flake8
+flake8-blind-except
+flake8-debugger
+flake8-import-order
+flake8-print
+flake8-quotes
+

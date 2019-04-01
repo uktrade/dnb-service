@@ -4,6 +4,7 @@ raven
 boto3
 dj-database-url
 django-environ
+psycopg2
 
 gunicorn
 
