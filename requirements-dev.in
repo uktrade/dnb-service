@@ -5,6 +5,7 @@ flake8
 
 pytest
 pytest-django
+pytest-env
 pytest-mock
 pytest-cov
 
