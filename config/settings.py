@@ -10,6 +10,8 @@ env = environ.Env(
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
+VCAP_SERVICES = env.json('VCAP_SERVICES', {})
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
@@ -28,6 +30,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'django_elasticsearch_dsl',
 
     'dnb',
     'user',
@@ -111,3 +116,31 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'user.User'
+
+# Elastic search config
+
+if 'elasticsearch' in VCAP_SERVICES:
+    ES_URL = VCAP_SERVICES['elasticsearch'][0]['uri']
+else:
+    ES_URL = env('ES_URL')
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': ES_URL
+    },
+}
+
+ELASTICSEARCH_INDEX_SETTINGS = {
+    'number_of_shards': 1,
+    'number_of_replicas': 0,
+}
+
+# DRF config
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    )
+}

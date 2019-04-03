@@ -3,3 +3,4 @@ SECRET_KEY=a-secret-key
 #DATABASE_URL=postgres://localhost/dnb-service
 DATABASE_URL=sqlite://dnb-service.sqlite3
 ALLOWED_HOSTS=*
+ES_URL=http://localhost:9200

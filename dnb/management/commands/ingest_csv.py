@@ -1,5 +1,5 @@
-import time
 import logging
+import time
 
 from django.core.management.base import BaseCommand, CommandError
 
@@ -25,4 +25,5 @@ class Command(BaseCommand):
         except IOError:
             raise CommandError('Cannot open file: {}'.format(options['file']))
         stats['time'] = time.time() - start_time
-        self.stdout.write(self.style.SUCCESS('Took: {time}; imported: {processed}; failed: {failed}'.format(stats)))
+        self.stdout.write(
+            self.style.SUCCESS('Took: {time}; imported: {processed}; failed: {failed}'.format(**stats)))

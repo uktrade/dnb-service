@@ -153,6 +153,8 @@ def dnb_indicator_to_bool(index):
     3 - modeled (non US records)
     """
 
+    # TODO: logic this needs to be reviewed.
+
     def extract(data):
         value = data[index]
 
@@ -254,4 +256,4 @@ def ingest_csv(fd, logger):
                 logger.exception('Cannot import row {row_number}; data {company_resource.data}')
                 stats['failed'] += 1
 
-        return stats
+    return stats

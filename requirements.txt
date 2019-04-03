@@ -7,17 +7,23 @@
 boto3==1.9.125
 botocore==1.12.125        # via boto3, s3transfer
 dj-database-url==0.5.0
+django-elasticsearch-dsl-drf==0.17.4
+django-elasticsearch-dsl==0.5.1
 django-environ==0.4.5
+django-nine==0.1.13       # via django-elasticsearch-dsl-drf
 django-rest-framework==0.1.0
 django==2.1.7
-djangorestframework==3.9.2  # via django-rest-framework
+djangorestframework==3.9.2  # via django-elasticsearch-dsl-drf, django-rest-framework
 docutils==0.14            # via botocore
+elasticsearch-dsl==6.1.0
+elasticsearch==6.3.1      # via django-elasticsearch-dsl-drf, elasticsearch-dsl
 gunicorn==19.9.0
+ipaddress==1.0.22         # via elasticsearch-dsl
 jmespath==0.9.4           # via boto3, botocore
 psycopg2==2.7.7
-python-dateutil==2.8.0    # via botocore
+python-dateutil==2.8.0    # via botocore, elasticsearch-dsl
 pytz==2018.9              # via django
 raven==6.10.0
 s3transfer==0.2.0         # via boto3
-six==1.12.0               # via python-dateutil
-urllib3==1.24.1           # via botocore
+six==1.12.0               # via django-elasticsearch-dsl-drf, elasticsearch-dsl, python-dateutil
+urllib3==1.24.1           # via botocore, elasticsearch

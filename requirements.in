@@ -6,5 +6,9 @@ dj-database-url
 django-environ
 psycopg2
 
+django-elasticsearch-dsl
+elasticsearch-dsl>=6.0,<6.2
+django-elasticsearch-dsl-drf
+
 gunicorn
 
