@@ -5,10 +5,12 @@ boto3
 dj-database-url
 django-environ
 psycopg2
+django-staff-sso-client==0.2.0
 
 django-elasticsearch-dsl
 elasticsearch-dsl>=6.0,<6.2
 django-elasticsearch-dsl-drf
+
 
 gunicorn
 

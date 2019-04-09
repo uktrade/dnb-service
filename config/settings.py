@@ -6,7 +6,8 @@ import environ
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = environ.Env(
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    RESTRICT_ADMIN=(bool, True)
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
@@ -46,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'authbroker_client.middleware.ProtectAllViewsMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -144,3 +146,23 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     )
 }
+
+# Staff-sso config
+
+AUTHBROKER_URL = env('AUTHBROKER_URL')
+AUTHBROKER_CLIENT_ID = env('AUTHBROKER_CLIENT_ID')
+AUTHBROKER_CLIENT_SECRET = env('AUTHBROKER_CLIENT_SECRET')
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'authbroker_client.backends.AuthbrokerBackend',
+]
+
+LOGIN_URL = 'authbroker:login'
+LOGIN_REDIRECT_URL = 'admin:index'
+
+# IP restriction
+
+RESTRICT_ADMIN = env('RESTRICT_ADMIN')
+ALLOWED_ADMIN_IPS = env.list('ALLOWED_ADMIN_IPS')
+ALLOWED_ADMIN_IP_RANGES = env.list('ALLOWED_ADMIN_IP_RANGES', default=[])
