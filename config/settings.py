@@ -43,6 +43,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.AdminIpRestrictionMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -125,3 +126,9 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_REDIRECT_URL = 'admin:index'
 
 AUTH_USER_MODEL = 'user.User'
+
+# IP restriction
+
+RESTRICT_ADMIN = env('RESTRICT_ADMIN')
+ALLOWED_ADMIN_IPS = env.list('ALLOWED_ADMIN_IPS')
+ALLOWED_ADMIN_IP_RANGES = env.list('ALLOWED_ADMIN_IP_RANGES', default=[])
