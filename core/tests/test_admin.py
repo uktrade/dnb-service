@@ -1,6 +1,12 @@
 import pytest
 
 from django.contrib.auth import get_user_model
+from django.urls import reverse
+
+
+pytestmark = [
+    pytest.mark.django_db
+]
 
 
 class TestAdminSSOLogin:
@@ -12,25 +18,22 @@ class TestAdminSSOLogin:
             is_superuser=False
         )
 
-    @pytest.mark.django_db
     def test_login_authenticated_but_not_staff_leads_to_403(self, client):
         client.force_login(self.user)
-        response = client.get('/admin/login/')
+        response = client.get(reverse('admin:login'))
 
         assert response.status_code == 403
 
-    @pytest.mark.django_db
     def test_login_authenticated_without_next_url_redirects_to_admin(self, client):
         self.user.is_staff = True
         self.user.save()
         client.force_login(self.user)
 
-        response = client.get('/admin/login/')
+        response = client.get(reverse('admin:login'))
 
         assert response.status_code == 302
         assert response.url == '/admin/'
 
-    @pytest.mark.django_db
     def test_login_authenticated_redirects_to_next_url(self, client):
         self.user.is_staff = True
         self.user.save()
@@ -40,22 +43,35 @@ class TestAdminSSOLogin:
         session.save()
         client.force_login(self.user)
 
-        response = client.get('/admin/login/')
+        response = client.get(reverse('admin:login'))
 
         assert response.status_code == 302
         assert response.url == '/whatever/'
 
-    @pytest.mark.django_db
     def test_login_redirects_to_sso_login(self, client):
-        response = client.get('/admin/login/')
+        response = client.get(reverse('admin:login'))
 
         assert response.status_code == 302
-        assert response.url == '/auth/login/'
+        assert response.url == reverse('authbroker:login')
 
-    @pytest.mark.django_db
     def test_login_saves_next_query_string_in_session(self, client):
 
         client.get('/admin/login/?next=/whatever/')
 
         assert 'admin_next_url' in client.session and \
             client.session['admin_next_url'] == '/whatever/'
+
+    def test_next_url_different_domain_not_allowed(self, client, settings):
+
+        self.user.is_staff = True
+        self.user.save()
+
+        settings.ALLOWED_HOSTS = ['testserver']
+
+        client.session['admin_next_url'] = 'http://somewhereunsafe.com/'
+        client.force_login(self.user)
+
+        response = client.get(reverse('admin:login'))
+
+        assert response.status_code == 302
+        assert response.url == reverse('admin:index')

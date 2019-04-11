@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.http import is_safe_url
 
 
 def admin_login_view(request):
@@ -9,8 +11,13 @@ def admin_login_view(request):
 
     next_url = request.GET.get(
         'next',
-        request.session.get('admin_next_url',
-                            reverse('admin:index')))
+        request.session.get('admin_next_url', None))
+
+    if next_url and not is_safe_url(next_url, settings.ALLOWED_HOSTS):
+        next_url = False
+
+    if not next_url:
+        next_url = reverse('admin:index')
 
     if request.user.is_authenticated:
         if not request.user.is_staff:

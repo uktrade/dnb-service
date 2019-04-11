@@ -24,8 +24,10 @@ def is_valid_admin_ip(client_ip):
 
 def get_client_ip(request):
 
+    client_ip_index = getattr(settings, 'IP_SAFELIST_XFF_INDEX', -2)
+
     try:
-        return request.META['HTTP_X_FORWARDED_FOR'].split(',')[getattr(settings, 'IP_SAFELIST_XFF_INDEX', -2)].strip()
+        return request.META['HTTP_X_FORWARDED_FOR'].split(',')[client_ip_index].strip()
     except (IndexError, KeyError):
         logger.warning(
             'X-Forwarded-For header is missing or does not '
