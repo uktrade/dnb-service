@@ -32,7 +32,7 @@ class TestAdminSSOLogin:
         response = client.get(reverse('admin:login'))
 
         assert response.status_code == 302
-        assert response.url == '/admin/'
+        assert response.url == reverse('admin:index')
 
     def test_login_authenticated_redirects_to_next_url(self, client):
         self.user.is_staff = True
@@ -56,7 +56,7 @@ class TestAdminSSOLogin:
 
     def test_login_saves_next_query_string_in_session(self, client):
 
-        client.get('/admin/login/?next=/whatever/')
+        client.get(reverse('admin:login') + '?next=/whatever/')
 
         assert 'admin_next_url' in client.session and \
             client.session['admin_next_url'] == '/whatever/'
