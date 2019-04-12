@@ -14,7 +14,6 @@ def dummy_view(_):
     return HttpResponse(status=200)
 
 
-@pytest.mark.skip(reason='currently no other routes to test this logic')
 def test_ip_restriction_applies_to_admin_only(rf, settings):
     settings.RESTRICT_ADMIN = True
 

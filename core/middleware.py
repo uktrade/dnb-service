@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import resolve
+from django.urls.exceptions import Resolver404
 
 from .ip_filter import get_client_ip, is_valid_admin_ip
 
@@ -13,9 +14,12 @@ logger = logging.getLogger(__name__)
 def AdminIpRestrictionMiddleware(get_response):
 
     def middleware(request):
-        # NOTE: resolve(request.path) may raise a Http404 exception if the route does not exist.
-        # In this case the rest of this function's logic will be bypassed.
-        if resolve(request.path).app_name == 'admin':
+        try:
+            app_name = resolve(request.path).app_name
+        except Resolver404:
+            return get_response(request)
+
+        if app_name == 'admin':
             if settings.RESTRICT_ADMIN:
                 client_ip = get_client_ip(request)
                 if not client_ip or not is_valid_admin_ip(client_ip):
