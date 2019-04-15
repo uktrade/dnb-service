@@ -1,3 +1,5 @@
+import pytest
+
 from core.middleware import AdminIpRestrictionMiddleware
 
 from django.http import HttpResponse
@@ -30,37 +32,46 @@ class TestAdminIpRestrictionMiddleware:
 
         assert AdminIpRestrictionMiddleware(dummy_view)(request).status_code == 200
 
-    def test_missing_x_forwarded_header(self, rf, settings):
+    @pytest.mark.parametrize(
+        'xff_header,expected_status', (
+            [
+                '1.1.1.1, 2.2.2.2, 3.3.3.3', 200
+            ],
+            [
+                '1.1.1.1', 401
+            ],
+            [
+                '', 401,
+            ]
+        )
+    )
+    def test_x_forwarded_header(self, rf, settings, xff_header, expected_status):
         settings.RESTRICT_ADMIN = True
 
-        request = rf.get(reverse('admin:index'), HTTP_X_FORWARDED_FOR='1.1.1.1')
-
-        assert AdminIpRestrictionMiddleware(dummy_view)(request).status_code == 401
-
-    def test_with_invalid_x_forwarded_header(self, rf, settings):
-        settings.RESTRICT_ADMIN = True
-
-        request = rf.get(reverse('admin:index'), HTTP_X_FORWARDED_FOR='1.1.1.1')
-
-        assert AdminIpRestrictionMiddleware(dummy_view)(request).status_code == 401
-
-    def test_with_valid_ip(self, rf, settings):
-        settings.RESTRICT_ADMIN = True
         settings.ALLOWED_ADMIN_IPS = ['2.2.2.2']
 
-        request = rf.get(reverse('admin:index'),
-                         HTTP_X_FORWARDED_FOR='1.1.1.1, 2.2.2.2, 3.3.3.3')
+        request = rf.get(reverse('admin:index'), HTTP_X_FORWARDED_FOR=xff_header)
 
-        assert AdminIpRestrictionMiddleware(dummy_view)(request).status_code == 200
+        assert AdminIpRestrictionMiddleware(dummy_view)(request).status_code == expected_status
 
-    def test_with_invalid_ip(self, rf, settings):
+    @pytest.mark.parametrize(
+        'allowed_ips,expected_status', (
+            [
+                ['2.2.2.2'], 200
+            ],
+            [
+                ['1.1.1.1'], 401
+            ]
+        )
+    )
+    def test_ips(self, rf, settings, allowed_ips, expected_status):
         settings.RESTRICT_ADMIN = True
-        settings.ALLOWED_ADMIN_IPS = ['1.1.1.1']
+        settings.ALLOWED_ADMIN_IPS = allowed_ips
 
         request = rf.get(reverse('admin:index'),
                          HTTP_X_FORWARDED_FOR='1.1.1.1, 2.2.2.2, 3.3.3.3')
-        # import pdb; pdb.set_trace()
-        assert AdminIpRestrictionMiddleware(dummy_view)(request).status_code == 401
+
+        assert AdminIpRestrictionMiddleware(dummy_view)(request).status_code == expected_status
 
         settings.ALLOWED_ADMIN_IPS = ['3.3.3.3']
 

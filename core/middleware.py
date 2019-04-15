@@ -41,11 +41,10 @@ def _get_client_ip(request):
 def AdminIpRestrictionMiddleware(get_response):
 
     def middleware(request):
-
         try:
             app_name = resolve(request.path).app_name
         except Resolver404:
-            return get_response(request)
+            app_name = None
 
         if app_name == 'admin':
             if settings.RESTRICT_ADMIN:

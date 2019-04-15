@@ -1,6 +1,9 @@
 import pytest
 
+from core.admin_views import ADMIN_REDIRECT_URL_SESSION_KEY
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.urls import reverse
 
 
@@ -39,7 +42,7 @@ class TestAdminSSOLogin:
         self.user.save()
 
         session = client.session
-        session['admin_next_url'] = '/whatever/'
+        session[ADMIN_REDIRECT_URL_SESSION_KEY] = '/whatever/'
         session.save()
         client.force_login(self.user)
 
@@ -56,10 +59,10 @@ class TestAdminSSOLogin:
 
     def test_login_saves_next_query_string_in_session(self, client):
 
-        client.get(reverse('admin:login') + '?next=/whatever/')
+        client.get(reverse('admin:login') + f'?{REDIRECT_FIELD_NAME}=/whatever/')
 
-        assert 'admin_next_url' in client.session and \
-            client.session['admin_next_url'] == '/whatever/'
+        assert ADMIN_REDIRECT_URL_SESSION_KEY in client.session and \
+            client.session[ADMIN_REDIRECT_URL_SESSION_KEY] == '/whatever/'
 
     def test_next_url_different_domain_not_allowed(self, client, settings):
 
@@ -68,7 +71,7 @@ class TestAdminSSOLogin:
 
         settings.ALLOWED_HOSTS = ['testserver']
 
-        client.session['admin_next_url'] = 'http://somewhereunsafe.com/'
+        client.session[ADMIN_REDIRECT_URL_SESSION_KEY] = 'http://somewhereunsafe.com/'
         client.force_login(self.user)
 
         response = client.get(reverse('admin:login'))

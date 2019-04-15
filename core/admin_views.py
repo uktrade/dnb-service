@@ -18,7 +18,7 @@ def admin_login_view(request):
         request.session.get(ADMIN_REDIRECT_URL_SESSION_KEY, None))
 
     if next_url and not is_safe_url(next_url, settings.ALLOWED_HOSTS, require_https=request.is_secure()):
-        next_url = False
+        next_url = None
 
     if not next_url:
         next_url = reverse('admin:index')
