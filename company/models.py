@@ -1,41 +1,58 @@
+from company.constants import LastUpdatedSource, LegalStatusChoices, RegistrationNumberChoices
+
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import ugettext_lazy as _
-
-from company.constants import LastUpdatedSource
 
 
 class Country(models.Model):
-    name = models.CharField(max_length=255)
-    iso_alpha2 = models.CharField(max_length=2)
-    iso_alpha3 = models.CharField(max_length=3)
-    iso_numeric = models.PositiveIntegerField()
+    name = models.CharField(
+        max_length=255,
+    )
+
+    iso_alpha2 = models.CharField(
+        max_length=2,
+        help_text=_('ISO 2 digit alphanumeric country code'),
+    )
+
+    iso_alpha3 = models.CharField(
+        max_length=3,
+        help_text=_('ISO 3 digital alphanumeric country code'),
+    )
+
+    iso_numeric = models.PositiveIntegerField(
+        help_text=_('ISO 3 digit numeric country code'),
+    )
 
     class Meta:
         verbose_name_plural = 'Countries'
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
 
 
+class RegistrationNumber(models.Model):
+    """A model for recording company registration numbers such as the
+    companies House number and VAT registration number """
+
+    registration_type = models.CharField(
+        max_length=100,
+        choices=RegistrationNumberChoices.list()
+    )
+
+    registration_number = models.CharField(
+        max_length=50,
+        blank=False,
+    )
+
+    def __str__(self):
+        return self.registration_number
+
+
 class Company(models.Model):
-
-    STATUS_CODE_CHOICES = (
-        (0, _('Single location')),
-        (1, _('Headquarter')),
-        (2, _('Branch')),
-        (4, _('Division')),
-    )
-
-    LEGAL_STATUS_CHOICES = (
-        (0, _('Not available')),
-        (3, _('Corporation')),
-        (8, _('Joint venture')),
-        (12, _('Partnership')),
-        (13, _('Proprietorship')),
-        (120, _('Foreign; Company'))
-    )
+    """The main DNB company model"""
 
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
@@ -47,7 +64,8 @@ class Company(models.Model):
         _('Duns number'),
         max_length=9,
         db_index=True,
-        validators=[RegexValidator(regex=r'^\d{9}$', message=_('Field should contain 9 numbers only'), code='invalid')]
+        validators=[RegexValidator(
+            regex=r'^\d{9}$', message=_('Field should contain 9 numbers only'), code='invalid')]
     )
 
     primary_name = models.CharField(
@@ -136,21 +154,7 @@ class Company(models.Model):
         max_length=9,
     )
 
-    national_id_number = models.CharField(
-        _('National ID number'),
-        max_length=16,
-    )
-
-    national_id_code_type = models.CharField(
-        _('National ID code type'),
-        max_length=5,
-    )
-
-    uk_companies_house_number = models.CharField(
-        _('UK company number'),
-        max_length=8,
-        blank=True,
-    )
+    registration_numbers = models.ManyToManyField(RegistrationNumber, blank=True)
 
     line_of_business = models.CharField(
         _('Line of business'),
@@ -169,7 +173,8 @@ class Company(models.Model):
         _('Glogal ultimate duns number'),
         max_length=9,
         blank=True,
-        validators=[RegexValidator(regex=r'^\d{9}$', message=_('Field should contain 9 numbers only'), code='invalid')],
+        validators=[RegexValidator(
+            regex=r'^\d{9}$', message=_('Field should contain 9 numbers only'), code='invalid')],
         db_index=True,
     )
 
@@ -205,7 +210,7 @@ class Company(models.Model):
 
     status_code = models.PositiveIntegerField(
         _('Status code'),
-        choices=STATUS_CODE_CHOICES,
+        choices=LegalStatusChoices.list(),
     )
 
     class Meta:
