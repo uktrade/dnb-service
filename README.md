@@ -23,7 +23,7 @@ Postgres 10
 3. Get some SSO credentials and add them to your .env file. See the section below on staff-sso integration.
    NOTE: only required if you want to access the admin section.
 
-4. Load coountry fixtures (optional): `./manage.py loaddata company/fixtures/countries.yaml`
+4. Load country fixtures (optional): `./manage.py loaddata company/fixtures/countries.yaml`
 
 4. Run migrations and start a web server: `./manage.py migrate` and then `./manage.py runserver`
 

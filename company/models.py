@@ -6,6 +6,10 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
+duns_number_validator = RegexValidator(
+    regex=r'^\d{9}$', message=_('Field should contain 9 numbers only'), code='invalid')
+
+
 class Country(models.Model):
     name = models.CharField(
         max_length=255,
@@ -37,18 +41,22 @@ class RegistrationNumber(models.Model):
     """A model for recording company registration numbers such as the
     companies House number and VAT registration number """
 
+    company = models.ForeignKey(
+        'company.Company',
+        on_delete=models.CASCADE,
+    )
+
     registration_type = models.CharField(
         max_length=100,
-        choices=RegistrationNumberChoices.list()
+        choices=RegistrationNumberChoices.list(),
     )
 
     registration_number = models.CharField(
         max_length=50,
-        blank=False,
     )
 
     def __str__(self):
-        return self.registration_number
+        return f'{self.registration_type} / {self.registration_number}'
 
 
 class Company(models.Model):
@@ -56,16 +64,16 @@ class Company(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
-    last_updated_source = models.PositiveIntegerField(
-        choices=LastUpdatedSource.list()
+    last_updated_source = models.CharField(
+        choices=LastUpdatedSource.list(),
+        max_length=10,
     )
 
     duns_number = models.CharField(
         _('Duns number'),
         max_length=9,
-        db_index=True,
-        validators=[RegexValidator(
-            regex=r'^\d{9}$', message=_('Field should contain 9 numbers only'), code='invalid')]
+        unique=True,
+        validators=[duns_number_validator],
     )
 
     primary_name = models.CharField(
@@ -82,25 +90,25 @@ class Company(models.Model):
     address_line_1 = models.CharField(
         _('Street address'),
         blank=True,
-        max_length=64,
+        max_length=255,
     )
 
     address_line_2 = models.CharField(
         _('Street address 2'),
         blank=True,
-        max_length=64,
+        max_length=255,
     )
 
     address_town = models.CharField(
         _('City'),
         blank=True,
-        max_length=30,
+        max_length=255,
     )
 
     address_county = models.CharField(
         _('State'),
         blank=True,
-        max_length=30,
+        max_length=255,
     )
 
     address_country = models.ForeignKey(
@@ -113,31 +121,31 @@ class Company(models.Model):
     address_postcode = models.CharField(
         _('Postal code'),
         blank=True,
-        max_length=9,
+        max_length=20,
     )
 
     registered_address_line_1 = models.CharField(
         _('Street address'),
         blank=True,
-        max_length=64,
+        max_length=255,
     )
 
     registered_address_line_2 = models.CharField(
         _('Street address 2'),
         blank=True,
-        max_length=64,
+        max_length=255,
     )
 
     registered_address_town = models.CharField(
         _('City'),
         blank=True,
-        max_length=30,
+        max_length=255,
     )
 
     registered_address_county = models.CharField(
         _('State'),
         blank=True,
-        max_length=30,
+        max_length=255,
     )
 
     registered_address_country = models.ForeignKey(
@@ -151,14 +159,13 @@ class Company(models.Model):
     registered_address_postcode = models.CharField(
         _('Postal code'),
         blank=True,
-        max_length=9,
+        max_length=20,
     )
-
-    registration_numbers = models.ManyToManyField(RegistrationNumber, blank=True)
 
     line_of_business = models.CharField(
         _('Line of business'),
-        max_length=41,
+        max_length=255,
+        blank=True,
     )
 
     is_out_of_business = models.BooleanField(
@@ -173,8 +180,7 @@ class Company(models.Model):
         _('Glogal ultimate duns number'),
         max_length=9,
         blank=True,
-        validators=[RegexValidator(
-            regex=r'^\d{9}$', message=_('Field should contain 9 numbers only'), code='invalid')],
+        validators=[duns_number_validator],
         db_index=True,
     )
 
@@ -205,16 +211,12 @@ class Company(models.Model):
 
     legal_status = models.CharField(
         _('Legal status'),
-        max_length=3,
-    )
-
-    status_code = models.PositiveIntegerField(
-        _('Status code'),
         choices=LegalStatusChoices.list(),
+        max_length=100,
     )
 
     class Meta:
         verbose_name_plural = 'Companies'
 
     def __str__(self):
-        return self.primary_name
+        return f'{self.duns_number} / {self.primary_name}'
