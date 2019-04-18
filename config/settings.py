@@ -7,7 +7,8 @@ import environ
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = environ.Env(
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    RESTRICT_ADMIN=(bool, False),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',
     'core',
+    'company',
 ]
 
 MIDDLEWARE = [
