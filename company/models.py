@@ -1,10 +1,10 @@
-from company.constants import LastUpdatedSource, LegalStatusChoices, RegistrationNumberChoices
-
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from company.constants import (LastUpdatedSource, LegalStatusChoices,
+                               RegistrationNumberChoices)
 
 duns_number_validator = RegexValidator(
     regex=r'^\d{9}$', message=_('Field should contain 9 numbers only'), code='invalid')

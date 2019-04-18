@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'user',
     'core',
     'company',
+    'dnb_worldbase',
 ]
 
 MIDDLEWARE = [

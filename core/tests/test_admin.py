@@ -1,11 +1,8 @@
 import pytest
-
-from core.admin_views import ADMIN_REDIRECT_URL_SESSION_KEY
-
-from django.contrib.auth import get_user_model
-from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
 from django.urls import reverse
 
+from core.admin_views import ADMIN_REDIRECT_URL_SESSION_KEY
 
 pytestmark = [
     pytest.mark.django_db

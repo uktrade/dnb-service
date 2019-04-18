@@ -6,7 +6,6 @@ from django.http import HttpResponse
 from django.urls import resolve
 from django.urls.exceptions import Resolver404
 
-
 logger = logging.getLogger(__name__)
 
 
