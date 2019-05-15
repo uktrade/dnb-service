@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'core',
     'company',
     'dnb_worldbase',
+    'dnb_api',
 ]
 
 MIDDLEWARE = [
@@ -142,6 +143,7 @@ ALLOWED_ADMIN_IP_RANGES = env.list('ALLOWED_ADMIN_IP_RANGES', default=[])
 
 DNB_USERNAME = env('DNB_USERNAME')
 DNB_PASSWORD = env('DNB_PASSWORD')
+DNB_API_RENEW_ACCESS_TOKEN_MINUTES_REMAINING = 30
 
 # Redis
 
