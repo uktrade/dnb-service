@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_results',
+    'django_celery_beat',
     'user',
     'core',
     'company',
@@ -135,3 +137,19 @@ AUTH_USER_MODEL = 'user.User'
 RESTRICT_ADMIN = env('RESTRICT_ADMIN')
 ALLOWED_ADMIN_IPS = env.list('ALLOWED_ADMIN_IPS')
 ALLOWED_ADMIN_IP_RANGES = env.list('ALLOWED_ADMIN_IP_RANGES', default=[])
+
+# DNB API
+
+DNB_USERNAME = env('DNB_USERNAME')
+DNB_PASSWORD = env('DNB_PASSWORD')
+
+# Redis
+
+REDIS_URL = env('REDIS_URL')
+
+# Celery
+BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

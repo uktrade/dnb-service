@@ -4,29 +4,40 @@
 #
 #    pip-compile 
 #
+amqp==2.4.2               # via kombu
+billiard==3.6.0.0         # via celery
 boto3==1.9.130
 botocore==1.12.130        # via boto3, s3transfer
+celery==4.3.0
 certifi==2019.3.9         # via requests
 chardet==3.0.4            # via requests
 dj-database-url==0.5.0
+django-celery-beat==1.4.0
+django-celery-results==1.0.4
 django-environ==0.4.5
 django-rest-framework==0.1.0
 django-staff-sso-client==0.2.0
+django-timezone-field==3.0  # via django-celery-beat
 django==2.2
 djangorestframework==3.9.2  # via django-rest-framework
 docutils==0.14            # via botocore
 gunicorn==19.9.0
 idna==2.8                 # via requests
 jmespath==0.9.4           # via boto3, botocore
+kombu==4.5.0              # via celery
 oauthlib==3.0.1           # via requests-oauthlib
 psycopg2==2.8.1
 python-dateutil==2.8.0    # via botocore
 pytz==2018.9              # via django
 pyyaml==5.1
+python-crontab==2.3.6     # via django-celery-beat
+python-dateutil==2.8.0    # via botocore, python-crontab
 raven==6.10.0
+redis==3.2.1
 requests-oauthlib==1.2.0  # via django-staff-sso-client
-requests==2.21.0          # via requests-oauthlib
+requests==2.21.0
 s3transfer==0.2.0         # via boto3
 six==1.12.0               # via python-dateutil
 sqlparse==0.3.0           # via django
 urllib3==1.24.1           # via botocore, requests
+vine==1.3.0               # via amqp, celery
