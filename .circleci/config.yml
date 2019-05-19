@@ -9,6 +9,7 @@ jobs:
       - image: circleci/python:3.7
       - image: circleci/postgres:10
       - image: redis:5.0.5
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.0.1
 
     working_directory: ~/repo
 

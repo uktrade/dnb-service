@@ -24,6 +24,8 @@ django-timezone-field==3.0
 django==2.2
 djangorestframework==3.9.2
 docutils==0.14
+elasticsearch-dsl==7.0.0
+elasticsearch==7.0.1
 entrypoints==0.3          # via flake8
 flake8-blind-except==0.1.1
 flake8-debugger==3.1.0
