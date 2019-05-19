@@ -174,3 +174,16 @@ sentry_sdk.init(
         CeleryIntegration()
     ]
 )
+
+# Elasticsearch
+
+if 'elasticsearch' in VCAP_SERVICES:
+    ES_URL = VCAP_SERVICES['elasticsearch'][0]['uri']
+else:
+    ES_URL = env('ES_URL')
+
+ES_SHARD_SETTINGS = {
+    'number_of_shards': 1,
+    'number_of_replicas': 0
+}
+ES_BULK_INSERT_CHUNK_SIZE = 1000
