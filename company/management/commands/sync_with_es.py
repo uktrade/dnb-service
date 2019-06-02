@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from company.elasticsearch import company_index, es_index_company_data
+from company.elasticsearch import bulk_insert_companies, create_index
 from company.models import Company
 
 
@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
         if options['rebuild_index']:
             self.stdout.write('Recreating index')
-            company_index.delete()
+            create_index(delete_existing=True)
 
         success, failed = 0, 0
 
@@ -22,8 +22,7 @@ class Command(BaseCommand):
 
         self.stdout.write('Syncing %d company records' % companies.count())
 
-        for ok, item in es_index_company_data(companies):
-
+        for ok, item in bulk_insert_companies(companies):
             if ok:
                 success += 1
             else:
