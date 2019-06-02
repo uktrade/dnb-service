@@ -1,87 +1,69 @@
+import os
 from django.conf import settings
 
 from elasticsearch.helpers import streaming_bulk
-from elasticsearch_dsl import Boolean, Completion, Date, Document, Index, Keyword, Text
-from elasticsearch_dsl.connections import connections
+from elasticsearch import Elasticsearch
 
-connections.create_connection(hosts=settings.ES_URL)
+from .serialisers import CompanySerialiser
 
-company_index = Index('companies')
-
-DATE_FORMAT_STRING = 'yyyy-MM-dd HH:mm:ss.XX||yyyy-MM-dd HH:mm:ss.SSSSSSXXX||strict_date_optional_time||epoch_millis'
+COMPANY_INDEX = 'companies'
+COMPANY_MAPPING_PATH = os.path.join(os.path.dirname(__file__), 'companies_mapping.json')
 
 
-@company_index.document
-class CompanyDocument(Document):
-
-    created = Date(format=DATE_FORMAT_STRING)
-    last_updated = Date(format=DATE_FORMAT_STRING)
-    last_updated_source = Keyword()
-
-    duns_number = Keyword()
-    primary_name = Text(
-        fields={'complete': Completion()}
-    )
-
-    address_line_1 = Text()
-    address_line_2 = Text()
-    address_town = Text()
-    address_county = Text()
-    address_country = Text()
-    address_postcode = Text()
-
-    registered_address_line_1 = Text()
-    registered_address_line_2 = Text()
-    registered_address_town = Text()
-    registered_address_county = Text()
-    registered_address_country = Text()
-    registered_address_postcode = Text()
-
-    is_out_of_business = Boolean()
-
-    global_ultimate_duns_number = Keyword()
-
-    def bulk_insert_dict(self):
-        """Fix some issues with the data to make it suitable to use with the es client's bulk insert helper"""
-        data = self.to_dict(True)
-
-        data['_source']['is_out_of_business'] = data['_source']['is_out_of_business'].lower()
-
-        return data
-
-    class Meta:
-        index = 'companies'
-
-    @classmethod
-    def from_company_model(cls, instance):
-        """Return an es-dsl CompanyDocument containing a subset of fields
-        relevant to the company search results"""
-
-        # TODO: could this be built dynamically without having to maintain a list of fields?
-
-        es_fields = [
-            'created', 'last_updated', 'last_updated_source', 'duns_number', 'primary_name',
-            'address_line_1', 'address_line_2', 'address_town', 'address_county', 'address_country',
-            'address_postcode', 'registered_address_line_1', 'registered_address_line_2', 'registered_address_town',
-            'registered_address_county', 'registered_address_country', 'registered_address_postcode',
-            'is_out_of_business', 'global_ultimate_duns_number',
-        ]
-
-        return CompanyDocument(**{
-            field: str(getattr(instance, field)) for field in es_fields
-            }, meta={'id': instance.duns_number})
+def get_client():
+    return Elasticsearch(hosts=settings.ES_URL)
 
 
-def es_index_company_data(company_queryset):
-    """Insert company data into elasticsearch using ES's bulk API"""
+def create_index(delete_existing=False):
+    """Create a companies index.  Set delete_existing to True to recreate the index."""
 
-    CompanyDocument.init()
+    with open(COMPANY_MAPPING_PATH) as f:
+        mapping = f.read()
+
+    es = get_client()
+
+    if delete_existing:
+        es.indices.delete(COMPANY_INDEX)
+
+    es.indices.create(COMPANY_INDEX)
+    es.indices.put_mapping(index=COMPANY_INDEX, body=mapping)
+
+
+def _bulk_insert_format(data):
+    """Format company data for ES bulk insert"""
+
+    return {
+        '_id': data['duns_number'],
+        '_index': COMPANY_INDEX,
+        '_source': data,
+    }
+
+
+def bulk_insert_companies(company_queryset):
+    """Insert company data into elasticsearch using the ES bulk API"""
+
+    es = get_client()
 
     for ok, item in streaming_bulk(
-        connections.get_connection(),
-        (CompanyDocument.from_company_model(company).bulk_insert_dict() for company in company_queryset),
-        chunk_size=settings.ES_BULK_INSERT_CHUNK_SIZE
+        es,
+        (_bulk_insert_format(CompanySerialiser(company).data) for company in company_queryset),
+        chunk_size=settings.ES_BULK_INSERT_CHUNK_SIZE,
     ):
         yield ok, item
 
-    company_index.refresh()
+    es.indices.refresh(COMPANY_INDEX)
+
+
+def es_update_company(company_instance):
+    """insert or update a company entry in elasticsearch"""
+    es = get_client()
+
+    body = CompanySerialiser(company_instance).data
+
+    return es.index(
+        index=COMPANY_INDEX,
+        body=body,
+        id=body['duns_number'],
+        refresh=settings.ES_REFRESH_AFTER_AUTO_SYNC,
+        raise_on_error=True,
+    )

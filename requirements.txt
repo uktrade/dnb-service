@@ -21,7 +21,6 @@ django-timezone-field==3.0  # via django-celery-beat
 django==2.2
 djangorestframework==3.9.2  # via django-rest-framework
 docutils==0.14            # via botocore
-elasticsearch-dsl==7.0.0
 elasticsearch==7.0.1
 gunicorn==19.9.0
 idna==2.8                 # via requests

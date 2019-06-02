@@ -1,0 +1,113 @@
+{
+  "properties": {
+    "created": {
+      "type": "date",
+      "format": "strict_date_optional_time||epoch_millis"
+    },
+    "last_updated": {
+      "type": "date",
+      "format": "strict_date_optional_time||epoch_millis"
+    },
+    "last_updated_source": {
+      "type": "keyword"
+    },
+    "trading_names": {
+      "type": "text"
+    },
+    "registration_numbers": {
+      "type": "nested",
+      "properties": {
+        "registration_type": {
+          "type": "keyword"
+        },
+        "registration_number": {
+          "type": "keyword"
+        }
+      }
+    },
+    "duns_number": {
+      "type": "keyword"
+    },
+    "global_ultimate_duns_number": {
+      "type": "keyword"
+    },
+    "primary_name": {
+      "type": "text",
+      "fields": {
+        "raw": {
+          "type": "keyword"
+        }
+      }
+    },
+    "is_out_of_business": {
+      "type": "boolean"
+    },
+    "address_line_1": {
+      "type": "text"
+    },
+    "address_line_2": {
+      "type": "text"
+    },
+    "address_town": {
+      "type": "text"
+    },
+    "address_county": {
+      "type": "text"
+    },
+    "address_postcode": {
+      "type": "text"
+    },
+    "address_country": {
+      "type": "nested",
+      "properties": {
+        "name": {
+          "type": "keyword"
+        },
+        "iso_alpha2": {
+          "type": "keyword"
+        }
+      }
+    },
+    "registered_address_line_1": {
+      "type": "text"
+    },
+    "registered_address_line_2": {
+      "type": "text"
+    },
+    "registered_address_town": {
+      "type": "text"
+    },
+    "registered_address_county": {
+      "type": "text"
+    },
+    "registered_address_postcode": {
+      "type": "text"
+    },
+    "registered_address_country": {
+      "type": "nested",
+      "properties": {
+        "name": {
+          "type": "keyword"
+        },
+        "iso_alpha2": {
+          "type": "keyword"
+        }
+      }
+    },
+    "employee_number": {
+      "type": "integer"
+    },
+    "is_employees_number_estimated": {
+      "type": "boolean"
+    },
+    "annual_sales": {
+      "type": "float"
+    },
+    "is_annual_sales_estimated": {
+      "type": "boolean"
+    },
+    "legal_status": {
+      "type": "keyword"
+    }
+  }
+}
