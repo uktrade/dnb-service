@@ -7,7 +7,7 @@ from ..models import Country
 
 @pytest.mark.django_db
 class TestIso2AlphaCountryField:
-    @pytest.mark.parametrize('test_input,expected', [
+    @pytest.mark.parametrize('field_required,input_value', [
         (
             {
                 'params': {'required': True},
@@ -23,9 +23,9 @@ class TestIso2AlphaCountryField:
             'US',
         ),
     ])
-    def test_with_valid_data(self, test_input, expected):
-        field = IsoAlpha2CountryField(**test_input['params'])
-        assert field.clean(test_input['value']) == Country.objects.get(iso_alpha2=expected)
+    def test_with_valid_data(self, field_required, input_value):
+        field = IsoAlpha2CountryField(required=field_required)
+        assert field.clean(input_value) == Country.objects.get(iso_alpha2=input_value)
 
     def test_empty(self):
         field = IsoAlpha2CountryField(required=False)
