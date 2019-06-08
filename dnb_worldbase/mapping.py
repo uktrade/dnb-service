@@ -1,4 +1,5 @@
-import logging
+from decimal import Decimal
+from enum import Enum
 
 from .constants import (BUSINESS_INDICATOR_MAPPING, DNB_COUNTRY_CODE_MAPPING,
                         LEGAL_STATUS_CODE_MAPPING, NATIONAL_ID_CODE_MAPPING)
@@ -8,7 +9,87 @@ class DataMappingError(Exception):
     pass
 
 
-logger = logging.getLogger(__name__)
+class EmployeesIndicator(Enum):
+    """
+    Indicates if the field Employees Total/Here is an actual value,
+    estimated value or not available.
+    """
+
+    NOT_AVAILABLE = ''
+    ACTUAL = '0'
+    LOW_END_OF_RANGE = '1'
+    ESTIMATED = '2'
+    MODELLED = '3'
+
+
+class TurnoverIndicator(Enum):
+    """
+    Indicates if the field 'Annual Sales in US dollars' is an actual value,
+    estimated value or not available.
+    """
+
+    NOT_AVAILABLE = ''
+    ACTUAL = '0'
+    LOW_END_OF_RANGE = '1'
+    ESTIMATED = '2'
+    MODELLED = '3'
+
+
+class OutOfBusinessIndicator(Enum):
+    """Indicates if a business is out of business."""
+
+    OUT_OF_BUSINESS = 'Y'
+    NOT_OUT_OF_BUSINESS = 'N'
+
+
+def extract_employees(wb_record):
+    """
+    Returns a tuple with number of employees as an int and a bool indicating
+    if that value is estimated or not.
+    The data is extracted from the 'Employees Total' field in the Worldbase record
+    if defined or 'Employees Here' otherwise.
+    None values are returned if the data is not available in the Worldbase record.
+    :returns: (number_of_employees, is_number_of_employees_estimated) for the
+        given D&B Worldbase record or (None, None) if the data is not available in the record
+    """
+    number_of_employees = int(wb_record['Employees Total'])
+    employees_indicator = EmployeesIndicator(wb_record['Employees Total Indicator'])
+
+    if not number_of_employees:
+        employees_here_indicator = EmployeesIndicator(wb_record['Employees Here Indicator'])
+        if employees_here_indicator != EmployeesIndicator.NOT_AVAILABLE:
+            number_of_employees = int(wb_record['Employees Here'])
+            employees_indicator = employees_here_indicator
+
+    if employees_indicator == EmployeesIndicator.NOT_AVAILABLE:
+        assert not number_of_employees
+
+        return None, None
+
+    is_number_of_employees_estimated = employees_indicator != EmployeesIndicator.ACTUAL
+
+    return number_of_employees, is_number_of_employees_estimated
+
+
+def extract_turnover(wb_record):
+    """
+    Returns a tuple with the turnover as an int and a bool indicating if the value
+    is estimated or not.
+    None values are returned if the data is not available in the Worldbase record.
+    :returns: (turnover, is_turnover_estimated) for the given D&B Worldbase record
+        or (None, None) if the data is not available in the record
+    """
+    turnover = round(Decimal(wb_record['Annual Sales in US dollars']))
+    turnover_indicator = TurnoverIndicator(wb_record['Annual Sales Indicator'])
+
+    if turnover_indicator == turnover_indicator.NOT_AVAILABLE:
+        assert not turnover
+
+        return None, None
+
+    is_turnover_estimated = turnover_indicator != turnover_indicator.ACTUAL
+
+    return turnover, is_turnover_estimated
 
 
 def dnb_country_lookup(dnb_country_code):
@@ -34,12 +115,12 @@ def dnb_country_lookup(dnb_country_code):
 
 
 def map_legal_status(legal_status_code):
-    """Takes the worldbase legal status code and returns the """
+    """Takes the worldbase status code and returns the local status code value"""
 
-    if legal_status_code == '' or int(legal_status_code) not in LEGAL_STATUS_CODE_MAPPING:
+    if legal_status_code == '' or legal_status_code not in LEGAL_STATUS_CODE_MAPPING:
         raise DataMappingError(f'no mapping for legal status code: {legal_status_code}')
 
-    return LEGAL_STATUS_CODE_MAPPING[int(legal_status_code)].name
+    return LEGAL_STATUS_CODE_MAPPING[legal_status_code].name
 
 
 def extract_registration_number(company_data):
@@ -50,7 +131,7 @@ def extract_registration_number(company_data):
     if company_data['National Identification System Code'] == '':
         return []
 
-    national_id_code = int(company_data['National Identification System Code'])
+    national_id_code = company_data['National Identification System Code']
 
     if national_id_code not in NATIONAL_ID_CODE_MAPPING:
         raise DataMappingError(f'National ID code {national_id_code} is not in mapping')
@@ -63,20 +144,6 @@ def extract_registration_number(company_data):
             'registration_number': company_data['National Identification Number'],
         }
     ]
-
-
-def extract_employee_data(wb_data):
-    return {
-        'is_employees_number_estimated': False,
-        'employee_number': 5,
-    }
-
-
-def extract_sales_data(wb_data):
-    return {
-        'is_annual_sales_estimated': False,
-        'annual_sales': 8.00,
-    }
 
 
 def map_business_indicator(field_data):
@@ -96,28 +163,29 @@ def extract_company_data(wb_data):
     into the database.
     """
 
+    employee_number, is_employee_number_estimated = extract_employees(wb_data)
+    annual_sales, is_annual_sales_estimated = extract_turnover(wb_data)
+
     company_data = {
         'duns_number': wb_data['DUNS'],
         'primary_name': wb_data['Business Name'],
-        'trading_names': [wb_data['Secondary Name']] if wb_data['Secondary Name'] else [],
+        'trading_names': [wb_data['Secondary Name']] if wb_data['Secondary Name'].strip() else [],
         'registration_numbers': extract_registration_number(wb_data),
         'address_line_1': wb_data['Street Address'],
         'address_line_2': wb_data['Street Address 2'],
         'address_town': wb_data['City Name'],
         'address_county': wb_data['State/Province Name'],
+        'address_country': dnb_country_lookup(wb_data['Country Code']),
         'address_postcode': wb_data['Postal Code for Street Address'],
         'line_of_business': wb_data['Line of Business'],
-        'year_started': int(wb_data['Year Started']) if wb_data['Year Started'] else None,
+        'year_started': wb_data['Year Started'],
         'global_ultimate_duns_number': wb_data['Global Ultimate DUNS Number'],
         'is_out_of_business': map_business_indicator(wb_data['Out of Business indicator']),
         'legal_status': map_legal_status(wb_data['Legal Status']),
-        **extract_employee_data(wb_data),
-        **extract_sales_data(wb_data),
+        'employee_number': employee_number,
+        'is_employee_number_estimated': is_employee_number_estimated,
+        'annual_sales': annual_sales,
+        'is_annual_sales_estimated': is_annual_sales_estimated,
     }
-
-    # We're currently only receiving UK company data but the company field is set to '000' (or 0 or '') which
-    # indicates that the field is unspecified. For the time this field is being hard coded to the UK. An alternative
-    # may be to use use country field instead of the DNB country code field.
-    company_data['address_country'] = 'GB'
 
     return company_data

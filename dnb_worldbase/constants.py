@@ -307,22 +307,23 @@ WB_FILE_COLUMN_COUNT = len(WB_HEADER_FIELDS)
 
 # Worldbase legal status code mapping.
 LEGAL_STATUS_CODE_MAPPING = {
-    0: LegalStatusChoices.unspecified,
-    3: LegalStatusChoices.corporation,
-    8: LegalStatusChoices.joint_venture,
-    12: LegalStatusChoices.partnership,
-    13: LegalStatusChoices.proprietorship,
-    50: LegalStatusChoices.government_body,
-    100: LegalStatusChoices.cooperative,
-    101: LegalStatusChoices.non_profit_organization,
-    118: LegalStatusChoices.local_government_body,
-    120: LegalStatusChoices.foreign_company,
+    '000': LegalStatusChoices.unspecified,
+    '0': LegalStatusChoices.unspecified,
+    '3': LegalStatusChoices.corporation,
+    '8': LegalStatusChoices.joint_venture,
+    '12': LegalStatusChoices.partnership,
+    '13': LegalStatusChoices.proprietorship,
+    '50': LegalStatusChoices.government_body,
+    '100': LegalStatusChoices.cooperative,
+    '101': LegalStatusChoices.non_profit_organization,
+    '118': LegalStatusChoices.local_government_body,
+    '120': LegalStatusChoices.foreign_company,
 }
 
 # Worldbase national ID code mapping. As we are currently only ingesting UK data,
 # we only see the Companies House number.
 NATIONAL_ID_CODE_MAPPING = {
-    12: RegistrationNumberChoices.uk_companies_house_number,
+    '12': RegistrationNumberChoices.uk_companies_house_number,
 }
 
 BUSINESS_INDICATOR_MAPPING = {

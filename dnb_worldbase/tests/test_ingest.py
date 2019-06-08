@@ -1,13 +1,13 @@
-import io
 import csv
+import io
 
 import pytest
 
 from company.constants import LastUpdatedSource, LegalStatusChoices
 from company.models import Company, Country
 
-from ..ingest import validate_and_save_company, process_file
 from ..constants import WB_HEADER_FIELDS
+from ..ingest import process_file, validate_and_save_company
 
 pytestmark = [
     pytest.mark.django_db
@@ -170,7 +170,7 @@ class TestProcessFile:
             'City Name': 'city',
             'State/Province Name': 'county',
             'Postal Code for Street Address': 'postcode',
-            'Country Code': '000',
+            'Country Code': '790',
             'Line of Business': 'agriculture',
             'Year Started': '2000',
             'Global Ultimate DUNS Number': '',
@@ -178,7 +178,7 @@ class TestProcessFile:
             'Legal Status': '3',  # corporation
             'Employees Total Indicator': '2',
             'Employees Total': '5',
-            'Annual Sales Indicator': False,
+            'Annual Sales Indicator': '2',
             'Annual Sales in US dollars': 8.00,
         }
 
@@ -255,5 +255,5 @@ class TestProcessFile:
 
         csv_data.seek(0)
 
-        with pytest.raises(AssertionError) as ex:
+        with pytest.raises(AssertionError):
             process_file(csv_data)

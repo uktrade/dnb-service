@@ -81,8 +81,9 @@ def process_file(wb_file):
 
         try:
             company_data = extract_company_data(wb_data)
-        except BaseException as ex:
-            logger.error('row %d failed because of mapping errors %s', row_number, str(ex))
+        except BaseException:
+            logger.exception(f'row {row_number} failed because of mapping errors')
+            stats['failed'] += 1
         else:
             success, created, errors = validate_and_save_company(company_data, LastUpdatedSource.worldbase)
 
@@ -92,7 +93,7 @@ def process_file(wb_file):
                 else:
                     stats['updated'] += 1
             else:
-                logger.error('row %d failed because of validation errors %s', row_number, str(errors))
+                logger.error(f'row {row_number} failed because of validation errors {errors}')
                 stats['failed'] += 1
 
     return stats

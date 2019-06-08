@@ -28,4 +28,4 @@ class Command(BaseCommand):
         stats['time'] = time.time() - start_time
         self.stdout.write(
             self.style.SUCCESS(
-                f'Took: {time}; created: {created}; updated: {updated}; failed: {failed}'.format(**stats)))
+                'Took: {time}; created: {created}; updated: {updated}; failed: {failed}'.format(**stats)))

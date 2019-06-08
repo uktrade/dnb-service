@@ -8,20 +8,8 @@ from ..models import Country
 @pytest.mark.django_db
 class TestIso2AlphaCountryField:
     @pytest.mark.parametrize('field_required,input_value', [
-        (
-            {
-                'params': {'required': True},
-                'value': 'GB',
-            },
-            'GB',
-        ),
-        (
-            {
-                'params': {'required': False},
-                'value': 'US',
-            },
-            'US',
-        ),
+        (True, 'GB'),
+        (False, 'US'),
     ])
     def test_with_valid_data(self, field_required, input_value):
         field = IsoAlpha2CountryField(required=field_required)
@@ -32,31 +20,22 @@ class TestIso2AlphaCountryField:
 
         assert field.clean('') == ''
 
-    @pytest.mark.parametrize('test_input,exception', [
+    @pytest.mark.parametrize('field_required,input_value', [
         (
-            {
-                'params': {'required': True},
-                'value': '',
-            },
-            ValidationError,
+            True,
+            '',
         ),
         (
-            {
-                'params': {'required': True},
-                'value': 'xyz',
-            },
-            ValidationError,
+            True,
+            'xyz',
         ),
         (
-            {
-                'params': {'required': False},
-                'value': 'xyz',
-            },
-            ValidationError,
+            False,
+            'xyz',
         ),
     ])
-    def test_failure(self, test_input, exception):
-        field = IsoAlpha2CountryField(**test_input['params'])
+    def test_failure(self, field_required, input_value):
+        field = IsoAlpha2CountryField(required=field_required)
 
-        with pytest.raises(exception):
-            field.clean(test_input['value'])
+        with pytest.raises(ValidationError):
+            field.clean(input_value)

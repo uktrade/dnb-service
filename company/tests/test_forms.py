@@ -91,7 +91,7 @@ def input_data(request):
                 'address_country': 'XY',
             },
             {
-                'address_country': ['No matching Country with iso alpha 2 code XY'],
+                'address_country': ['No matching Country with iso alpha 2 code: XY.'],
             },
         ),
     ],
