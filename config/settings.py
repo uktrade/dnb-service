@@ -34,11 +34,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_results',
     'django_celery_beat',
+    'rest_framework',
+    'rest_framework.authtoken',
     'user',
     'core',
     'company',
     'dnb_worldbase',
     'dnb_api',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -170,3 +173,14 @@ ES_SHARD_SETTINGS = {
 ES_BULK_INSERT_CHUNK_SIZE = 1000
 ES_AUTO_SYNC_ON_SAVE = True
 ES_REFRESH_AFTER_AUTO_SYNC = True
+
+# DRF config
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    ),
+}

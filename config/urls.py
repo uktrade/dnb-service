@@ -7,4 +7,5 @@ urlpatterns = [
     path('auth/', include('authbroker_client.urls', namespace='authbroker')),
     path('admin/login/', admin_login_view),
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls', namespace='api')),
 ]
