@@ -2,9 +2,10 @@ import datetime
 import logging
 import time
 
+from contextlib import contextmanager
+
 import redis
 import requests
-
 
 from django.conf import settings
 
@@ -68,9 +69,11 @@ def renew_dnb_token_if_close_to_expiring():
         ACCESS_TOKEN_EXPIRES_DATETIME_FORMAT
     )
 
-    if datetime.datetime.utcnow() > expires - datetime.timedelta(
-            minutes=settings.DNB_API_RENEW_ACCESS_TOKEN_MINUTES_REMAINING):
-        logger.debug('token is due to expire attemping to renew')
+    time_near_expiry = expires - datetime.timedelta(
+        minutes=settings.DNB_API_RENEW_ACCESS_TOKEN_MINUTES_REMAINING)
+
+    if datetime.datetime.utcnow() > time_near_expiry:
+        logger.debug('token is due to expire; attempting to renew')
         _renew_token()
 
 
@@ -79,7 +82,7 @@ def _get_dnb_access_token():
 
     response = requests.post(
         DNB_AUTH_ENDPOINT,
-        auth=(settings.DNB_USERNAME, settings.DNB_PASSWORD),
+        auth=(settings.DNB_API_USERNAME, settings.DNB_API_PASSWORD),
         headers={
             'Content-Type': 'application/json',
         },
@@ -92,7 +95,7 @@ def _get_dnb_access_token():
         logger.error('Unauthorised response from DNB API: %s', response_body)
 
         raise DNBApiError(
-            f'Unable to get access token: {response_body["error"]["errorMessage"]}; '
+            f'Unable to get access token: {response_body["error"]["errorMessages"]}; '
             f'error code: {response_body["error"]["errorCode"]}'
         )
 
@@ -107,29 +110,35 @@ def _get_dnb_access_token():
 def _renew_token():
     """ Attempt to renew the access token.
 
-    :returns: boolean indicating whether the operation was successful"""
-    def _acquire_lock():
-        return redis_client.set(
-            ACCESS_TOKEN_LOCK_KEY, 'locked', ex=ACCESS_TOKEN_LOCK_EXPIRY_SECONDS, nx=True) is not None
+    :returns: boolean indicating whether the operation was successful
 
-    def _release_lock():
-        redis_client.delete(ACCESS_TOKEN_LOCK_KEY)
+    NOTE: this function won't retry if it is unable to acquire a lock.
+    Retrying is done upstream in `get_access_token`."""
+
+    @contextmanager
+    def _acquire_lock():
+        locked = redis_client.set(
+            ACCESS_TOKEN_LOCK_KEY, 'locked', ex=ACCESS_TOKEN_LOCK_EXPIRY_SECONDS, nx=True) is not None
+        try:
+            yield locked
+        finally:
+            if locked:
+                redis_client.delete(ACCESS_TOKEN_LOCK_KEY)
 
     logger.debug('attempting to renew token')
 
-    if _acquire_lock():
-        try:
-            token = _get_dnb_access_token()
-            redis_client.set(ACCESS_TOKEN_KEY, token['access_token'])
-            redis_client.set(ACCESS_TOKEN_EXPIRES_KEY, token['expires'].strftime(ACCESS_TOKEN_EXPIRES_DATETIME_FORMAT))
+    with _acquire_lock() as locked:
+        if locked:
+            try:
+                token = _get_dnb_access_token()
+                redis_client.set(ACCESS_TOKEN_KEY, token['access_token'])
+                redis_client.set(ACCESS_TOKEN_EXPIRES_KEY, token['expires'].strftime(
+                    ACCESS_TOKEN_EXPIRES_DATETIME_FORMAT))
 
-            return True
-        except DNBApiError as ex:
-            logger.error(str(ex.value))
-
-        finally:
-            _release_lock()
-    else:
-        logger.debug('renew token failed - cannot acquire lock')
+                return True
+            except DNBApiError:
+                logger.exception()
+        else:
+            logger.debug('renew token failed - cannot acquire lock')
 
     return False

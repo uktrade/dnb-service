@@ -15,10 +15,18 @@ from ..client import (
     DNBApiError,
     get_access_token,
     is_token_valid,
-    redis_client,
+    redis_client as _redis_client,
     RENEW_ACCESS_TOKEN_MAX_ATTEMPTS,
     renew_dnb_token_if_close_to_expiring,
 )
+
+
+@pytest.fixture(scope='function')
+def redis_client():
+    try:
+        yield _redis_client
+    finally:
+        _redis_client.flushall()
 
 
 class TestGetAccessToken:
@@ -34,7 +42,7 @@ class TestGetAccessToken:
         assert mock_is_token_valid.call_count == RENEW_ACCESS_TOKEN_MAX_ATTEMPTS
 
     @freeze_time('2019-05-01 12:00:00')
-    def test_success(self):
+    def test_success(self, redis_client):
         expires = datetime.datetime.utcnow() + datetime.timedelta(seconds=86400)
 
         token_data = {
@@ -50,14 +58,12 @@ class TestGetAccessToken:
 
 @freeze_time('2019-05-01 12:00:00')
 class TestRenewToken:
-    def test_is_locked(self):
+    def test_is_locked(self, redis_client):
         redis_client.set(ACCESS_TOKEN_LOCK_KEY, 'locked')
 
         assert not _renew_token()
 
-        redis_client.flushall()
-
-    def test_success(self, mocker):
+    def test_success(self, redis_client, mocker):
         fake_token = {
             'access_token': 'an-access-token',
             'expires': datetime.datetime.utcnow() + datetime.timedelta(seconds=86400),
@@ -70,8 +76,6 @@ class TestRenewToken:
         assert redis_client.get(ACCESS_TOKEN_EXPIRES_KEY) == \
             fake_token['expires'].strftime(ACCESS_TOKEN_EXPIRES_DATETIME_FORMAT)
         assert not redis_client.exists(ACCESS_TOKEN_LOCK_KEY)
-
-        redis_client.flushall()
 
 
 @pytest.mark.parametrize('redis_keys,expected', [
@@ -95,14 +99,12 @@ class TestRenewToken:
     ),
 ])
 @freeze_time('2019-05-01 12:00:00')
-def test_is_token_valid(redis_keys, expected):
+def test_is_token_valid(redis_client, redis_keys, expected):
 
     for k, v in redis_keys.items():
         redis_client.set(k, v)
 
     assert is_token_valid() == expected
-
-    redis_client.flushall()
 
 
 @pytest.mark.parametrize('redis_keys, expected', [
@@ -122,7 +124,7 @@ def test_is_token_valid(redis_keys, expected):
     ),
 ])
 @freeze_time('2019-05-01 12:00:00')
-def test_renew_dnb_token_if_close_to_expiring(settings, mocker, redis_keys, expected):
+def test_renew_dnb_token_if_close_to_expiring(settings, redis_client, mocker, redis_keys, expected):
 
     for k, v in redis_keys.items():
         redis_client.set(k, v)
@@ -134,8 +136,6 @@ def test_renew_dnb_token_if_close_to_expiring(settings, mocker, redis_keys, expe
     renew_dnb_token_if_close_to_expiring()
 
     assert mock_renew_token.called == expected
-
-    redis_client.flushall()
 
 
 @freeze_time('2019-05-01 12:00:00')
