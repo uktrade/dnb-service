@@ -9,7 +9,6 @@ class IsoAlpha2CountryField(Field):
     """
 
     default_error_messages = {
-        'required': _('This field is required.'),
         'no_match': _('No matching Country with iso alpha 2 code: {invalid_code}.'),
     }
 
@@ -17,15 +16,14 @@ class IsoAlpha2CountryField(Field):
         super().__init__(*args, **kwargs)
 
     def clean(self, field):
-        if not field and not self.required:
-            return field
+        cleaned_value = super().clean(field)
 
-        if not field and self.required:
-            raise ValidationError(self.error_messages['required'])
+        if not cleaned_value and not self.required:
+            return None
 
         try:
-            return Country.objects.get(iso_alpha2=field)
+            return Country.objects.get(iso_alpha2=cleaned_value)
         except Country.DoesNotExist:
             raise ValidationError(self.error_messages['no_match'].format(
-                invalid_code=field
+                invalid_code=cleaned_value
             ))
