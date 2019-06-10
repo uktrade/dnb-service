@@ -95,7 +95,7 @@ def _get_dnb_access_token():
         logger.error('Unauthorised response from DNB API: %s', response_body)
 
         raise DNBApiError(
-            f'Unable to get access token: {response_body["error"]["errorMessages"]}; '
+            f'Unable to get access token: {response_body["error"]["errorMessage"]}; '
             f'error code: {response_body["error"]["errorCode"]}'
         )
 
