@@ -7,5 +7,10 @@ django-environ
 psycopg2
 django-staff-sso-client
 pyyaml
+requests
+redis
+celery
+django_celery_beat
+django-celery-results
 
 gunicorn
