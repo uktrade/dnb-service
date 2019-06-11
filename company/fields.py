@@ -12,11 +12,8 @@ class IsoAlpha2CountryField(Field):
         'no_match': _('No matching Country with iso alpha 2 code: {invalid_code}.'),
     }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def clean(self, field):
-        cleaned_value = super().clean(field)
+    def clean(self, value):
+        cleaned_value = super().clean(value)
 
         if not cleaned_value and not self.required:
             return None

@@ -21,7 +21,7 @@ class TestIso2AlphaCountryField:
     ])
     def test_empty(self, input_value):
         field = IsoAlpha2CountryField(required=False)
-        assert not field.clean(input_value)
+        assert field.clean(input_value) is None
 
     @pytest.mark.parametrize('field_required,input_value,exception_text', [
         (
