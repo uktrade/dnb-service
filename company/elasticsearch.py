@@ -1,8 +1,8 @@
 import os
-from django.conf import settings
 
-from elasticsearch.helpers import streaming_bulk
+from django.conf import settings
 from elasticsearch import Elasticsearch
+from elasticsearch.helpers import streaming_bulk
 
 from .serialisers import CompanySerialiser
 
@@ -65,5 +65,4 @@ def es_update_company(company_instance):
         body=body,
         id=body['duns_number'],
         refresh=settings.ES_REFRESH_AFTER_AUTO_SYNC,
-        raise_on_error=True,
     )
