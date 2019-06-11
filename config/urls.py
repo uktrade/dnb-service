@@ -1,7 +1,7 @@
-from core.admin_views import admin_login_view
-
 from django.contrib import admin
 from django.urls import include, path
+
+from core.admin_views import admin_login_view
 
 urlpatterns = [
     path('auth/', include('authbroker_client.urls', namespace='authbroker')),

@@ -7,18 +7,16 @@ class LastUpdatedSource(StrEnum):
 
 
 class LegalStatusChoices(StrEnum):
+    unspecified = 'Unspecified'
     corporation = 'Corporation'
-    joint_venture = 'Joint venture'
-    partnership_of_unknown_type = 'Partnership Of Unknown Type'
+    joint_venture = 'Joint Venture'
+    partnership = 'Partnership'
     proprietorship = 'Proprietorship'
     government_body = 'Government Body'
     cooperative = 'Cooperative'
-    non_profit_organisation = 'Non Profit Organization'
-    local_governmenet_body = 'Local Government Body'
+    non_profit_organization = 'Non Profit Organization'
+    local_government_body = 'Local Government Body'
     foreign_company = 'Foreign Company'
-    master_limited_partnership = 'Master Limited Partnership'
-    limited_liability = 'Limited Liability'
-    private_limited_company = 'Private Limited Company'
 
 
 class RegistrationNumberChoices(StrEnum):

@@ -1,9 +1,8 @@
 import pytest
-
-from core.middleware import AdminIpRestrictionMiddleware
-
 from django.http import HttpResponse
 from django.urls import reverse
+
+from core.middleware import AdminIpRestrictionMiddleware
 
 
 def dummy_view(_):

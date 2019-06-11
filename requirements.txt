@@ -22,6 +22,7 @@ oauthlib==3.0.1           # via requests-oauthlib
 psycopg2==2.8.1
 python-dateutil==2.8.0    # via botocore
 pytz==2018.9              # via django
+pyyaml==5.1
 raven==6.10.0
 requests-oauthlib==1.2.0  # via django-staff-sso-client
 requests==2.21.0          # via requests-oauthlib
