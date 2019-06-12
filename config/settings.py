@@ -38,11 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_results',
     'django_celery_beat',
+    'rest_framework',
+    'rest_framework.authtoken',
     'user',
     'core',
     'company',
     'dnb_worldbase',
     'dnb_api',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -164,8 +167,6 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-# sentry
-
 sentry_sdk.init(
     env('SENTRY_DSN'),
     environment=env('SENTRY_ENVIRONMENT'),
@@ -174,3 +175,30 @@ sentry_sdk.init(
         CeleryIntegration()
     ]
 )
+
+# Elasticsearch
+
+if 'elasticsearch' in VCAP_SERVICES:
+    ES_URL = VCAP_SERVICES['elasticsearch'][0]['uri']
+else:
+    ES_URL = env('ES_URL')
+
+ES_SHARD_SETTINGS = {
+    'number_of_shards': 1,
+    'number_of_replicas': 0
+}
+ES_BULK_INSERT_CHUNK_SIZE = 1000
+ES_AUTO_SYNC_ON_SAVE = True
+ES_REFRESH_AFTER_AUTO_SYNC = True
+
+# DRF config
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    ),
+}
+>>>>>>> WIP adding API search proxy
