@@ -1,6 +1,5 @@
 django
 django-rest-framework
-raven
 boto3
 dj-database-url
 django-environ
@@ -12,6 +11,7 @@ redis
 celery
 django_celery_beat
 django-celery-results
+sentry-sdk
 
 whitenoise
 gunicorn
