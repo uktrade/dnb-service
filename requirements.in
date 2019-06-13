@@ -13,4 +13,5 @@ celery
 django_celery_beat
 django-celery-results
 
+whitenoise
 gunicorn
