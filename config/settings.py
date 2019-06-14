@@ -3,6 +3,10 @@ import os
 import dj_database_url
 import environ
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -43,6 +47,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -115,7 +120,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
 # Staff-sso config
@@ -147,7 +152,10 @@ DNB_API_RENEW_ACCESS_TOKEN_SECONDS_REMAINING = 300
 
 # Redis
 
-REDIS_URL = env('REDIS_URL')
+if 'redis' in VCAP_SERVICES:
+    REDIS_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
+else:
+    REDIS_URL = env('REDIS_URL')
 
 # Celery
 CELERY_BROKER_URL = REDIS_URL
@@ -155,3 +163,14 @@ CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+# sentry
+
+sentry_sdk.init(
+    env('SENTRY_DSN'),
+    environment=env('SENTRY_ENVIRONMENT'),
+    integrations=[
+        DjangoIntegration(),
+        CeleryIntegration()
+    ]
+)
