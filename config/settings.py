@@ -205,4 +205,3 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     ),
 }
->>>>>>> WIP adding API search proxy
