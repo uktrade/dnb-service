@@ -181,7 +181,7 @@ sentry_sdk.init(
 # Elasticsearch
 
 if 'elasticsearch' in VCAP_SERVICES:
-    ES_URL = VCAP_SERVICES['elasticsearch'][0]['uri']
+    ES_URL = VCAP_SERVICES['elasticsearch'][0]['credentials']['uri']
 else:
     ES_URL = env('ES_URL')
 
