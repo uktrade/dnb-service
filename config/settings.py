@@ -157,11 +157,13 @@ DNB_API_RENEW_ACCESS_TOKEN_SECONDS_REMAINING = 300
 
 if 'redis' in VCAP_SERVICES:
     REDIS_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
+    REDIS_CELERY_URL = f'{REDIS_URL}?ssl_cert_reqs=CERT_REQUIRED'
 else:
-    REDIS_URL = env('REDIS_URL')
+    REDIS_URL = env.str('REDIS_URL', '')
+    REDIS_CELERY_URL = REDIS_URL
 
 # Celery
-CELERY_BROKER_URL = REDIS_URL
+CELERY_BROKER_URL = REDIS_CELERY_URL
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -195,6 +197,7 @@ ES_REFRESH_AFTER_AUTO_SYNC = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
