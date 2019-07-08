@@ -148,21 +148,3 @@ def _api_request(method, url, **kwargs):
     response.raise_for_status()
 
     return response
-
-
-def company_search(search_term, country_code='GB', page=1, page_size=10):
-    """
-    DNB company list search query
-    https://directplus.documentation.dnb.com/openAPI.html?apiID=searchCompanyList
-    """
-
-    query = {
-        'searchTerm': search_term,
-        'countryISOAlpha2Code': country_code,
-        'pageSize': page_size,
-        'pageNumber': page,
-    }
-
-    response = api_request('POST', DNB_COMPANY_SEARCH_ENDPOINT, json=query)
-
-    return response

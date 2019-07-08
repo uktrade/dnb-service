@@ -23,3 +23,20 @@ REGISTRATION_NUMBER_TYPE_MAPPING = {
 
 
 OPERATING_STATUS_ACTIVE = 9074     # indicates that a company is active
+
+SEARCH_QUERY_TO_DNB_FIELD_MAPPING = {
+     'search_term': 'searchTerm',
+     'is_out_of_business': 'isOutOfBusiness',
+     'address_country': 'countryISOAlpha2Code',
+     'telephone_number': 'telephoneNumber',
+     'domain': 'domain',
+     'registration_numbers': 'registrationNumbers',
+     'address_town': 'addressLocality',
+     'address_line_1': 'streetAddressLine1',
+     'address_region': 'addressRegion',
+     'primary_name': 'primaryName',
+     'postal_code': 'postalCode',
+     'trading_names': 'tradeStyleName',
+     'page_size': 'pageSize',
+     'page_number': 'pageNumber',
+}

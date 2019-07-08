@@ -1,4 +1,15 @@
 from .constants import LEGAL_STATUS_MAPPING, OPERATING_STATUS_ACTIVE, REGISTRATION_NUMBER_TYPE_MAPPING
+from company.constants import LegalStatusChoices
+
+
+ADDRESS_FIELD_KEYS = [
+    'address_line_1'
+    'address_line_2'
+    'address_town'
+    'address_county'
+    'address_postcode'
+    'address_country'
+]
 
 
 def extract_address(address_data):
@@ -16,9 +27,11 @@ def extract_address(address_data):
 def extract_registered_address(company_data):
 
     if company_data['organization']['primaryAddress'].get('isRegisteredAddress', False):
-        address = company_data['organization']['primaryAddress']
+        address = extract_address(company_data['organization']['primaryAddress'])
+    elif 'registeredAddress' not in company_data['organization']:
+        address = {}
     else:
-        address = company_data['organization']['registeredAddress']
+        address = extract_address(company_data['organization']['registeredAddress'])
 
     return {
         f'registered_{field}': value for field, value in address.items()
@@ -29,8 +42,7 @@ def extract_registration_numbers(company_data):
     registration_numbers = []
 
     for registration_number in company_data['organization'].get('registrationNumbers', []):
-
-        mapped_code = REGISTRATION_NUMBER_TYPE_MAPPING[registration_number['typeDnBCode']]
+        mapped_code = REGISTRATION_NUMBER_TYPE_MAPPING[registration_number['typeDnBCode']].name
         assert mapped_code is not None, f'no mapping for {registration_number["typeDnBCode"]}'
 
         registration_numbers.append({
@@ -43,11 +55,14 @@ def extract_registration_numbers(company_data):
 
 def extract_legal_status(company_data):
 
-    dnb_code = company_data['organization']['businessEntityType']['dnbCode']
+    if 'businessEntityType' in company_data['organization']:
+        dnb_code = company_data['organization']['businessEntityType']['dnbCode']
 
-    mapped_code = LEGAL_STATUS_MAPPING[dnb_code]
+        local_code = LEGAL_STATUS_MAPPING[dnb_code].name
+    else:
+        local_code = LegalStatusChoices.unspecified.name
 
-    return mapped_code
+    return local_code
 
 
 def extract_trading_names(company_data):
@@ -73,16 +88,12 @@ def extract_is_out_of_business(company_data):
 
 
 def extract_company_data(company_data):
-    """
-    Extract company data from a single row of the Worldbase file
-    """
+
     company = {
         'duns_number': company_data['organization']['duns'],
         'primary_name': company_data['organization']['primaryName'],
         'trading_names': extract_trading_names(company_data),
         'registration_numbers': extract_registration_numbers(company_data),
-        # 'line_of_business': company_data['Line of Business'],   # not present in API data
-        # 'year_started': company_data['Year Started'],   # not present in API data
         'global_ultimate_duns_number': company_data['organization']['corporateLinkage'].get('globalUltimate', {}).get('duns', ''),
         'is_out_of_business': extract_is_out_of_business(company_data),
         **extract_address(company_data['organization']['primaryAddress']),
