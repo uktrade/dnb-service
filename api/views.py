@@ -13,9 +13,11 @@ from dnb_api.mapping import extract_company_data
 class DNBCompanySearchApiView(APIView):
     """An API view that proxies requests to Dun & Bradstreet's CompanyList search."""
 
-    #permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
+
+        show_raw_results = 'raw' in self.request.query_params
 
         data = request.data.copy()
         data.setdefault('page_size', 10)
@@ -33,6 +35,10 @@ class DNBCompanySearchApiView(APIView):
             else:
                 raise
 
-        transformed_results = [extract_company_data(item) for item in response.json()['searchCandidates']]
+        # temporary switch to show raw api response
+        if show_raw_results:
+            results = response.json()
+        else:
+            results = [extract_company_data(item) for item in response.json()['searchCandidates']]
 
-        return Response(transformed_results)
+        return Response(results)
