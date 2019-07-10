@@ -74,8 +74,6 @@ def _authenticate():
         json={'grant_type': 'client_credentials'},
     )
 
-    response.raise_for_status()
-
     response_body = response.json()
 
     return response_body
