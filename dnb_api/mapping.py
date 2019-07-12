@@ -42,13 +42,13 @@ def extract_registration_numbers(company_data):
     registration_numbers = []
 
     for registration_number in company_data['organization'].get('registrationNumbers', []):
-        mapped_code = REGISTRATION_NUMBER_TYPE_MAPPING[registration_number['typeDnBCode']].name
-        assert mapped_code is not None, f'no mapping for {registration_number["typeDnBCode"]}'
+        if registration_number['typeDnBCode'] in REGISTRATION_NUMBER_TYPE_MAPPING:
+            mapped_code = REGISTRATION_NUMBER_TYPE_MAPPING[registration_number['typeDnBCode']].name
 
-        registration_numbers.append({
-            'registration_type': mapped_code,
-            'registration_number': registration_number['registrationNumber'],
-        })
+            registration_numbers.append({
+                'registration_type': mapped_code,
+                'registration_number': registration_number['registrationNumber'],
+            })
 
     return registration_numbers
 
