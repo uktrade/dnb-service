@@ -95,6 +95,7 @@ def extract_company_data(company_data):
         'trading_names': extract_trading_names(company_data),
         'registration_numbers': extract_registration_numbers(company_data),
         'global_ultimate_duns_number': company_data['organization']['corporateLinkage'].get('globalUltimate', {}).get('duns', ''),
+        'global_ultimate_primary_name': company_data['organization']['corporateLinkage'].get('globalUltimate', {}).get('primaryName', ''),
         'is_out_of_business': extract_is_out_of_business(company_data),
         **extract_address(company_data['organization']['primaryAddress']),
         **extract_registered_address(company_data),
