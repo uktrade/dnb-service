@@ -7,6 +7,7 @@ class LastUpdatedSource(StrEnum):
 
 
 class LegalStatusChoices(StrEnum):
+    unknown = 'Unknown'
     unspecified = 'Unspecified'
     corporation = 'Corporation'
     joint_venture = 'Joint Venture'
