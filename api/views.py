@@ -42,7 +42,7 @@ class DNBCompanySearchApiView(APIView):
                 return Response(error_detail, status=status.HTTP_400_BAD_REQUEST)
 
         response_data = response.json()
-
+        # import pdb; pdb.set_trace()
         results = [extract_company_data(item) for item in response_data['searchCandidates']]
 
         output = {

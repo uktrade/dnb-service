@@ -49,6 +49,13 @@ def extract_registration_numbers(company_data):
                 'registration_type': mapped_code,
                 'registration_number': registration_number['registrationNumber'],
             })
+        else:
+            registration_numbers.append({
+                'registration_type': 'unmapped',
+                'original_registration_type': registration_number['typeDnBCode'],
+                'original_registration_number': registration_number['registrationNumber'],
+                'original_registration_description': registration_number['typeDescription'],
+            })
 
     return registration_numbers
 
@@ -87,7 +94,28 @@ def extract_is_out_of_business(company_data):
         raise ValueError('missing business status indicator')
 
 
+def extract_employee_numbers(company_data):
+    try:
+        data = company_data['organization']['numberOfEmployees'][0]
+        is_estimated = data['reliabilityDnBCode'] in [9093]  # TODO: figure out list of estimated codes
+        return is_estimated, data['value']
+    except (KeyError, IndexError):
+        return None, None
+
+
+def extract_annual_sales(company_data):
+    try:
+        data = company_data['organization']['financials'][0]['yearlyRevenue'][0]
+
+        return data['currency'], data['value']
+    except (KeyError, IndexError):
+        return None, None
+
+
 def extract_company_data(company_data):
+
+    is_employees_number_estimated, employee_number = extract_employee_numbers(company_data)
+    annual_sales_currency, annual_sales = extract_annual_sales(company_data)
 
     company = {
         'duns_number': company_data['organization']['duns'],
@@ -96,10 +124,17 @@ def extract_company_data(company_data):
         'registration_numbers': extract_registration_numbers(company_data),
         'global_ultimate_duns_number': company_data['organization']['corporateLinkage'].get('globalUltimate', {}).get('duns', ''),
         'global_ultimate_primary_name': company_data['organization']['corporateLinkage'].get('globalUltimate', {}).get('primaryName', ''),
+        'domain': company_data['organization'].get('domain', None),
         'is_out_of_business': extract_is_out_of_business(company_data),
         **extract_address(company_data['organization']['primaryAddress']),
         **extract_registered_address(company_data),
-        'legal_status': extract_legal_status(company_data)
+        'annual_sales': annual_sales,
+        'annual_sales_currency': annual_sales_currency,
+        'is_annual_sales_estimated': None,  # The API does not supply this data
+        'employee_number': employee_number,
+        'is_employees_number_estimated': is_employees_number_estimated,
+        'industry_codes': company_data['organization'].get('primaryIndustryCodes', []),
+        'legal_status': extract_legal_status(company_data),
     }
 
     return company
