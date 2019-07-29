@@ -46,6 +46,10 @@ INSTALLED_APPS = [
     'dnb_worldbase',
     'dnb_api',
     'api',
+    'console',
+    'govuk_template_base',
+    'govuk_template',
+    'govuk_forms',
 ]
 
 MIDDLEWARE = [
@@ -73,6 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'govuk_template_base.context_processors.govuk_template_base',
             ],
         },
     },
@@ -137,7 +142,7 @@ AUTHENTICATION_BACKENDS = [
     'authbroker_client.backends.AuthbrokerBackend',
 ]
 
-LOGIN_REDIRECT_URL = 'admin:index'
+LOGIN_REDIRECT_URL = 'admin:login'
 
 AUTH_USER_MODEL = 'user.User'
 
@@ -186,9 +191,9 @@ else:
     ES_URL = env('ES_URL')
 
 ES_SHARD_SETTINGS = {
-    'number_of_shards': 1,
-    'number_of_replicas': 0
-}
+        'number_of_shards': 1,
+        'number_of_replicas': 0
+    }
 ES_BULK_INSERT_CHUNK_SIZE = 1000
 ES_AUTO_SYNC_ON_SAVE = True
 ES_REFRESH_AFTER_AUTO_SYNC = True
@@ -208,3 +213,14 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
 }
+
+GOVUK_SERVICE_SETTINGS = {
+    'name': 'Dunn & Bradstreet company search',
+    'phase': 'alpha',
+    'header_link_view_name': 'console:search',
+    'header_links': [
+        {'name': 'Home', 'link': 'console:search', 'link_is_view_name': True},
+    ],
+}
+
+LOGIN_URL='/admin/login/'

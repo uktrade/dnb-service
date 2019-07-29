@@ -1,0 +1,22 @@
+{% extends 'govuk_template.html' %}
+
+{% block inner_content %}
+<p>
+    <h1 class="heading-large">Company search</h1>
+    <form method="post" action="{{ request.post }}">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" class="button" value="Search" />
+    </form>
+</p>
+
+{% if results %}
+<p>
+    <h2 id="results" class="heading-large">Search results</h2>
+    <pre>
+        {{ results }}
+    </pre>
+</p>
+{% endif %}
+
+{% endblock %}
