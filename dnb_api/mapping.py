@@ -133,7 +133,8 @@ def extract_company_data(company_data):
         'is_annual_sales_estimated': None,  # The API does not supply this data
         'employee_number': employee_number,
         'is_employees_number_estimated': is_employees_number_estimated,
-        'industry_codes': company_data['organization'].get('primaryIndustryCodes', []),
+        'primary_industry_codes': company_data['organization'].get('primaryIndustryCodes', []),
+        'industry_codes': company_data['organization'].get('industryCodes', []),
         'legal_status': extract_legal_status(company_data),
     }
 
