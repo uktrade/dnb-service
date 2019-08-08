@@ -26,6 +26,7 @@ REGISTRATION_NUMBER_TYPE_MAPPING = {
 OPERATING_STATUS_ACTIVE = 9074     # indicates that a company is active
 
 SEARCH_QUERY_TO_DNB_FIELD_MAPPING = {
+     'duns_number': 'duns',
      'search_term': 'searchTerm',
      'is_out_of_business': 'isOutOfBusiness',
      'address_country': 'countryISOAlpha2Code',
