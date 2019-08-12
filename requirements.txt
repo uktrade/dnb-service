@@ -18,7 +18,7 @@ django-environ==0.4.5
 django-rest-framework==0.1.0
 django-staff-sso-client==0.2.0
 django-timezone-field==3.0  # via django-celery-beat
-django==2.2
+django==2.2.4
 djangorestframework==3.9.2  # via django-rest-framework
 docutils==0.14            # via botocore
 gunicorn==19.9.0
@@ -39,6 +39,6 @@ s3transfer==0.2.0         # via boto3
 sentry-sdk==0.9.0
 six==1.12.0               # via python-dateutil
 sqlparse==0.3.0           # via django
-urllib3==1.24.1           # via botocore, requests, sentry-sdk
+urllib3==1.24.3
 vine==1.3.0               # via amqp, celery
 whitenoise==4.1.2
