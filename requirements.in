@@ -15,6 +15,7 @@ sentry-sdk
 backoff
 django-govuk-template
 django-govuk-forms
+json2html
 
 whitenoise
 gunicorn

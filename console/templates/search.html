@@ -1,21 +1,72 @@
 {% extends 'govuk_template.html' %}
 
+{% block head %}
+{{ block.super }}
+<script
+        src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+        crossorigin="anonymous"></script>
+<script type="text/javascript">
+    $(document).ready(function (e) {
+        $('a.expand').click(function () {
+
+            var id = '#' + $(this).attr('rel');
+
+            $(id).toggle();
+
+            $("body,html").animate(
+                {
+                    scrollTop: $(id).offset().top
+                },
+                5000
+            );
+
+            return false;
+        });
+    });
+</script>
+{% endblock %}
+
 {% block inner_content %}
 <p>
-    <h1 class="heading-large">Company search</h1>
-    <form method="post" action="{{ request.post }}">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" class="button" value="Search" />
-    </form>
+<h1 class="heading-large">Company search</h1>
+<form method="post" action="{{ request.post }}">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" class="button" value="Search"/>
+</form>
 </p>
 
 {% if results %}
+
 <p>
-    <h2 id="results" class="heading-large">Search results</h2>
-    <pre>
-        {{ results }}
-    </pre>
+<h2 id="results" class="heading-large">Search results</h2>
+
+{% for result in results %}
+<h3 class="heading-medium">Name: {{ result.raw.primaryName }}</h3>
+<table class="company-summary">
+    <tr>
+        <td>Duns</td>
+        <td>{{ result.raw.duns }}</td>
+        <td>Country</td>
+        <td>{{ result.raw.primaryAddress.addressCountry.isoAlpha2Code }}</td>
+    </tr>
+    <tr>
+        <td>Business entity</td>
+        <td>{{ result.raw.businessEntityType.description }}</td>
+        <td>Yearly revenue</td>
+        <td>{{ result.raw.financials.0.yearlyRevenue.0.value }} {{ result.raw.financials.0.yearlyRevenue.0.currency }}</td>
+    </tr>
+    <tr>
+        <td colspan="2"><a href="#" rel="data_{{ forloop.counter }}" class="expand">View raw data</a></td>
+        <td colspan="2"><a href="{% url 'console:detail' duns=result.raw.duns %}">View detailed company data</a></td>
+    </tr>
+</table>
+
+<div style="display: none" id="data_{{ forloop.counter }}">
+    {{ result.html|safe }}
+</div>
+{% endfor %}
 </p>
 {% endif %}
 
