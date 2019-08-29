@@ -38,11 +38,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_results',
     'django_celery_beat',
+    'rest_framework',
+    'rest_framework.authtoken',
     'user',
     'core',
     'company',
     'dnb_worldbase',
     'dnb_api',
+    'api',
+    'console',
+    'govuk_template_base',
+    'govuk_template',
+    'govuk_forms',
 ]
 
 MIDDLEWARE = [
@@ -70,6 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'govuk_template_base.context_processors.govuk_template_base',
             ],
         },
     },
@@ -134,7 +142,7 @@ AUTHENTICATION_BACKENDS = [
     'authbroker_client.backends.AuthbrokerBackend',
 ]
 
-LOGIN_REDIRECT_URL = 'admin:index'
+LOGIN_REDIRECT_URL = 'admin:login'
 
 AUTH_USER_MODEL = 'user.User'
 
@@ -154,17 +162,17 @@ DNB_API_RENEW_ACCESS_TOKEN_SECONDS_REMAINING = 300
 
 if 'redis' in VCAP_SERVICES:
     REDIS_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
+    REDIS_CELERY_URL = f'{REDIS_URL}?ssl_cert_reqs=CERT_REQUIRED'
 else:
-    REDIS_URL = env('REDIS_URL')
+    REDIS_URL = env.str('REDIS_URL', '')
+    REDIS_CELERY_URL = REDIS_URL
 
 # Celery
-CELERY_BROKER_URL = REDIS_URL
+CELERY_BROKER_URL = REDIS_CELERY_URL
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-
-# sentry
 
 sentry_sdk.init(
     env('SENTRY_DSN'),
@@ -174,3 +182,45 @@ sentry_sdk.init(
         CeleryIntegration()
     ]
 )
+
+# Elasticsearch
+
+if 'elasticsearch' in VCAP_SERVICES:
+    ES_URL = VCAP_SERVICES['elasticsearch'][0]['credentials']['uri']
+else:
+    ES_URL = env('ES_URL')
+
+ES_SHARD_SETTINGS = {
+        'number_of_shards': 1,
+        'number_of_replicas': 0
+    }
+ES_BULK_INSERT_CHUNK_SIZE = 1000
+ES_AUTO_SYNC_ON_SAVE = True
+ES_REFRESH_AFTER_AUTO_SYNC = True
+
+# DRF config
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+}
+
+GOVUK_SERVICE_SETTINGS = {
+    'name': 'Dunn & Bradstreet company search',
+    'phase': 'alpha',
+    'header_link_view_name': 'console:search',
+    'header_links': [
+        {'name': 'Home', 'link': 'console:search', 'link_is_view_name': True},
+    ],
+}
+
+LOGIN_URL='/admin/login/'
