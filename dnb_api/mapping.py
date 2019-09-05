@@ -1,15 +1,5 @@
-from .constants import LEGAL_STATUS_MAPPING, OPERATING_STATUS_ACTIVE, REGISTRATION_NUMBER_TYPE_MAPPING
 from company.constants import LegalStatusChoices
-
-
-ADDRESS_FIELD_KEYS = [
-    'address_line_1'
-    'address_line_2'
-    'address_town'
-    'address_county'
-    'address_postcode'
-    'address_country'
-]
+from .constants import LEGAL_STATUS_MAPPING, OPERATING_STATUS_ACTIVE, REGISTRATION_NUMBER_TYPE_MAPPING
 
 
 def extract_address(address_data):
@@ -23,6 +13,7 @@ def extract_address(address_data):
         f'address_postcode': address_data.get('postalCode', ''),
         f'address_country': address_data.get('addressCountry', {}).get('isoAlpha2Code', ''),
     }
+
 
 def extract_registered_address(company_data):
 
@@ -62,12 +53,13 @@ def extract_registration_numbers(company_data):
 
 def extract_legal_status(company_data):
 
-    if 'businessEntityType' in company_data['organization']:
-        dnb_code = company_data['organization']['businessEntityType']['dnbCode']
+    local_code = LegalStatusChoices.unknown.name
 
+    try:
+        dnb_code = company_data['organization']['businessEntityType']['dnbCode']
         local_code = LEGAL_STATUS_MAPPING[dnb_code].name
-    else:
-        local_code = LegalStatusChoices.unspecified.name
+    except KeyError:
+        pass
 
     return local_code
 
@@ -95,6 +87,7 @@ def extract_is_out_of_business(company_data):
 
 
 def extract_employee_numbers(company_data):
+    # TODO: figure out how to conslidate multiple entries which may have different reliability codes
     try:
         data = company_data['organization']['numberOfEmployees'][0]
         is_estimated = data['reliabilityDnBCode'] in [9093]  # TODO: figure out list of estimated codes
@@ -122,8 +115,10 @@ def extract_company_data(company_data):
         'primary_name': company_data['organization']['primaryName'],
         'trading_names': extract_trading_names(company_data),
         'registration_numbers': extract_registration_numbers(company_data),
-        'global_ultimate_duns_number': company_data['organization']['corporateLinkage'].get('globalUltimate', {}).get('duns', ''),
-        'global_ultimate_primary_name': company_data['organization']['corporateLinkage'].get('globalUltimate', {}).get('primaryName', ''),
+        'global_ultimate_duns_number':
+            company_data['organization']['corporateLinkage'].get('globalUltimate', {}).get('duns', ''),
+        'global_ultimate_primary_name':
+            company_data['organization']['corporateLinkage'].get('globalUltimate', {}).get('primaryName', ''),
         'domain': company_data['organization'].get('domain', None),
         'is_out_of_business': extract_is_out_of_business(company_data),
         **extract_address(company_data['organization']['primaryAddress']),

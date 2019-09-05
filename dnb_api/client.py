@@ -68,7 +68,8 @@ def renew_token_if_close_to_expiring():
 def _authenticate():
     """Get a new Direct+ access token."""
 
-    response = _api_request('post',
+    response = _api_request(
+        'post',
         DNB_AUTH_ENDPOINT,
         auth=(settings.DNB_API_USERNAME, settings.DNB_API_PASSWORD),
         json={'grant_type': 'client_credentials'},
@@ -118,8 +119,8 @@ def api_request(method, url, **kwargs):
 def _fatal_code(e):
     """Return True if an exception/status should not be retried. """
     retryable = not hasattr(e, 'response') or \
-                e.response.status_code in [429] or \
-                500 <= e.response.status_code <= 599
+        e.response.status_code in [429] or \
+        500 <= e.response.status_code <= 599
 
     return not retryable
 

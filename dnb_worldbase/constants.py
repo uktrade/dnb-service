@@ -315,7 +315,7 @@ LEGAL_STATUS_CODE_MAPPING = {
     '13': LegalStatusChoices.proprietorship,
     '50': LegalStatusChoices.government_body,
     '100': LegalStatusChoices.cooperative,
-    '101': LegalStatusChoices.non_profit_organization,
+    '101': LegalStatusChoices.non_profit_organisation,
     '118': LegalStatusChoices.local_government_body,
     '120': LegalStatusChoices.foreign_company,
 }
