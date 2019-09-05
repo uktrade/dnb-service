@@ -27,9 +27,9 @@ def redis_client():
 
 class TestGetAccessToken:
     def test_eventually_throws_exception(self, mocker):
-        mock_is_token_valid = mocker.patch('dnb_api.client.is_token_valid', return_value=False)
-        mock_renew_token = mocker.patch('dnb_api.client._renew_token', return_value=False)
-        mocker.patch('dnb_api.client.time.sleep')
+        mock_is_token_valid = mocker.patch('dnb_direct_plus.client.is_token_valid', return_value=False)
+        mock_renew_token = mocker.patch('dnb_direct_plus.client._renew_token', return_value=False)
+        mocker.patch('dnb_direct_plus.client.time.sleep')
 
         with pytest.raises(DNBApiError):
             get_access_token()
@@ -62,7 +62,7 @@ class TestRenewToken:
             'expiresIn': 1000,
         }
 
-        mocker.patch('dnb_api.client._authenticate', return_value=fake_token)
+        mocker.patch('dnb_direct_plus.client._authenticate', return_value=fake_token)
         assert _renew_token()
 
         assert redis_client.get(ACCESS_TOKEN_KEY) == fake_token['access_token']
@@ -107,7 +107,7 @@ def test_renew_dnb_token_if_close_to_expiring(settings, redis_client, mocker, tt
 
     settings.DNB_API_RENEW_ACCESS_TOKEN_SECONDS_REMAINING = 300
 
-    mock_renew_token = mocker.patch('dnb_api.client._renew_token')
+    mock_renew_token = mocker.patch('dnb_direct_plus.client._renew_token')
 
     renew_token_if_close_to_expiring()
 

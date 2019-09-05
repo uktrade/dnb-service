@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'core',
     'company',
     'dnb_worldbase',
-    'dnb_api',
+    'dnb_direct_plus',
     'api',
 ]
 

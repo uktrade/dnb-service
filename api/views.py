@@ -1,6 +1,6 @@
-from dnb_api.client import api_request, DNB_COMPANY_SEARCH_ENDPOINT
-from dnb_api.constants import SEARCH_QUERY_TO_DNB_FIELD_MAPPING
-from dnb_api.mapping import extract_company_data
+from dnb_direct_plus.client import api_request, DNB_COMPANY_SEARCH_ENDPOINT
+from dnb_direct_plus.constants import SEARCH_QUERY_TO_DNB_FIELD_MAPPING
+from dnb_direct_plus.mapping import extract_company_data
 
 from requests.exceptions import HTTPError
 from rest_framework import status
