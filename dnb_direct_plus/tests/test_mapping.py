@@ -510,9 +510,9 @@ def test_extract_is_out_of_business_bad_data():
         extract_is_out_of_business(bad_data)
 
 
-def test_extract_employee_numbers(company_data):
+def test_extract_employee_numbers():
     pass
 
 
-def test_extract_annual_sales(company_data):
+def test_extract_annual_sales():
     pass
