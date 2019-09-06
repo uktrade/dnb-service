@@ -1,5 +1,11 @@
 from company.constants import LegalStatusChoices
-from .constants import LEGAL_STATUS_MAPPING, OPERATING_STATUS_ACTIVE, REGISTRATION_NUMBER_TYPE_MAPPING
+from .constants import (
+    LEGAL_STATUS_MAPPING,
+    OPERATING_STATUS_ACTIVE,
+    REGISTRATION_NUMBER_TYPE_MAPPING,
+    RELIABILITY_CODE_ACTUAL,
+    INFORMATION_SCOPE_CONSOLIDATED,
+)
 
 
 def extract_address(address_data):
@@ -87,13 +93,22 @@ def extract_is_out_of_business(company_data):
 
 
 def extract_employee_numbers(company_data):
-    # TODO: figure out how to conslidate multiple entries which may have different reliability codes
-    try:
-        data = company_data['organization']['numberOfEmployees'][0]
-        is_estimated = data['reliabilityDnBCode'] in [9093]  # TODO: figure out list of estimated codes
-        return is_estimated, data['value']
-    except (KeyError, IndexError):
-        return None, None
+    employee_number_entries = company_data['organization']['numberOfEmployees']
+
+    employee_data = None
+
+    if len(employee_number_entries) > 0:
+        for entry in employee_number_entries:
+            if entry['informationScopeDnBCode'] == INFORMATION_SCOPE_CONSOLIDATED:
+                employee_data = entry
+                break
+
+    if not employee_data:
+        employee_data = employee_number_entries[0]
+
+    is_estimated = employee_data['reliabilityDnBCode'] != RELIABILITY_CODE_ACTUAL
+
+    return is_estimated, employee_data['value']
 
 
 def extract_annual_sales(company_data):

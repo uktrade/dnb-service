@@ -22,6 +22,10 @@ REGISTRATION_NUMBER_TYPE_MAPPING = {
 
 OPERATING_STATUS_ACTIVE = 9074  # indicates that a company is active
 
+RELIABILITY_CODE_ACTUAL = 9092
+
+INFORMATION_SCOPE_CONSOLIDATED = 9067
+
 SEARCH_QUERY_TO_DNB_FIELD_MAPPING = {
     'duns_number': 'duns',
     'search_term': 'searchTerm',
@@ -39,3 +43,4 @@ SEARCH_QUERY_TO_DNB_FIELD_MAPPING = {
     'page_size': 'pageSize',
     'page_number': 'pageNumber',
 }
+

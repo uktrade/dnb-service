@@ -342,6 +342,179 @@ def test_extract_trading_names(input_data, expected):
     extract_trading_names(input_data) == expected
 
 
+@pytest.mark.parametrize('input_data, expected', [
+    # company search result - trading
+    (
+        {
+            'organization': {
+                'dunsControlStatus': {
+                    'isOutOfBusiness': False
+                }
+            }
+        },
+        False
+    ),
+    # company search result - out of business
+    (
+        {
+            'organization': {
+                'dunsControlStatus': {
+                    'isOutOfBusiness': True
+                }
+            }
+        },
+        True
+    ),
+    #  cmplelk detail result - trading
+    (
+        {
+            'organization': {
+                'dunsControlStatus': {
+                    'operatingStatus': {
+                        'dnbCode': OPERATING_STATUS_ACTIVE
+                    }
+                }
+            }
+        },
+        False
+    ),
+    #  cmplelk detail result - out of business
+    (
+        {
+            'organization': {
+                'dunsControlStatus': {
+                    'operatingStatus': {
+                        'dnbCode': OPERATING_STATUS_ACTIVE + 1000
+                    }
+                }
+            }
+        },
+        True
+    )
+])
+def test_extract_is_out_of_business(input_data, expected):
+    extract_is_out_of_business(input_data) == expected
+
+
+def test_extract_is_out_of_business_bad_data():
+    bad_data = {
+        'organization': {
+            'dunsControlStatus': {
+
+            }
+        }
+    }
+    with pytest.raises(ValueError):
+        extract_is_out_of_business(bad_data)
+
+
+@pytest.mark.parametrize('input_data, expected', [
+    # multiple entries, use the consolidated field
+    (
+        {
+            'organization': {
+                'numberOfEmployees': [
+                    {
+                        'value': 4000,
+                        'informationScopeDescription': 'Headquarters Only (Employs Here)',
+                        'informationScopeDnBCode': 9068,
+                        'reliabilityDescription': 'Actual',
+                        'reliabilityDnBCode': 9092
+                    },
+                    {
+                        'value': 33000,
+                        'informationScopeDescription': 'Consolidated',
+                        'informationScopeDnBCode': 9067,
+                        'reliabilityDescription': 'Actual',
+                        'reliabilityDnBCode': 9092
+                    }
+                ]
+            }
+        },
+        (False, 33000)
+    ),
+    # multiple entries, no consolidated field, use the first field
+    (
+        {
+            'organization': {
+                'numberOfEmployees': [
+                    {
+                        'value': 4000,
+                        'informationScopeDescription': 'Headquarters Only (Employs Here)',
+                        'informationScopeDnBCode': 9068,
+                        'reliabilityDescription': 'Actual',
+                        'reliabilityDnBCode': 9092
+                    },
+                    {
+                        'value': 33000,
+                        'informationScopeDescription': 'Not-conslidated',
+                        'informationScopeDnBCode': 9999,
+                        'reliabilityDescription': 'Actual',
+                        'reliabilityDnBCode': 9092
+                    }
+                ]
+            }
+        },
+        (False, 4000)
+    ),
+    # single entry
+    (
+        {
+            'organization': {
+                'numberOfEmployees': [
+                    {
+                        'value': 4000,
+                        'informationScopeDescription': 'Headquarters Only (Employs Here)',
+                        'informationScopeDnBCode': 9068,
+                        'reliabilityDescription': 'Actual',
+                        'reliabilityDnBCode': 9999
+                    }
+                ]
+            }
+        },
+        (True, 4000)
+    ),
+])
+def test_extract_employee_numbers(input_data, expected):
+    assert extract_employee_numbers(input_data) == expected
+
+
+@pytest.mark.parametrize('input_data, expected', [
+    (
+        {
+            'organization': {
+                'financials': [
+                    {
+                        'yearlyRevenue': [
+                            {
+                                'value': 51806612000,
+                                'currency': 'USD'
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        ('USD', 51806612000)
+    ),
+    (
+        {
+            'organization': {
+                'financials': [
+                    {
+                        'yearlyRevenue': [
+                        ]
+                    }
+                ]
+            }
+        },
+        (None, None)
+    )
+])
+def test_extract_annual_sales(input_data, expected):
+    assert extract_annual_sales(input_data) == expected
+
+
 def test_company_list_ingest(company_list_api_response_json):
 
     company_data = json.loads(company_list_api_response_json)
@@ -428,7 +601,7 @@ def test_cmpelk_ingest(cmpelk_api_response_json):
         'annual_sales': 22589957,
         'annual_sales_currency': 'USD',
         'is_annual_sales_estimated': None,
-        'employee_number': 120,
+        'employee_number': 153,
         'is_employees_number_estimated': False,
         'primary_industry_codes': [],
         'industry_codes': [
@@ -442,77 +615,3 @@ def test_cmpelk_ingest(cmpelk_api_response_json):
         ],
         'legal_status': 'corporation'
     }
-
-
-@pytest.mark.parametrize('input_data, expected', [
-    # company search result - trading
-    (
-        {
-            'organization': {
-                'dunsControlStatus': {
-                    'isOutOfBusiness': False
-                }
-            }
-        },
-        False
-    ),
-    # company search result - out of business
-    (
-        {
-            'organization': {
-                'dunsControlStatus': {
-                    'isOutOfBusiness': True
-                }
-            }
-        },
-        True
-    ),
-    #  cmplelk detail result - trading
-    (
-        {
-            'organization': {
-                'dunsControlStatus': {
-                    'operatingStatus': {
-                        'dnbCode': OPERATING_STATUS_ACTIVE
-                    }
-                }
-            }
-        },
-        False
-    ),
-    #  cmplelk detail result - out of business
-    (
-        {
-            'organization': {
-                'dunsControlStatus': {
-                    'operatingStatus': {
-                        'dnbCode': OPERATING_STATUS_ACTIVE + 1000
-                    }
-                }
-            }
-        },
-        True
-    )
-])
-def test_extract_is_out_of_business(input_data, expected):
-    extract_is_out_of_business(input_data) == expected
-
-
-def test_extract_is_out_of_business_bad_data():
-    bad_data = {
-        'organization': {
-            'dunsControlStatus': {
-
-            }
-        }
-    }
-    with pytest.raises(ValueError):
-        extract_is_out_of_business(bad_data)
-
-
-def test_extract_employee_numbers():
-    pass
-
-
-def test_extract_annual_sales():
-    pass
