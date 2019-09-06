@@ -1,5 +1,4 @@
 import json
-import os
 
 import pytest
 
@@ -18,19 +17,6 @@ from ..mapping import (
     extract_registration_numbers,
     extract_trading_names,
 )
-
-
-@pytest.fixture(scope='module')
-def cmpelk_api_response_json():
-    with open(os.path.join(os.path.dirname(__file__), 'api_data/cmpelk_test_response.json')) as f:
-        return f.read()
-
-
-@pytest.fixture(scope='module')
-def company_list_api_response_json():
-    with open(os.path.join(os.path.dirname(__file__), 'api_data/company_list_test_response.json')) as f:
-        return f.read()
-
 
 @pytest.mark.parametrize('input_data, expected', [
     # full address without a prefix

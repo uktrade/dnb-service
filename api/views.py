@@ -15,7 +15,6 @@ class DNBCompanySearchApiView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-
         data = request.data.copy()
         data.setdefault('page_size', 10)
         data.setdefault('page_number', 1)
@@ -42,7 +41,7 @@ class DNBCompanySearchApiView(APIView):
             'total_matches': response_data.get('candidatesMatchedQuantity', 0),
             'total_returned': response_data.get('candidatesReturnedQuantity', 0),
             'page_size': response_data.get('inquiryDetail', {}).get('pageSize', 0),
-            'page_number': response_data.get('inquiryDetail', {}).get('pageNumber', 0),
+            'page_number': response_data.get('inquiryDetail', {}).get('pageNumber', 1),
             'results': results,
         }
 
