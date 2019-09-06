@@ -9,7 +9,6 @@ from django.conf import settings
 
 
 DNB_AUTH_ENDPOINT = 'https://plus.dnb.com/v2/token'
-DNB_COMPANY_SEARCH_ENDPOINT = 'https://plus.dnb.com/v1/search/companyList'
 
 ACCESS_TOKEN_KEY = '_access_token'
 ACCESS_TOKEN_LOCK_KEY = '_access_token_write_lock'

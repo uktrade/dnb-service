@@ -18,6 +18,7 @@ from ..mapping import (
     extract_trading_names,
 )
 
+
 @pytest.mark.parametrize('input_data, expected', [
     # full address without a prefix
     (

@@ -43,4 +43,3 @@ SEARCH_QUERY_TO_DNB_FIELD_MAPPING = {
     'page_size': 'pageSize',
     'page_number': 'pageNumber',
 }
-

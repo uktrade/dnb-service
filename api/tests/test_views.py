@@ -5,10 +5,9 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
+from dnb_direct_plus.mapping import extract_company_data
 from requests.exceptions import HTTPError
 from rest_framework.authtoken.models import Token
-
-from dnb_direct_plus.mapping import extract_company_data
 
 
 class TestCompanySearchView:
@@ -22,7 +21,7 @@ class TestCompanySearchView:
         user = get_user_model().objects.create(email='test@test.com', is_active=True)
         token = Token.objects.create(user=user)
 
-        mock_api_request = mocker.patch('api.views.api_request')
+        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
         mock_api_request.side_effect = HTTPError(response=mocker.Mock(status_code=404))
 
         response = client.post(reverse('api:company-search'),
@@ -45,7 +44,7 @@ class TestCompanySearchView:
 
         company_input_data = json.loads(company_list_api_response_json)
 
-        mock_api_request = mocker.patch('api.views.api_request')
+        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
         mock_api_request.return_value.json.return_value = company_input_data
 
         response = client.post(reverse('api:company-search'),
