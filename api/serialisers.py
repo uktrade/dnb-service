@@ -1,7 +1,21 @@
 from rest_framework import serializers
 
 
-class CommentSerializer(serializers.Serializer):
-    search_term = serializers.CharField()
-    content = serializers.CharField(max_length=200)
-    created = serializers.DateTimeField()
+class CompanySearchInputSerialiser(serializers.Serializer):
+
+    STANDALONE_FIELDS = ['duns_numbers', 'search_term']
+
+    duns_number = serializers.RegexField(regex='\d{9}',required=False)
+    search_term = serializers.CharField(min_length=2, max_length=60, required=False)
+    address_country = serializers.RegexField(regex='[A-Za-z]{2}', required=False)
+    page_size = serializers.IntegerField(min_value=1, default=1, required=False)
+    page_number = serializers.IntegerField(min_value=1, default=1, required=False)
+
+    def validate(self, data):
+        """
+        Check that at least one standalone field has been provided.
+        """
+        if not any(field in data for field in self.STANDALONE_FIELDS):
+            raise serializers.ValidationError('At least one standalone field required.')
+
+        return data

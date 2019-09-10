@@ -25,6 +25,7 @@ class TestCompanySearchView:
         mock_api_request.side_effect = HTTPError(response=mocker.Mock(status_code=404))
 
         response = client.post(reverse('api:company-search'),
+                               {'search_term': 'micro'},
                                content_type='application/json',
                                HTTP_AUTHORIZATION=f'Token {token.key}')
 
@@ -48,6 +49,7 @@ class TestCompanySearchView:
         mock_api_request.return_value.json.return_value = company_input_data
 
         response = client.post(reverse('api:company-search'),
+                               {'search_term': 'micro'},
                                content_type='application/json',
                                HTTP_AUTHORIZATION=f'Token {token.key}')
 
@@ -61,3 +63,17 @@ class TestCompanySearchView:
 
         for input_data, expected in zip(company_input_data['searchCandidates'], response_data['results']):
             assert extract_company_data(input_data) == expected
+
+    @pytest.mark.django_db
+    def test_api_with_bad_query(self, client):
+        user = get_user_model().objects.create(email='test@test.com', is_active=True)
+        token = Token.objects.create(user=user)
+
+        response = client.post(reverse('api:company-search'),
+                               {},
+                               content_type='application/json',
+                               HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        assert response.status_code == 400
+
+        assert response.json() == {'non_field_errors': ['At least one standalone field required.']}
