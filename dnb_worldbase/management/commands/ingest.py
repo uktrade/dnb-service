@@ -2,9 +2,9 @@ import logging
 import time
 
 from django.core.management.base import BaseCommand, CommandError
+from smart_open import open
 
 from dnb_worldbase.ingest import process_file
-from smart_open import open
 
 logger = logging.getLogger(__name__)
 

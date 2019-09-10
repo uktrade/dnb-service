@@ -2,6 +2,7 @@ from decimal import InvalidOperation
 
 import pytest
 
+from company.constants import RegistrationNumberChoices
 from dnb_worldbase.constants import LEGAL_STATUS_CODE_MAPPING
 from dnb_worldbase.mapping import (
     DataMappingError,
@@ -14,8 +15,6 @@ from dnb_worldbase.mapping import (
     map_business_indicator,
     map_legal_status,
     TurnoverIndicator)
-
-from company.constants import RegistrationNumberChoices
 
 
 @pytest.mark.django_db
