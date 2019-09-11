@@ -40,12 +40,13 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'rest_framework',
     'rest_framework.authtoken',
-    'user',
-    'core',
-    'company',
-    'dnb_worldbase',
-    'dnb_direct_plus',
     'api',
+    'company',
+    'core',
+    'dnb_direct_plus',
+    'dnb_worldbase',
+    'health_check',
+    'user',
 ]
 
 MIDDLEWARE = [
