@@ -1,7 +1,6 @@
 from dnb_direct_plus.api import company_list_search
 
 from requests.exceptions import HTTPError
-from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -21,10 +20,7 @@ class DNBCompanySearchApiView(APIView):
         try:
             data = company_list_search(serialiser.data)
         except HTTPError as ex:
-            if ex.response.status_code == 400:
-                error_detail = ex.response.json()['error']
-                return Response(error_detail, status=status.HTTP_400_BAD_REQUEST)
-
-            raise
+            error_detail = ex.response.json()['error']
+            return Response(error_detail, status=ex.response.status_code)
 
         return Response(data)
