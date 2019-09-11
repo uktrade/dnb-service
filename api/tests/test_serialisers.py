@@ -9,14 +9,15 @@ from rest_framework.exceptions import ErrorDetail
     (
         {},
         {},
-        {'non_field_errors': [ErrorDetail(string='At least one standalone field required.', code='invalid')]},
+        {'non_field_errors': [ErrorDetail(
+            string="At least one standalone field required: ['duns_numbers', 'search_term'].", code='invalid')]},
     ),
     # valid input
     (
         {
             'search_term': 'hello'
         },
-        {'search_term': 'hello', 'page_size': 1, 'page_number': 1},
+        {'search_term': 'hello', 'page_size': 10, 'page_number': 1},
         {}
     )
 ])
