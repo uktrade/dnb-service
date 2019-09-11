@@ -1,6 +1,7 @@
 import logging
 import time
 
+import backoff
 import redis
 import requests
 
@@ -52,7 +53,7 @@ def is_token_valid():
     return ttl is not None and ttl > 0
 
 
-def renew_dnb_token_if_close_to_expiring():
+def renew_token_if_close_to_expiring():
     """Renew the DNB access token if there is less than `settings.DNB_API_RENEW_ACCESS_TOKEN_SECONDS_REMAINING`
     remaining"""
 
@@ -63,27 +64,17 @@ def renew_dnb_token_if_close_to_expiring():
         _renew_token()
 
 
-def _get_dnb_access_token():
+def _authenticate():
     """Get a new Direct+ access token."""
 
-    response = requests.post(
+    response = _api_request(
+        'post',
         DNB_AUTH_ENDPOINT,
         auth=(settings.DNB_API_USERNAME, settings.DNB_API_PASSWORD),
-        headers={
-            'Content-Type': 'application/json',
-        },
         json={'grant_type': 'client_credentials'},
     )
 
     response_body = response.json()
-
-    if response.status_code != 200:
-        logger.error('Unauthorised response from DNB API: %s', response_body)
-
-        raise DNBApiError(
-            f'Unable to get access token: {response_body["error"]["errorMessage"]}; '
-            f'error code: {response_body["error"]["errorCode"]}'
-        )
 
     return response_body
 
@@ -101,13 +92,57 @@ def _renew_token():
     lock = redis_client.lock(ACCESS_TOKEN_LOCK_KEY)
     if lock.acquire(blocking=False):
         try:
-            token = _get_dnb_access_token()
+            token = _authenticate()
             redis_client.set(ACCESS_TOKEN_KEY, token['access_token'], ex=token['expiresIn'])
 
             return True
-        except DNBApiError:
-            logger.exception('Api error')
         finally:
             lock.release()
 
     return False
+
+
+def api_request(method, url, **kwargs):
+    """
+    Make an authenticated request to the DNB api
+    """
+    token = get_access_token()
+
+    headers = {
+        'Authorization': f'Bearer {token}'
+    }
+
+    return _api_request(method, url, **kwargs, headers=headers)
+
+
+def _fatal_code(e):
+    """Return True if an exception/status should not be retried. """
+    retryable = not hasattr(e, 'response') or \
+        e.response.status_code in [429] or \
+        500 <= e.response.status_code <= 599
+
+    return not retryable
+
+
+@backoff.on_exception(backoff.expo,
+                      requests.exceptions.Timeout,
+                      requests.exceptions.ConnectionError,
+                      requests.exceptions.HTTPError,
+                      giveup=_fatal_code,
+                      logger=logger)
+def _api_request(method, url, **kwargs):
+    """
+    Make an API request
+    """
+
+    headers = {
+        'content-type': 'application/json',
+        'accept': 'application/json',
+    }
+
+    headers.update(kwargs.pop('headers', {}))
+    response = requests.request(method, url, headers=headers, **kwargs)
+
+    response.raise_for_status()
+
+    return response

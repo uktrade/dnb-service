@@ -33,7 +33,7 @@ def _get_client_ip(request):
         logger.warning(
             'X-Forwarded-For header is missing or does not '
             'contain enough elements to determine the '
-            'client\'s ip')
+            'client\'s ip')  # noqa: Q003
         return None
 
 

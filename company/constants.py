@@ -7,6 +7,7 @@ class LastUpdatedSource(StrEnum):
 
 
 class LegalStatusChoices(StrEnum):
+    unknown = 'Unknown'
     unspecified = 'Unspecified'
     corporation = 'Corporation'
     joint_venture = 'Joint Venture'
@@ -14,7 +15,7 @@ class LegalStatusChoices(StrEnum):
     proprietorship = 'Proprietorship'
     government_body = 'Government Body'
     cooperative = 'Cooperative'
-    non_profit_organization = 'Non Profit Organization'
+    non_profit_organisation = 'Non Profit Organization'
     local_government_body = 'Local Government Body'
     foreign_company = 'Foreign Company'
 

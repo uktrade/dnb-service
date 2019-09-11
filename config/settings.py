@@ -4,8 +4,8 @@ import dj_database_url
 import environ
 
 import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,11 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_results',
     'django_celery_beat',
+    'rest_framework',
+    'rest_framework.authtoken',
     'user',
     'core',
     'company',
     'dnb_worldbase',
-    'dnb_api',
+    'dnb_direct_plus',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -154,17 +157,17 @@ DNB_API_RENEW_ACCESS_TOKEN_SECONDS_REMAINING = 300
 
 if 'redis' in VCAP_SERVICES:
     REDIS_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
+    REDIS_CELERY_URL = f'{REDIS_URL}?ssl_cert_reqs=CERT_REQUIRED'
 else:
-    REDIS_URL = env('REDIS_URL')
+    REDIS_URL = env.str('REDIS_URL', '')
+    REDIS_CELERY_URL = REDIS_URL
 
 # Celery
-CELERY_BROKER_URL = REDIS_URL
+CELERY_BROKER_URL = REDIS_CELERY_URL
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-
-# sentry
 
 sentry_sdk.init(
     env('SENTRY_DSN'),
@@ -174,3 +177,34 @@ sentry_sdk.init(
         CeleryIntegration()
     ]
 )
+
+# Elasticsearch
+
+if 'elasticsearch' in VCAP_SERVICES:
+    ES_URL = VCAP_SERVICES['elasticsearch'][0]['credentials']['uri']
+else:
+    ES_URL = env('ES_URL')
+
+ES_SHARD_SETTINGS = {
+    'number_of_shards': 1,
+    'number_of_replicas': 0
+}
+ES_BULK_INSERT_CHUNK_SIZE = 1000
+ES_AUTO_SYNC_ON_SAVE = True
+ES_REFRESH_AFTER_AUTO_SYNC = True
+
+# DRF config
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+}

@@ -1,0 +1,320 @@
+{
+    "transactionDetail": {
+        "transactionID": "rrt-0f341039fcee44b4c-b-eu-21953-3751908-13_745",
+        "transactionTimestamp": "2019-09-04T14:09:07.125Z",
+        "inLanguage": "en-US",
+        "productID": "cmpelk",
+        "productVersion": "2"
+    },
+    "inquiryDetail": {
+        "productVersion": "v2",
+        "productID": "cmpelk",
+        "duns": "123456789"
+    },
+    "organization": {
+        "duns": "987654321",
+        "dunsControlStatus": {
+            "operatingStatus": {
+                "description": "Active",
+                "dnbCode": 9074
+            },
+            "isMarketable": false,
+            "isMailUndeliverable": false,
+            "isTelephoneDisconnected": false,
+            "isDelisted": true,
+            "subjectHandlingDetails": [
+                {
+                    "description": "Do not fax",
+                    "dnbCode": 7972
+                },
+                {
+                    "description": "Do not call",
+                    "dnbCode": 7974
+                },
+                {
+                    "description": "Do not mail",
+                    "dnbCode": 7975
+                },
+                {
+                    "description": "Do not e-mail",
+                    "dnbCode": 9051
+                },
+                {
+                    "description": "Suppress from all marketing lists",
+                    "dnbCode": 9146
+                }
+            ],
+            "fullReportDate": "2019-04-25"
+        },
+        "primaryName": "Test Company, Inc.",
+        "tradeStyleNames": [],
+        "websiteAddress": [],
+        "telephone": [
+            {
+                "telephoneNumber": "6505550000",
+                "isdCode": "1",
+                "isUnreachable": false
+            }
+        ],
+        "fax": [],
+        "primaryAddress": {
+            "language": {},
+            "addressCountry": {
+                "name": "United States",
+                "isoAlpha2Code": "US",
+                "fipsCode": "US"
+            },
+            "continentalRegion": {
+                "name": "North America"
+            },
+            "addressLocality": {
+                "name": "San Francisco"
+            },
+            "minorTownName": null,
+            "addressRegion": {
+                "name": "California",
+                "abbreviatedName": "CA",
+                "fipsCode": "06"
+            },
+            "addressCounty": {
+                "name": "San Francisco",
+                "fipsCode": "075"
+            },
+            "postalCode": "94110",
+            "postalCodePosition": {},
+            "streetNumber": null,
+            "streetName": null,
+            "streetAddress": {
+                "line1": "492 Koller St",
+                "line2": null
+            },
+            "postOfficeBox": {},
+            "latitude": 37.777709,
+            "longitude": -122.404624,
+            "geographicalPrecision": {
+                "description": "Street Segment Centroid",
+                "dnbCode": 30256
+            },
+            "isRegisteredAddress": false,
+            "isResidentialAddress": null,
+            "statisticalArea": {
+                "cbsaName": "San Francisco-Oakland-Hayward CA",
+                "cbsaCode": "41860",
+                "economicAreaOfInfluenceCode": "146",
+                "populationRank": {
+                    "rankNumber": "9",
+                    "rankDnBCode": 10961,
+                    "rankDescription": "500,000 +"
+                }
+            },
+            "locationOwnership": {},
+            "premisesArea": {},
+            "isManufacturingLocation": true
+        },
+        "registeredAddress": {},
+        "mailingAddress": {},
+        "stockExchanges": [],
+        "thirdPartyAssessment": [],
+        "registrationNumbers": [],
+        "industryCodes": [
+            {
+                "code": "323111",
+                "description": "Commercial Printing (except Screen and Books)",
+                "typeDescription": "North American Industry Classification System 2017",
+                "typeDnBCode": 30832,
+                "priority": 1
+            }
+        ],
+        "businessEntityType": {
+            "description": "Corporation",
+            "dnbCode": 451
+        },
+        "controlOwnershipDate": "1985",
+        "startDate": "1985",
+        "controlOwnershipType": {},
+        "isAgent": null,
+        "isImporter": null,
+        "isExporter": null,
+        "numberOfEmployees": [
+            {
+                "value": 120,
+                "informationScopeDescription": "Headquarters Only (Employs Here)",
+                "informationScopeDnBCode": 9068,
+                "reliabilityDescription": "Actual",
+                "reliabilityDnBCode": 9092,
+                "employeeCategories": [
+                    {
+                        "employmentBasisDescription": "Principals",
+                        "employmentBasisDnBCode": 9064
+                    }
+                ],
+                "trend": []
+            },
+            {
+                "value": 153,
+                "informationScopeDescription": "Consolidated",
+                "informationScopeDnBCode": 9067,
+                "reliabilityDescription": "Actual",
+                "reliabilityDnBCode": 9092,
+                "employeeCategories": [
+                    {
+                        "employmentBasisDescription": "Principals",
+                        "employmentBasisDnBCode": 9064
+                    }
+                ],
+                "trend": []
+            }
+        ],
+        "financials": [
+            {
+                "financialStatementToDate": "2018-12-31",
+                "financialStatementDuration": null,
+                "informationScopeDescription": "Consolidated",
+                "informationScopeDnBCode": 9067,
+                "reliabilityDescription": "Actual",
+                "reliabilityDnBCode": 9092,
+                "unitCode": "Single Units",
+                "accountantName": "Johnson, Jordan & Jones CPAs",
+                "yearlyRevenue": [
+                    {
+                        "value": 22589957,
+                        "currency": "USD",
+                        "trend": []
+                    }
+                ]
+            }
+        ],
+        "mostSeniorPrincipals": [
+            {
+                "givenName": "John",
+                "familyName": "Smith",
+                "fullName": "John Smith",
+                "namePrefix": null,
+                "nameSuffix": null,
+                "gender": null,
+                "jobTitles": [
+                    {
+                        "title": "President"
+                    }
+                ],
+                "managementResponsibilities": [
+                    {
+                        "description": "President",
+                        "mrcCode": "A1A6"
+                    }
+                ]
+            }
+        ],
+        "currentPrincipals": [
+            {
+                "givenName": "Mike",
+                "familyName": "Smith",
+                "fullName": "Mike J Smith",
+                "namePrefix": null,
+                "nameSuffix": null,
+                "gender": null,
+                "jobTitles": [
+                    {
+                        "title": "Secretary"
+                    },
+                    {
+                        "title": "Treasurer"
+                    }
+                ],
+                "managementResponsibilities": [
+                    {
+                        "description": "Secretary",
+                        "mrcCode": "A1B2"
+                    },
+                    {
+                        "description": "Treasurer",
+                        "mrcCode": "A1B0"
+                    }
+                ]
+            }
+        ],
+        "socioEconomicInformation": {
+            "isMinorityOwned": null,
+            "isSmallBusiness": true
+        },
+        "isStandalone": false,
+        "corporateLinkage": {
+            "familytreeRolesPlayed": [
+                {
+                    "description": "Global Ultimate",
+                    "dnbCode": 12775
+                },
+                {
+                    "description": "Domestic Ultimate",
+                    "dnbCode": 12774
+                },
+                {
+                    "description": "Parent/Headquarters",
+                    "dnbCode": 9141
+                }
+            ],
+            "hierarchyLevel": 1,
+            "globalUltimateFamilyTreeMembersCount": 7,
+            "globalUltimate": {
+                "duns": "12345679",
+                "primaryName": "Test Company, Inc.",
+                "primaryAddress": {
+                    "addressCountry": {
+                        "name": "United States",
+                        "isoAlpha2Code": "US",
+                        "fipsCode": "US"
+                    },
+                    "continentalRegion": {
+                        "name": "North America"
+                    },
+                    "addressLocality": {
+                        "name": "San Francisco"
+                    },
+                    "addressRegion": {
+                        "name": "California",
+                        "abbreviatedName": "CA"
+                    },
+                    "postalCode": "94110",
+                    "streetAddress": {
+                        "line1": "492 Koller St",
+                        "line2": null
+                    }
+                }
+            },
+            "domesticUltimate": {
+                "duns": "987654321",
+                "primaryName": "Gorman Manufacturing Company, Inc.",
+                "primaryAddress": {
+                    "addressCountry": {
+                        "name": "United States",
+                        "isoAlpha2Code": "US",
+                        "fipsCode": "US"
+                    },
+                    "continentalRegion": {
+                        "name": "North America"
+                    },
+                    "addressLocality": {
+                        "name": "San Francisco"
+                    },
+                    "addressRegion": {
+                        "name": "California",
+                        "abbreviatedName": "CA"
+                    },
+                    "postalCode": "94110",
+                    "streetAddress": {
+                        "line1": "492 Koller St",
+                        "line2": null
+                    }
+                }
+            },
+            "parent": {},
+            "headQuarter": {}
+        },
+        "dnbAssessment": {
+            "marketingRiskClass": {
+                "description": "High",
+                "dnbCode": 10927
+            }
+        }
+    }
+}
