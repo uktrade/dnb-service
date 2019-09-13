@@ -5,7 +5,7 @@ from dnb_direct_plus.mapping import extract_company_data
 from requests.exceptions import HTTPError
 
 
-DNB_COMPANY_SEARCH_ENDPOINT = 'https://plus.dnb.com/v1/search/companyList'
+DNB_COMPANY_SEARCH_ENDPOINT = '/v1/search/companyList'
 
 
 def company_list_search(query):
