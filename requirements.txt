@@ -16,6 +16,7 @@ dj-database-url==0.5.0
 django-celery-beat==1.4.0
 django-celery-results==1.0.4
 django-environ==0.4.5
+django-prometheus==1.0.15
 django-rest-framework==0.1.0
 django-staff-sso-client==0.2.0
 django-timezone-field==3.0  # via django-celery-beat
@@ -27,6 +28,7 @@ idna==2.8                 # via requests
 jmespath==0.9.4           # via boto3, botocore
 kombu==4.5.0              # via celery
 oauthlib==3.0.1           # via requests-oauthlib
+prometheus-client==0.7.1  # via django-prometheus
 psycopg2==2.8.1
 python-crontab==2.3.6     # via django-celery-beat
 python-dateutil==2.8.0    # via botocore, python-crontab

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_prometheus',
     'api',
     'company',
     'core',
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -58,7 +60,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.AdminIpRestrictionMiddleware',
+    'core.middleware.IpRestrictionMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -144,9 +147,11 @@ AUTH_USER_MODEL = 'user.User'
 
 # IP restriction
 
-RESTRICT_ADMIN = env('RESTRICT_ADMIN')
-ALLOWED_ADMIN_IPS = env.list('ALLOWED_ADMIN_IPS')
-ALLOWED_ADMIN_IP_RANGES = env.list('ALLOWED_ADMIN_IP_RANGES', default=[])
+IP_RESTRICT = env('IP_RESTRICT')
+IP_RESTRICT_APPS = ['admin']
+IP_RESTRICT_PATH_NAMES = ['prometheus-django-metrics']
+ALLOWED_IPS = env.list('ALLOWED_IPS')
+ALLOWED_IP_RANGES = env.list('ALLOWED_IP_RANGES', default=[])
 
 # DNB API
 

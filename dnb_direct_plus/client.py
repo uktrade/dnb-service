@@ -1,14 +1,16 @@
 import logging
 import time
+from urllib.parse import urljoin
 
 import backoff
 import redis
 import requests
 
 from django.conf import settings
+from prometheus_client import Counter
 
-
-DNB_AUTH_ENDPOINT = 'https://plus.dnb.com/v2/token'
+DNB_API_BASE_URL = 'https://plus.dnb.com'
+DNB_AUTH_ENDPOINT = '/v2/token'
 
 ACCESS_TOKEN_KEY = '_access_token'
 ACCESS_TOKEN_LOCK_KEY = '_access_token_write_lock'
@@ -19,6 +21,8 @@ RENEW_ACCESS_TOKEN_RETRY_DELAY_SECONDS = 1
 logger = logging.getLogger(__name__)
 
 redis_client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
+
+api_usage_counter = Counter('api_counter', 'Track DNB API calls', ['endpoint', 'method', 'status'])
 
 
 class DNBApiError(Exception):
@@ -130,10 +134,12 @@ def _fatal_code(e):
                       requests.exceptions.HTTPError,
                       giveup=_fatal_code,
                       logger=logger)
-def _api_request(method, url, **kwargs):
+def _api_request(method, path, **kwargs):
     """
     Make an API request
     """
+
+    url = urljoin(DNB_API_BASE_URL, path)
 
     headers = {
         'content-type': 'application/json',
@@ -142,6 +148,8 @@ def _api_request(method, url, **kwargs):
 
     headers.update(kwargs.pop('headers', {}))
     response = requests.request(method, url, headers=headers, **kwargs)
+
+    api_usage_counter.labels(endpoint=path, method=method, status=response.status_code).inc()
 
     response.raise_for_status()
 

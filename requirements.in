@@ -13,6 +13,7 @@ django_celery_beat
 django-celery-results
 sentry-sdk
 backoff
+django-prometheus
 
 whitenoise
 gunicorn

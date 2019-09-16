@@ -3,21 +3,21 @@ from ipaddress import ip_address, ip_network
 
 from django.conf import settings
 from django.http import HttpResponse
-from django.urls import resolve
+from django.urls import resolve, reverse
 from django.urls.exceptions import Resolver404
 
 logger = logging.getLogger(__name__)
 
 
-def _is_valid_admin_ip(client_ip):
+def _is_valid_ip(client_ip):
     if not client_ip:
         return False
 
-    if client_ip in settings.ALLOWED_ADMIN_IPS:
+    if client_ip in settings.ALLOWED_IPS:
         return True
 
     ip_addr = ip_address(client_ip)
-    for cidr in settings.ALLOWED_ADMIN_IP_RANGES:
+    for cidr in settings.ALLOWED_IP_RANGES:
         if ip_addr in ip_network(cidr):
             return True
 
@@ -37,19 +37,21 @@ def _get_client_ip(request):
         return None
 
 
-def AdminIpRestrictionMiddleware(get_response):
+def IpRestrictionMiddleware(get_response):
 
     def middleware(request):
+
         try:
             app_name = resolve(request.path).app_name
         except Resolver404:
             app_name = None
 
-        if app_name == 'admin':
-            if settings.RESTRICT_ADMIN:
-                client_ip = _get_client_ip(request)
-                if not _is_valid_admin_ip(client_ip):
-                    return HttpResponse('Unauthorized', status=401)
+        restricted_paths = [reverse(path) for path in getattr(settings, 'IP_RESTRICT_PATH_NAMES', [])]
+
+        if settings.IP_RESTRICT and app_name in settings.IP_RESTRICT_APPS or request.path in restricted_paths:
+            client_ip = _get_client_ip(request)
+            if not _is_valid_ip(client_ip):
+                return HttpResponse('Unauthorized', status=401)
 
         return get_response(request)
 
