@@ -39,7 +39,7 @@ def extract_registration_numbers(company_data):
     registration_numbers = []
 
     for registration_number in company_data['organization'].get('registrationNumbers', []):
-        if registration_number['typeDnBCode'] in REGISTRATION_NUMBER_TYPE_MAPPING:
+        if registration_number.get('typeDnBCode') in REGISTRATION_NUMBER_TYPE_MAPPING:
             mapped_code = REGISTRATION_NUMBER_TYPE_MAPPING[registration_number['typeDnBCode']].name
 
             registration_numbers.append({
@@ -49,7 +49,7 @@ def extract_registration_numbers(company_data):
         else:
             registration_numbers.append({
                 'registration_type': 'unmapped',
-                'original_registration_type': registration_number['typeDnBCode'],
+                'original_registration_type': registration_number.get('typeDnBCode'),
                 'original_registration_number': registration_number['registrationNumber'],
                 'original_registration_description': registration_number['typeDescription'],
             })
@@ -93,7 +93,10 @@ def extract_is_out_of_business(company_data):
 
 
 def extract_employee_numbers(company_data):
-    employee_number_entries = company_data['organization']['numberOfEmployees']
+    employee_number_entries = company_data['organization'].get('numberOfEmployees')
+
+    if employee_number_entries is None:
+        return None, None
 
     employee_data = None
 

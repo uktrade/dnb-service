@@ -260,7 +260,28 @@ def test_extract_registered_address(input_data, expected):
                 'original_registration_description': 'This is not a real code'
             }
         ]
-    )
+    ),
+    # partial data
+    (
+        {
+            'organization': {
+                'registrationNumbers': [
+                    {
+                        'registrationNumber': '123456789',
+                        'typeDescription': 'This is not a real code'
+                    }
+                ]
+            }
+        },
+        [
+            {
+                'registration_type': 'unmapped',
+                'original_registration_type': None,
+                'original_registration_number': '123456789',
+                'original_registration_description': 'This is not a real code'
+            }
+        ]
+    ),
 ])
 def test_extract_registration_numbers(input_data, expected):
     assert extract_registration_numbers(input_data) == expected
@@ -461,6 +482,13 @@ def test_extract_is_out_of_business_bad_data():
         },
         (True, 4000)
     ),
+    # missign data
+    (
+        {
+            'organization': {}
+        },
+        (None, None)
+    )
 ])
 def test_extract_employee_numbers(input_data, expected):
     assert extract_employee_numbers(input_data) == expected
