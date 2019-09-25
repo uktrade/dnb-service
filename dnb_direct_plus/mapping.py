@@ -102,14 +102,14 @@ def extract_employee_numbers(company_data):
 
     if len(employee_number_entries) > 0:
         for entry in employee_number_entries:
-            if entry['informationScopeDnBCode'] == INFORMATION_SCOPE_CONSOLIDATED:
+            if entry.get('informationScopeDnBCode') == INFORMATION_SCOPE_CONSOLIDATED:
                 employee_data = entry
                 break
 
     if not employee_data:
         employee_data = employee_number_entries[0]
 
-    is_estimated = employee_data['reliabilityDnBCode'] != RELIABILITY_CODE_ACTUAL
+    is_estimated = employee_data.get('reliabilityDnBCode') != RELIABILITY_CODE_ACTUAL
 
     return is_estimated, employee_data['value']
 

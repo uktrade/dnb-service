@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 class CompanySearchInputSerialiser(serializers.Serializer):
 
-    STANDALONE_FIELDS = ['duns_numbers', 'search_term']
+    STANDALONE_FIELDS = ['duns_number', 'search_term']
 
     duns_number = serializers.RegexField(regex=r'\d{9}', required=False)
     search_term = serializers.CharField(min_length=2, max_length=60, required=False)

@@ -488,7 +488,23 @@ def test_extract_is_out_of_business_bad_data():
             'organization': {}
         },
         (None, None)
-    )
+    ),
+    # missing reliabilityDnbCode
+    (
+        {
+            'organization': {
+                'numberOfEmployees': [
+                    {
+                        'value': 4000,
+                        'informationScopeDescription': 'Headquarters Only (Employs Here)',
+                        'informationScopeDnBCode': 9068,
+                        'reliabilityDescription': 'Actual',
+                    }
+                ]
+            }
+        },
+        (True, 4000)
+    ),
 ])
 def test_extract_employee_numbers(input_data, expected):
     assert extract_employee_numbers(input_data) == expected
