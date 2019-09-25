@@ -77,4 +77,4 @@ class TestCompanySearchView:
         assert response.status_code == 400
 
         assert response.json() == \
-            {'non_field_errors': ["At least one standalone field required: ['duns_numbers', 'search_term']."]}
+            {'non_field_errors': ["At least one standalone field required: ['duns_number', 'search_term']."]}

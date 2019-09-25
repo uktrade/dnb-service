@@ -10,7 +10,7 @@ from rest_framework.exceptions import ErrorDetail
         {},
         {},
         {'non_field_errors': [ErrorDetail(
-            string="At least one standalone field required: ['duns_numbers', 'search_term'].", code='invalid')]},
+            string="At least one standalone field required: ['duns_number', 'search_term'].", code='invalid')]},
     ),
     # valid input
     (
