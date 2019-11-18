@@ -184,21 +184,6 @@ sentry_sdk.init(
     ]
 )
 
-# Elasticsearch
-
-if 'elasticsearch' in VCAP_SERVICES:
-    ES_URL = VCAP_SERVICES['elasticsearch'][0]['credentials']['uri']
-else:
-    ES_URL = env('ES_URL')
-
-ES_SHARD_SETTINGS = {
-    'number_of_shards': 1,
-    'number_of_replicas': 0
-}
-ES_BULK_INSERT_CHUNK_SIZE = 1000
-ES_AUTO_SYNC_ON_SAVE = True
-ES_REFRESH_AFTER_AUTO_SYNC = True
-
 # DRF config
 
 REST_FRAMEWORK = {
@@ -214,3 +199,4 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
 }
+
