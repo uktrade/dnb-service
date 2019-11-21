@@ -27,6 +27,8 @@ django==2.2.4
 djangorestframework==3.9.2
 docutils==0.14
 entrypoints==0.3          # via flake8
+factory-boy==2.12.0
+faker==2.0.4              # via factory-boy
 flake8-blind-except==0.1.1
 flake8-debugger==3.1.0
 flake8-import-order==0.18.1
@@ -68,6 +70,7 @@ s3transfer==0.2.0
 sentry-sdk==0.9.0
 six==1.12.0
 sqlparse==0.3.0
+text-unidecode==1.3       # via faker
 urllib3==1.24.3
 vine==1.3.0
 wcwidth==0.1.7            # via pytest

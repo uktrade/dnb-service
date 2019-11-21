@@ -16,6 +16,7 @@ pytest-env
 pytest-mock
 pytest
 requests-mock
+factory_boy
 
 # Miscellaneous
 docutils
