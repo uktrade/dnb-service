@@ -3,30 +3,15 @@ import io
 import pytest
 
 from company.constants import MonitoringStatusChoices
-from company.models import Company, Country
+from company.tests.factories import CompanyFactory
 from dnb_direct_plus.monitoring import add_companies_to_dnb_monitoring_registration, DNBApiError, process_exception_file
-
-
-def _build_test_company(**fields):
-
-    data = {
-        'duns_number': '123456789',
-        'is_out_of_business': False,
-        'year_started': 2000,
-        'address_country': Country.objects.first(),
-        'monitoring_status': MonitoringStatusChoices.not_enabled.name
-    }
-
-    data.update(**fields)
-
-    return Company.objects.create(**data)
 
 
 class TestAddCompaniesToMonitoringRegistration:
     @pytest.mark.django_db
     def test_non_202_response_leaves_companies_in_pending_state(self, mocker):
 
-        company = _build_test_company(monitoring_status=MonitoringStatusChoices.pending.name)
+        company = CompanyFactory(monitoring_status=MonitoringStatusChoices.pending.name)
 
         mocked = mocker.patch('dnb_direct_plus.monitoring.api_request')
         mocked.return_value.json.return_value = {'error': 'an unknown error occured'}
@@ -41,7 +26,7 @@ class TestAddCompaniesToMonitoringRegistration:
 
     @pytest.mark.django_db
     def test_company_status_set_to_submitted_on_success(self, mocker):
-        company = _build_test_company(monitoring_status=MonitoringStatusChoices.pending.name)
+        company = CompanyFactory(monitoring_status=MonitoringStatusChoices.pending.name)
 
         mocked = mocker.patch('dnb_direct_plus.monitoring.api_request')
         mocked.return_value.status_code = 202
@@ -70,7 +55,7 @@ class TestProcessExceptionsFile:
 
         duns_number = '12345678'
 
-        company = _build_test_company(duns_number=duns_number)
+        company = CompanyFactory(duns_number=duns_number)
 
         header = io.BytesIO('DUNS\tCode\tInformation\n12345678\t110110\terror\n'.encode('utf-8'))
 
