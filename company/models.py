@@ -3,14 +3,18 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from company.constants import (LastUpdatedSource, LegalStatusChoices,
-                               RegistrationNumberChoices)
+from company.constants import (
+    LegalStatusChoices,
+    RegistrationNumberChoices,
+    MonitoringStatusChoices
+)
 
 duns_number_validator = RegexValidator(
     regex=r'^\d{9}$', message=_('Field should contain 9 numbers only'), code='invalid')
 
 
 class Country(models.Model):
+
     name = models.CharField(
         max_length=255,
     )
@@ -63,10 +67,27 @@ class Company(models.Model):
     """The main DNB company model"""
 
     created = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
-    last_updated_source = models.CharField(
-        choices=LastUpdatedSource.list(),
-        max_length=10,
+
+    monitoring_status = models.CharField(
+        choices=MonitoringStatusChoices.list(),
+        default=MonitoringStatusChoices.not_enabled.name,
+        max_length=100,
+    )
+
+    monitoring_status_detail = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+
+    # this field records the timestamp of the data source. For a monitoring update it will be the timestamp
+    # supplied in the file name. It is used to ensure that only newer updates get applied.
+    last_updated_source_timestamp = models.DateTimeField(
+        null=True,
+    )
+
+    # this field tracks when a change is made to the models data fields
+    last_updated = models.DateTimeField(
+        null=True,
     )
 
     duns_number = models.CharField(
@@ -220,3 +241,7 @@ class Company(models.Model):
 
     def __str__(self):
         return f'{self.duns_number} / {self.primary_name}'
+
+    @property
+    def is_monitored(self):
+        return self.monitoring_status == MonitoringStatusChoices.enabled.name

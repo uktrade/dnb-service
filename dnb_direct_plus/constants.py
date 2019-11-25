@@ -1,5 +1,6 @@
 from company.constants import LegalStatusChoices, RegistrationNumberChoices
 
+
 # Map the BusinessEntityType field to our local status field
 LEGAL_STATUS_MAPPING = {
     0: LegalStatusChoices.unknown,

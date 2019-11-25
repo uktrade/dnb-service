@@ -158,6 +158,11 @@ ALLOWED_IP_RANGES = env.list('ALLOWED_IP_RANGES', default=[])
 DNB_API_USERNAME = env('DNB_API_USERNAME')
 DNB_API_PASSWORD = env('DNB_API_PASSWORD')
 DNB_API_RENEW_ACCESS_TOKEN_SECONDS_REMAINING = 300
+DNB_MONITORING_REGISTRATION_REFERENCE = env('DNB_MONITORING_REGISTRATION_REFERENCE')
+DNB_MONITORING_S3_BUCKET = env('DNB_S3_MONITORING_BUCKET')
+DNB_DELETE_PROCESSED_FILES = env.bool('DNB_DELETE_PROCESSED_FILES')
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
 
 # Redis
 
@@ -169,6 +174,7 @@ else:
     REDIS_CELERY_URL = REDIS_URL
 
 # Celery
+
 CELERY_BROKER_URL = REDIS_CELERY_URL
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['application/json']
@@ -183,21 +189,6 @@ sentry_sdk.init(
         CeleryIntegration()
     ]
 )
-
-# Elasticsearch
-
-if 'elasticsearch' in VCAP_SERVICES:
-    ES_URL = VCAP_SERVICES['elasticsearch'][0]['credentials']['uri']
-else:
-    ES_URL = env('ES_URL')
-
-ES_SHARD_SETTINGS = {
-    'number_of_shards': 1,
-    'number_of_replicas': 0
-}
-ES_BULK_INSERT_CHUNK_SIZE = 1000
-ES_AUTO_SYNC_ON_SAVE = True
-ES_REFRESH_AFTER_AUTO_SYNC = True
 
 # DRF config
 
@@ -214,3 +205,4 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
 }
+
