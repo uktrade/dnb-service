@@ -47,17 +47,21 @@ class TestProcessExceptionsFile:
         mocked.return_value.__enter__.return_value = header
         mocked.return_value.__exit__.return_value = False
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as ex:
             process_exception_file('dummy_file.zip')
+
+        assert str(ex.value) == \
+               'Expected header to be: [\'DUNS\', \'Code\', \'Information\'] ' \
+               'but got: [\'INVALID\', \'HEADER\'] in dummy_file.zip'
 
     @pytest.mark.django_db
     def test_company_status_is_updated_to_failure(self, mocker):
 
-        duns_number = '12345678'
+        company = CompanyFactory(duns_number='12345678')
+        company2 = CompanyFactory(duns_number='87654321')
 
-        company = CompanyFactory(duns_number=duns_number)
-
-        header = io.BytesIO('DUNS\tCode\tInformation\n12345678\t110110\terror\n'.encode('utf-8'))
+        header = io.BytesIO(
+            'DUNS\tCode\tInformation\n12345678\t110110\terror\n87654321\terror\tfailed\n'.encode('utf-8'))
 
         mocked = mocker.patch('dnb_direct_plus.monitoring.open_zip_file')
         mocked.return_value.__enter__.return_value = header
@@ -66,6 +70,9 @@ class TestProcessExceptionsFile:
         process_exception_file('dummy_file.zip')
 
         company.refresh_from_db()
+        company2.refresh_from_db()
 
         assert company.monitoring_status == MonitoringStatusChoices.failed.name
         assert company.monitoring_status_detail == '110110 error'
+        assert company2.monitoring_status == MonitoringStatusChoices.failed.name
+        assert company2.monitoring_status_detail == 'error failed'
