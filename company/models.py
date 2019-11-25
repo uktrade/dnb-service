@@ -139,7 +139,7 @@ class Company(models.Model):
     )
 
     global_ultimate_duns_number = models.CharField(
-        _('Duns number'),
+        _('Global ultimate Duns number'),
         max_length=9,
         unique=False,
         validators=[duns_number_validator],

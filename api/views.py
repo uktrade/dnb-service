@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .serialisers import CompanySearchInputSerialiser
+from dnb_direct_plus.monitoring import enable_monitoring_and_update
 
 
 class DNBCompanySearchApiView(APIView):
@@ -22,5 +23,9 @@ class DNBCompanySearchApiView(APIView):
         except HTTPError as ex:
             error_detail = ex.response.json()['error']
             return Response(error_detail, status=ex.response.status_code)
+
+        # enable monitoring if the query is against a specific duns number
+        if 'duns_number' in serialiser.data:
+            enable_monitoring_and_update(data)
 
         return Response(data)

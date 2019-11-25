@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 import csv
+import datetime
 import io
 import logging
 import os
@@ -10,9 +11,9 @@ from smart_open import open as smart_open
 from django.conf import settings
 
 from .client import api_request, DNBApiError
-from company.models import Company
 from company.constants import MonitoringStatusChoices
-
+from company.models import Company
+from company.serialisers import CompanySerialiser
 
 
 logger = logging.getLogger(__name__)
@@ -34,12 +35,91 @@ def open_zip_file(file_path):
                 yield extracted_file
 
 
+def _compare_list(list1, list2):
+    """Do the lists contain the same elements irrespective of order?"""
+
+    if len(list1) != len(list2):
+        return False
+
+    for item in list1:
+        if item not in list2:
+            return False
+
+    return True
+
+
+def apply_dnb_monitoring_update(duns_number, diff_data):
+    raise NotImplementedError
+
+
+def create_or_update_company(api_data, updated_at=None, monitoring=False):
+    """Create or update the company from api data
+    """
+
+    related_fields = {
+        'registration_numbers': RegistrationNumber,
+        'primary_industry_codes': IndustryCode,
+        'industry_codes': PrimaryIndustryCode,
+    }
+
+    def _extract_company_fields(company_details):
+        return {
+            k: v for k, v in company_details if k not in related_fields
+        }
+
+    modified = False
+    company_data = {}
+
+    new_company_data = _extract_company_fields(api_data)
+
+    company, created = Company.objects.get_or_create(duns_number=api_data['duns_number'], defaults=new_company_data)
+
+    if not created:
+
+        # if this update is older than the last applied update, then do nothing
+        # if updated_at is not supplied it indicates that api_data is from a live api request, which means that
+        # it's current. By contrast an update from monitoring data may resault in processing data is that hours old
+        if updated_at and company.last_updated_source and company.last_updated_source > updated_at:
+            logger.debug(f'not updating {company.duns_number} as update is older than last update')
+            return False
+
+        company_data = CompanySerialiser(company).data
+
+        if _extract_company_fields(company_data) != new_company_data:
+            for field, value in new_company_data.values():
+                setattr(company, field, value)
+
+    # updated related models if they are modified
+    # TODO: implement transactions and locking
+    for field_name, model_class in related_fields:
+        if _compare_list(company_data.get(field_name, []), api_data[field_name]):
+            model_class.objects.filter(company=company).delete()
+            modified = True
+            for item_data in api_data[field_name]:
+                model_class.objects.create(company=company, **item_data)
+
+    if modified:
+        now = datetime.datetime.now()
+        company.last_updated = now
+        company.last_updated_source = updated_at if updated_at else now
+
+    if monitoring and company.monitoring_status == MonitoringStatusChoices.not_enabled.name:
+        company.monitoring_status = MonitoringStatusChoices.pending.name
+
+    company.save()
+
+    return modified
+
+
 def add_companies_to_dnb_monitoring_registration():
     """
     Take all entries from the Company model with status=pending and attempt to add them to the
-    DNB monitoring registration.  On success all entries will have status of Submitted.  If the api call is successful
-    it is assumed that the company was successfully added to the registration.  If there is a failure, we receive
-    notification from DNB later on.
+    DNB monitoring registration.  On success all entries will have status of enabled - that is we assume
+    that the registration was successful.
+
+    If DNB fails to add the company to the monitoring registration the duns number will be listed in an
+    exceptions file.  A scheduled job will process the exceptions file and set the monitoring status to failed for
+    companies listed in the file.
     """
     pending_registrations = Company.objects.filter(monitoring_status=MonitoringStatusChoices.pending.name)
 
