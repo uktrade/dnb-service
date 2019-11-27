@@ -272,7 +272,7 @@ class TestUpdateCompanyFromSource:
 
 class TestCreateOrUpdateCompany:
     def test_create_company(self, cmpelk_api_response_json):
-        Comp
+        pass
 
     def test_update_company(self, cmpelk_api_response_json):
         pass
