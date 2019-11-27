@@ -86,6 +86,8 @@ def process_exception_file(file_path):
                     company.monitoring_status = MonitoringStatusChoices.failed.name
                     company.monitoring_status_detail = f'{error_code} {description}'
                     company.save()
+
+                    logger.info(f'Set monitoring_status for {duns_number} to failed')
                 except Company.DoesNotExist:
                     logger.warning(f'No company found with duns number: {duns_number}')
 

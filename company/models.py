@@ -3,11 +3,8 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from company.constants import (
-    LegalStatusChoices,
-    RegistrationNumberChoices,
-    MonitoringStatusChoices
-)
+from company.constants import LegalStatusChoices, MonitoringStatusChoices, RegistrationNumberChoices
+
 
 duns_number_validator = RegexValidator(
     regex=r'^\d{9}$', message=_('Field should contain 9 numbers only'), code='invalid')
@@ -48,6 +45,7 @@ class RegistrationNumber(models.Model):
     company = models.ForeignKey(
         'company.Company',
         on_delete=models.CASCADE,
+        related_name='registration_numbers',
     )
 
     registration_type = models.CharField(
@@ -61,6 +59,49 @@ class RegistrationNumber(models.Model):
 
     def __str__(self):
         return f'{self.registration_type} / {self.registration_number}'
+
+
+class IndustryCode(models.Model):
+    company = models.ForeignKey(
+        'company.Company',
+        on_delete=models.CASCADE,
+        related_name='industry_codes',
+    )
+
+    code = models.CharField(
+        max_length=6,
+    )
+
+    description = models.CharField(
+        max_length=200,
+    )
+
+    priority = models.PositiveIntegerField()
+
+    typeDescription = models.CharField(
+        max_length=200,
+    )
+
+    typeDnbCode = models.CharField(
+        max_length=5
+    )
+
+
+class PrimaryIndustryCode(models.Model):
+    company = models.ForeignKey(
+        'company.Company',
+        on_delete=models.CASCADE,
+        related_name='primary_industry_codes',
+    )
+
+    usSicV4 = models.CharField(
+        max_length=4
+    )
+
+    usSicV4Description = models.CharField(
+        max_length=255,
+        blank=True,
+    )
 
 
 class Company(models.Model):
@@ -97,8 +138,21 @@ class Company(models.Model):
         validators=[duns_number_validator],
     )
 
+    global_ultimate_duns_number = models.CharField(
+        _('Duns number'),
+        max_length=9,
+        unique=False,
+        validators=[duns_number_validator],
+    )
+
     primary_name = models.CharField(
         _('Primary name'),
+        max_length=90,
+    )
+
+    global_ultimate_primary_name = models.CharField(
+        _('Global ultimate Primary name'),
+        blank=True,
         max_length=90,
     )
 
@@ -106,6 +160,12 @@ class Company(models.Model):
         models.CharField(max_length=255),
         blank=True,
         default=list,
+    )
+
+    domain = models.CharField(
+        _('Website domain'),
+        blank=True,
+        max_length=216,
     )
 
     address_line_1 = models.CharField(
@@ -222,6 +282,12 @@ class Company(models.Model):
         help_text=_('Annual sales in US dollars'),
         blank=True,
         null=True,
+    )
+
+    annual_sales_currency = models.CharField(
+        _('Annual sales currency'),
+        max_length=3,
+        blank=True,
     )
 
     is_annual_sales_estimated = models.BooleanField(
