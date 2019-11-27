@@ -1,16 +1,21 @@
+import datetime
 import json
 
 import pytest
-
+from freezegun import freeze_time
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils import timezone
 
+from company.serialisers import CompanySerialiser
+from company.tests.factories import CompanyFactory
 from dnb_direct_plus.mapping import extract_company_data
 from requests.exceptions import HTTPError
 from rest_framework.authtoken.models import Token
 
 
 class TestCompanySearchView:
+    @pytest.mark.django_db
     def test_requires_authentication(self, client):
         response = client.get(reverse('api:company-search'))
 
@@ -77,4 +82,65 @@ class TestCompanySearchView:
         assert response.status_code == 400
 
         assert response.json() == \
-            {'non_field_errors': ["At least one standalone field required: ['duns_number', 'search_term']."]}
+               'non_field_errors': ["At least one standalone field required: ['duns_number', 'search_term']."]}
+
+    class TestCompanyUpdateView:
+        def _iso_now(self):
+            return datetime.datetime.isoformat(datetime.datetime.now(), sep='T')
+
+        @pytest.mark.django_db
+        def test_requires_authentication(self, client):
+            response = client.get(reverse('api:company-updates'))
+
+            assert response.status_code == 401
+
+        @freeze_time('2019-11-25 12:00:01 UTC')
+        @pytest.mark.django_db
+        def test_last_updated_field(self, client):
+            user = get_user_model().objects.create(email='test@test.com', is_active=True)
+            token = Token.objects.create(user=user)
+
+            CompanyFactory(last_updated=timezone.now() - datetime.timedelta(1))
+            company = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(1))
+            company_data = CompanySerialiser(company).data
+
+            response = client.get(reverse('api:company-updates'),
+                                  {'last_updated_after': self._iso_now()},
+                                  content_type='application/json',
+                                  HTTP_AUTHORIZATION=f'Token {token.key}')
+
+            assert response.status_code == 200
+            assert response.json() == {'next': None, 'previous': None, 'results': [
+                company_data
+            ]}
+
+        @pytest.mark.django_db
+        def test_last_updated_invalid_date_results_in_400(self, client):
+            user = get_user_model().objects.create(email='test@test.com', is_active=True)
+            token = Token.objects.create(user=user)
+
+            response = client.get(reverse('api:company-updates'),
+                                  {'last_updated_after': 'is-not-a-date'},
+                                  content_type='application/json',
+                                  HTTP_AUTHORIZATION=f'Token {token.key}')
+
+            assert response.status_code == 400
+            assert response.json() == {'detail': 'Invalid date: is-not-a-date'}
+
+        @pytest.mark.django_db
+        def test_no_params_returns_all_results(self, client):
+            duns_numbers = [CompanyFactory().duns_number, CompanyFactory().duns_number]
+
+            user = get_user_model().objects.create(email='test@test.com', is_active=True)
+            token = Token.objects.create(user=user)
+
+            response = client.get(reverse('api:company-updates'),
+                                  {},
+                                  content_type='application/json',
+                                  HTTP_AUTHORIZATION=f'Token {token.key}')
+
+            assert response.status_code == 200
+
+            result_data = response.json()
+            assert len(result_data['results']) == 2
+            assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
