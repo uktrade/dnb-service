@@ -8,7 +8,7 @@ class RegistrationNumberSerialiser(serializers.ModelSerializer):
     class Meta:
         model = RegistrationNumber
         read_only = True
-        exclude = ['id']
+        exclude = ['id', 'company']
 
 
 class IndustryCodeSerialiser(serializers.ModelSerializer):
@@ -16,7 +16,7 @@ class IndustryCodeSerialiser(serializers.ModelSerializer):
     class Meta:
         model = IndustryCode
         read_only = True
-        exclude = ['id']
+        exclude = ['id', 'company']
 
 
 class PrimaryIndustryCodeSerialiser(serializers.ModelSerializer):
@@ -24,7 +24,7 @@ class PrimaryIndustryCodeSerialiser(serializers.ModelSerializer):
     class Meta:
         model = PrimaryIndustryCode
         read_only = True
-        exclude = ['id']
+        exclude = ['id', 'company']
 
 
 class CompanySerialiser(serializers.ModelSerializer):
