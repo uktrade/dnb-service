@@ -149,6 +149,7 @@ def extract_company_data(company_data):
         'primary_industry_codes': company_data['organization'].get('primaryIndustryCodes', []),
         'industry_codes': company_data['organization'].get('industryCodes', []),
         'legal_status': extract_legal_status(company_data),
+        'year_started': None,
     }
 
     return company

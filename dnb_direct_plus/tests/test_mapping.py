@@ -600,6 +600,7 @@ def test_company_list_ingest(company_list_api_response_json):
                 'priority': 1
             }
         ],
+        'year_started': None,
         'legal_status': 'foreign_company'
     }
 
@@ -644,5 +645,6 @@ def test_cmpelk_ingest(cmpelk_api_response_json):
                 'priority': 1
             }
         ],
+        'year_started': None,
         'legal_status': 'corporation'
     }

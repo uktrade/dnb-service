@@ -1,7 +1,9 @@
 from contextlib import contextmanager
+import copy
 import csv
 import datetime
 import io
+import json
 import logging
 import os
 import zipfile
@@ -9,11 +11,12 @@ import zipfile
 from smart_open import open as smart_open
 
 from django.conf import settings
+from django.db import transaction
 
 from .client import api_request, DNBApiError
 from company.constants import MonitoringStatusChoices
-from company.models import Company
-from company.serialisers import CompanySerialiser
+from company.models import Company, Country, IndustryCode, PrimaryIndustryCode, RegistrationNumber
+from .mapping import extract_company_data
 
 
 logger = logging.getLogger(__name__)
@@ -35,83 +38,57 @@ def open_zip_file(file_path):
                 yield extracted_file
 
 
-def _compare_list(list1, list2):
-    """Do the lists contain the same elements irrespective of order?"""
-
-    if len(list1) != len(list2):
-        return False
-
-    for item in list1:
-        if item not in list2:
-            return False
-
-    return True
-
-
-def apply_dnb_monitoring_update(duns_number, diff_data):
-    raise NotImplementedError
-
-
-def create_or_update_company(api_data, updated_at=None, monitoring=False):
-    """Create or update the company from api data
-    """
+@transaction.atomic
+def update_company_from_source(company, updated_source, updated_timestamp, enable_monitoring=False):
 
     related_fields = {
         'registration_numbers': RegistrationNumber,
-        'primary_industry_codes': IndustryCode,
-        'industry_codes': PrimaryIndustryCode,
+        'primary_industry_codes': PrimaryIndustryCode,
+        'industry_codes': IndustryCode,
     }
 
-    def _extract_company_fields(company_details):
-        return {
-            k: v for k, v in company_details if k not in related_fields
-        }
+    allow_nulls = ['is_annual_sales_estimated', 'is_employees_number_estimated', 'year_started']
 
-    modified = False
-    company_data = {}
+    new_company_data = extract_company_data(updated_source)
 
-    new_company_data = _extract_company_fields(api_data)
+    if not company.source or new_company_data != extract_company_data(company.source):
+        company.last_updated = datetime.datetime.now()
 
-    company, created = Company.objects.get_or_create(duns_number=api_data['duns_number'], defaults=new_company_data)
+    for field, value in new_company_data.items():
+        if field in ['address_country', 'registered_address_country']:
+            country = Country.objects.get(iso_alpha2__iexact=value) if value else None
+            setattr(company, field, country)
+        elif field not in related_fields:
+            if value is None and field not in allow_nulls:
+                value = ''
+            setattr(company, field, value)
 
-    if not created:
-
-        # if this update is older than the last applied update, then do nothing
-        # if updated_at is not supplied it indicates that api_data is from a live api request, which means that
-        # it's current. By contrast an update from monitoring data may resault in processing data is that hours old
-        if updated_at and company.last_updated_source and company.last_updated_source > updated_at:
-            logger.debug(f'not updating {company.duns_number} as update is older than last update')
-            return False
-
-        company_data = CompanySerialiser(company).data
-
-        if _extract_company_fields(company_data) != new_company_data:
-            for field, value in new_company_data.values():
-                setattr(company, field, value)
-
-    # updated related models if they are modified
-    # TODO: implement transactions and locking
-    for field_name, model_class in related_fields:
-        if _compare_list(company_data.get(field_name, []), api_data[field_name]):
-            model_class.objects.filter(company=company).delete()
-            modified = True
-            for item_data in api_data[field_name]:
-                model_class.objects.create(company=company, **item_data)
-
-    if modified:
-        now = datetime.datetime.now()
-        company.last_updated = now
-        company.last_updated_source = updated_at if updated_at else now
-
-    if monitoring and company.monitoring_status == MonitoringStatusChoices.not_enabled.name:
+    if enable_monitoring and company.monitoring_status == MonitoringStatusChoices.not_enabled.name:
         company.monitoring_status = MonitoringStatusChoices.pending.name
 
+    company.source = updated_source
+    company.last_updated_source_timestamp = updated_timestamp
     company.save()
 
-    return modified
+    # update related models if they are modified
+    for field_name, model_class in related_fields.items():
+        model_class.objects.filter(company=company).delete()
+        for element in new_company_data[field_name]:
+            model_class.objects.create(company=company, **element)
 
 
-def add_companies_to_dnb_monitoring_registration():
+def create_or_update_company(source_data, timestamp=None, enable_monitoring=False):
+    """Create or update the company from api data """
+
+    try:
+        company = Company.objects.get(duns_number=source_data['duns_number'])
+    except Company.DoesNotExist:
+        company = Company()
+
+    update_company_from_source(company, source_data, timestamp, enable_monitoring=enable_monitoring)
+
+
+def add_companies_to_monitoring_registration():
     """
     Take all entries from the Company model with status=pending and attempt to add them to the
     DNB monitoring registration.  On success all entries will have status of enabled - that is we assume
@@ -140,6 +117,82 @@ def add_companies_to_dnb_monitoring_registration():
             raise DNBApiError(response_data)
 
         return pending_registrations.count()
+
+
+def _parse_timestamp_from_file(file_name):
+    """Parse the date from the filename, which is in the format: {RegistrationNumber_{timestamp}_[...].{ext}"}"""
+
+    parts = os.path.basename(file_name.split('_'))
+
+    return datetime.datetime.strptime(parts[1], '%Y%m%d%H%M%S')
+
+
+def _update_dict_key(source_data, elements, value):
+    """Modify a nested key in a dict"""
+    if len(elements) > 0:
+        key = elements.pop(0)
+        source_data[key] = _update_dict_key(source_data[key], elements, value)
+        return source_data
+    else:
+        return value
+
+
+def apply_update_to_company(update_data, file_timestamp):
+    """Apply an individual update supplied from the DNB monitoring service to a company entry"""
+
+    duns_number = update_data['organization']['duns_number']
+
+    try:
+        company = Company.objects.get(duns_number=duns_number)
+    except Company.DoesNotExist:
+        return False, f'{duns_number}: update for company not in DB'
+
+    if update_data['type'] != 'UPDATE':
+        return False, f'{duns_number}: skipping {update_data["type"]} type'
+
+    if not company.source:
+        return False, f'{duns_number}: No source data'
+
+    if company.last_updated_source_timestamp and company.last_updated_source_timestamp > file_timestamp:
+        return False, f'{duns_number}; update is older than last updated timestamp'
+
+    updated_source = copy.deepcopy(company.source)
+
+    for update in update_data['elements']:
+        try:
+            _update_dict_key(updated_source, update['element'].split('.'), update['current'])
+        except (KeyError, IndexError):
+            logger.exception('Missing element')
+            return False, f'Missing element: {update["element"]}'
+
+    update_company_from_source(company, updated_source, file_timestamp)
+
+    return True, ''
+
+
+def process_seed_file(file_path):
+    timestamp = _parse_timestamp_from_file(file_path)
+
+    logger.info(f'Processing seed file: {file_path}')
+
+    with open_zip_file(file_path) as file_data:
+        for line_number, line in enumerate(file_data, 1):
+            seed_data = json.loads(line)
+
+            duns_number = seed_data['organization']['duns']
+
+            try:
+                company = Company.objects.get(duns_number=duns_number)
+            except Company.DoesNotExist:
+                logger.warning(
+                    f'Seed data supplied for company not in DB: {duns_number}; '
+                    f'line {line_number} of {file_path}; skipping')
+                continue
+
+            if company.last_updated_source_timestamp and timestamp < company.last_updated_source_timestamp:
+                logger.info(f'Seed data for {duns_number} is older than last update; skipping')
+
+            update_company_from_source(company, seed_data, )
 
 
 def process_exception_file(file_path):
@@ -173,4 +226,23 @@ def process_exception_file(file_path):
 
 
 def process_update_file(file_path):
-    raise NotImplementedError
+    """Process an update file"""
+    timestamp = _parse_timestamp_from_file(file_path)
+
+    logger.info(f'Processing update file: {file_path}')
+
+    total, total_fail = 0, 0
+
+    with open_zip_file(file_path) as file_data:
+        for line_number, line in enumerate(file_data, 1):
+            update_data = json.loads(line)
+
+            success, reason = apply_update_to_company(update_data, timestamp)
+
+            if not success:
+                logger.warning(f'Error in {file_path} on {line_number} reason: {reason}')
+                total_fail += 1
+
+            total += 1
+
+    return total, total_fail

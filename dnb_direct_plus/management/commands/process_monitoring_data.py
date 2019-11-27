@@ -6,7 +6,7 @@ from boto3 import client
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from dnb_direct_plus.monitoring import process_exception_file
+from dnb_direct_plus.monitoring import process_exception_file, process_seed_file, process_update_file
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +40,15 @@ class Command(BaseCommand):
                 self.stdout.write(f'Skipping {file_name} due to incorrect DNB monitoring reference')
                 continue
 
+            if 'HEADER' in file_name:
+                continue
+
             if 'Exceptions' in file_name:
                 handler = process_exception_file
+            elif 'NOTIFICATION' in file_name:
+                handler = process_update_file
+            elif 'SEEDFILE' in file_name:
+                handler = process_seed_file
             else:
                 self.stdout.write(f'Skipping {file_name}')
                 continue
