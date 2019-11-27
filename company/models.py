@@ -1,4 +1,4 @@
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -82,7 +82,7 @@ class IndustryCode(models.Model):
         max_length=200,
     )
 
-    typeDnbCode = models.CharField(
+    typeDnBCode = models.CharField(
         max_length=5
     )
 
@@ -108,6 +108,8 @@ class Company(models.Model):
     """The main DNB company model"""
 
     created = models.DateTimeField(auto_now_add=True)
+
+    source = JSONField(null=True)
 
     monitoring_status = models.CharField(
         choices=MonitoringStatusChoices.list(),
@@ -255,6 +257,7 @@ class Company(models.Model):
 
     year_started = models.PositiveIntegerField(
         _('Year started'),
+        null=True,
     )
 
     global_ultimate_duns_number = models.CharField(
