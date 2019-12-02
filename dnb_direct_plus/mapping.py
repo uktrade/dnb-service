@@ -95,7 +95,7 @@ def extract_is_out_of_business(company_data):
 def extract_employee_numbers(company_data):
     employee_number_entries = company_data['organization'].get('numberOfEmployees')
 
-    if employee_number_entries is None:
+    if not employee_number_entries:
         return None, None
 
     employee_data = None

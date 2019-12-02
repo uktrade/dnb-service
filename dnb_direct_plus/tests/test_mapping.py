@@ -482,7 +482,7 @@ def test_extract_is_out_of_business_bad_data():
         },
         (True, 4000)
     ),
-    # missign data
+    # missing data
     (
         {
             'organization': {}
@@ -504,6 +504,15 @@ def test_extract_is_out_of_business_bad_data():
             }
         },
         (True, 4000)
+    ),
+    # missing data
+    (
+        {
+            'organization': {
+                'numberOfEmployees': []
+            }
+        },
+        (None, None)
     ),
 ])
 def test_extract_employee_numbers(input_data, expected):
