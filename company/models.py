@@ -69,11 +69,11 @@ class IndustryCode(models.Model):
     )
 
     code = models.CharField(
-        max_length=6,
+        max_length=8,
     )
 
     description = models.CharField(
-        max_length=200,
+        max_length=255,
     )
 
     priority = models.PositiveIntegerField()

@@ -8,10 +8,12 @@ import logging
 import os
 import zipfile
 
+import pytz
 from smart_open import open as smart_open
 
 from django.conf import settings
 from django.db import transaction
+from django.utils import timezone
 
 from .client import api_request, DNBApiError
 from company.constants import MonitoringStatusChoices
@@ -39,7 +41,8 @@ def open_zip_file(file_path):
 
 
 @transaction.atomic
-def update_company_from_source(company, updated_source, updated_timestamp, enable_monitoring=False):
+def update_company_from_source(company, updated_source, updated_timestamp=None, enable_monitoring=False):
+    """Rebuild a company entry, including related models with new api source data"""
 
     related_fields = {
         'registration_numbers': RegistrationNumber,
@@ -47,12 +50,11 @@ def update_company_from_source(company, updated_source, updated_timestamp, enabl
         'industry_codes': IndustryCode,
     }
 
-    allow_nulls = ['is_annual_sales_estimated', 'is_employees_number_estimated', 'year_started']
-
+    allow_nulls = ['is_annual_sales_estimated', 'is_employees_number_estimated', 'year_started', 'annual_sales']
     new_company_data = extract_company_data(updated_source)
 
     if not company.source or new_company_data != extract_company_data(company.source):
-        company.last_updated = datetime.datetime.now()
+        company.last_updated = timezone.now()
 
     for field, value in new_company_data.items():
         if field in ['address_country', 'registered_address_country']:
@@ -77,17 +79,6 @@ def update_company_from_source(company, updated_source, updated_timestamp, enabl
             model_class.objects.create(company=company, **element)
 
 
-def create_or_update_company(source_data, timestamp=None, enable_monitoring=False):
-    """Create or update the company from api data """
-
-    try:
-        company = Company.objects.get(duns_number=source_data['duns_number'])
-    except Company.DoesNotExist:
-        company = Company()
-
-    update_company_from_source(company, source_data, timestamp, enable_monitoring=enable_monitoring)
-
-
 def add_companies_to_monitoring_registration():
     """
     Take all entries from the Company model with status=pending and attempt to add them to the
@@ -95,8 +86,7 @@ def add_companies_to_monitoring_registration():
     that the registration was successful.
 
     If DNB fails to add the company to the monitoring registration the duns number will be listed in an
-    exceptions file.  A scheduled job will process the exceptions file and set the monitoring status to failed for
-    companies listed in the file.
+    exceptions file.  A scheduled job will process the exceptions file and set the monitoring status.
     """
     pending_registrations = Company.objects.filter(monitoring_status=MonitoringStatusChoices.pending.name)
 
@@ -122,9 +112,12 @@ def add_companies_to_monitoring_registration():
 def _parse_timestamp_from_file(file_name):
     """Parse the date from the filename, which is in the format: {RegistrationNumber_{timestamp}_[...].{ext}"}"""
 
-    parts = os.path.basename(file_name.split('_'))
+    raw_time = os.path.basename(file_name.split('_')[1])
 
-    return datetime.datetime.strptime(parts[1], '%Y%m%d%H%M%S')
+    timestamp = datetime.datetime.strptime(raw_time, '%Y%m%d%H%M%S')
+
+    tz = pytz.timezone(settings.TIME_ZONE)
+    return timestamp.replace(tzinfo=tz)
 
 
 def _update_dict_key(source_data, elements, value):
@@ -137,73 +130,69 @@ def _update_dict_key(source_data, elements, value):
         return value
 
 
-def apply_update_to_company(update_data, file_timestamp):
+def create_or_update_company(source_data, timestamp=None, enable_monitoring=False):
+    """Create or update the company from api data """
+
+    try:
+        company = Company.objects.get(duns_number=source_data['duns_number'])
+    except Company.DoesNotExist:
+        company = Company()
+
+    update_company_from_source(company, source_data, timestamp, enable_monitoring=enable_monitoring)
+
+
+def apply_update_to_company(update_data, timestamp):
     """Apply an individual update supplied from the DNB monitoring service to a company entry"""
 
-    duns_number = update_data['organization']['duns_number']
+    duns_number = update_data['organization']['duns']
 
     try:
         company = Company.objects.get(duns_number=duns_number)
     except Company.DoesNotExist:
-        return False, f'{duns_number}: update for company not in DB'
+        company = Company()
 
-    if update_data['type'] != 'UPDATE':
-        return False, f'{duns_number}: skipping {update_data["type"]} type'
-
-    if not company.source:
-        return False, f'{duns_number}: No source data'
-
-    if company.last_updated_source_timestamp and company.last_updated_source_timestamp > file_timestamp:
+    if company.last_updated_source_timestamp and company.last_updated_source_timestamp > timestamp:
         return False, f'{duns_number}; update is older than last updated timestamp'
 
-    updated_source = copy.deepcopy(company.source)
+    update_type = update_data.get('type', 'SEED')
 
-    for update in update_data['elements']:
-        try:
-            _update_dict_key(updated_source, update['element'].split('.'), update['current'])
-        except (KeyError, IndexError):
-            logger.exception('Missing element')
-            return False, f'Missing element: {update["element"]}'
+    if update_type == 'UPDATE':
+        if not company.id:
+            return False, f'{duns_number}: update for company not in DB'
+        if not company.source:
+            return False, f'{duns_number}: No source data - cannot apply update'
 
-    update_company_from_source(company, updated_source, file_timestamp)
+        updated_source = copy.deepcopy(company.source)
+
+        for update in update_data['elements']:
+            try:
+                _update_dict_key(updated_source, update['element'].split('.'), update['current'])
+            except (KeyError, IndexError):
+                logger.exception('Missing element')
+                return False, f'{duns_number}: Missing element: {update["element"]}'
+    else:
+        updated_source = update_data
+
+    update_company_from_source(company, updated_source, timestamp)
 
     return True, ''
-
-
-def process_seed_file(file_path):
-    timestamp = _parse_timestamp_from_file(file_path)
-
-    logger.info(f'Processing seed file: {file_path}')
-
-    with open_zip_file(file_path) as file_data:
-        for line_number, line in enumerate(file_data, 1):
-            seed_data = json.loads(line)
-
-            duns_number = seed_data['organization']['duns']
-
-            try:
-                company = Company.objects.get(duns_number=duns_number)
-            except Company.DoesNotExist:
-                logger.warning(
-                    f'Seed data supplied for company not in DB: {duns_number}; '
-                    f'line {line_number} of {file_path}; skipping')
-                continue
-
-            if company.last_updated_source_timestamp and timestamp < company.last_updated_source_timestamp:
-                logger.info(f'Seed data for {duns_number} is older than last update; skipping')
-
-            update_company_from_source(company, seed_data, )
 
 
 def process_exception_file(file_path):
     """Process a DNB monitoring exceptions file and update Company.monitoring_status"""
     required_header = ['DUNS', 'Code', 'Information']
 
+    file_name = os.path.basename(file_path)
+
     is_header = True
+
+    total, total_success = 0, 0
 
     with open_zip_file(file_path) as file_data:
         csv_data = csv.reader(io.TextIOWrapper(file_data), delimiter='\t')
         for line in csv_data:
+
+            total += 1
 
             if is_header:
                 is_header = False
@@ -220,29 +209,41 @@ def process_exception_file(file_path):
                     company.monitoring_status_detail = f'{error_code} {description}'
                     company.save()
 
-                    logger.info(f'Set monitoring_status for {duns_number} to failed')
+                    logger.info(f'{file_name } Set monitoring_status for {duns_number} to failed')
                 except Company.DoesNotExist:
-                    logger.warning(f'No company found with duns number: {duns_number}')
+                    logger.warning(f'{file_name}; {duns_number}; No company found with duns number')
+                else:
+                    total_success += 1
+
+    return total, total_success
 
 
-def process_update_file(file_path):
+def process_notification_file(file_path):
     """Process an update file"""
+
     timestamp = _parse_timestamp_from_file(file_path)
 
-    logger.info(f'Processing update file: {file_path}')
+    file_name = os.path.basename(file_path)
 
-    total, total_fail = 0, 0
+    total, total_success = 0, 0
 
     with open_zip_file(file_path) as file_data:
         for line_number, line in enumerate(file_data, 1):
             update_data = json.loads(line)
 
-            success, reason = apply_update_to_company(update_data, timestamp)
-
-            if not success:
-                logger.warning(f'Error in {file_path} on {line_number} reason: {reason}')
-                total_fail += 1
-
             total += 1
 
-    return total, total_fail
+            if not isinstance(update_data, dict):
+                logger.debug('Error: {file_name}/{line_number} contains incomplete data: {update_data}')
+                continue
+
+            success, reason = apply_update_to_company(update_data, timestamp)
+
+            if success:
+                logger.info('Successfully processed {line_number')
+
+                total_success += 1
+            else:
+                logger.warning(f'Error: {file_name}/{line_number} reason: {reason}')
+
+    return total, total_success

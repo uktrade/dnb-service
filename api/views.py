@@ -10,7 +10,7 @@ from .serialisers import CompanySearchInputSerialiser
 from company.models import Company
 from company.serialisers import CompanySerialiser
 from dnb_direct_plus.api import company_list_search
-from dnb_direct_plus.monitoring import create_or_update_company
+from dnb_direct_plus.tasks import update_company_and_enable_monitoring
 
 
 class DNBCompanySearchApiView(APIView):
@@ -27,8 +27,8 @@ class DNBCompanySearchApiView(APIView):
             return Response(error_detail, status=ex.response.status_code)
 
         # enable monitoring if the query is against a specific duns number
-        if 'duns_number' in serialiser.data:
-            create_or_update_company(data)
+        if 'duns_number' in serialiser.data and len(data['results']) == 1:
+            update_company_and_enable_monitoring(data['results'][0])
 
         return Response(data)
 

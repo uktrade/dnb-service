@@ -1,12 +1,13 @@
 import logging
 import os
+import traceback
 
 from boto3 import client
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from dnb_direct_plus.monitoring import process_exception_file, process_seed_file, process_update_file
+from dnb_direct_plus.monitoring import process_exception_file, process_notification_file
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,8 @@ class Command(BaseCommand):
 
         files = self._list_files()
 
+        summary = []
+
         for file_name in files:
 
             if not file_name.startswith(settings.DNB_MONITORING_REGISTRATION_REFERENCE):
@@ -45,22 +48,28 @@ class Command(BaseCommand):
 
             if 'Exceptions' in file_name:
                 handler = process_exception_file
-            elif 'NOTIFICATION' in file_name:
-                handler = process_update_file
-            elif 'SEEDFILE' in file_name:
-                handler = process_seed_file
+            elif 'NOTIFICATION' in file_name or 'SEEDFILE' in file_name:
+                handler = process_notification_file
             else:
                 self.stdout.write(f'Skipping {file_name}')
                 continue
 
-            self.stdout.write(f'Processing {file_name}')
-
             bucket_path = os.path.join('s3://', settings.DNB_MONITORING_S3_BUCKET, file_name)
 
             try:
-                handler(bucket_path)
+                total, total_success = handler(bucket_path)
+            except (KeyboardInterrupt, SystemExit):
+                exit(1)
             except BaseException as exc:
                 self.stdout.write(f'An error occurred attempting to process {file_name}: {exc}')
+                traceback.print_exc()
             else:
+                summary.append(
+                    dict(file=file_name, total=total, failed=total - total_success)
+                )
                 if settings.DNB_DELETE_PROCESSED_FILES:
                     self._delete_file(file_name)
+
+        self.stdout.write('\n'.join(
+            '{file}\t\tTotal: {total}\tFailed: {failed}'.format(**line) for line in summary
+        ))
