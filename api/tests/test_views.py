@@ -7,6 +7,8 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 
+from company.constants import MonitoringStatusChoices
+from company.models import Company
 from company.serialisers import CompanySerialiser
 from company.tests.factories import CompanyFactory
 from dnb_direct_plus.mapping import extract_company_data
@@ -14,14 +16,17 @@ from requests.exceptions import HTTPError
 from rest_framework.authtoken.models import Token
 
 
+pytestmark = [
+    pytest.mark.django_db
+]
+
+
 class TestCompanySearchView:
-    @pytest.mark.django_db
     def test_requires_authentication(self, client):
         response = client.get(reverse('api:company-search'))
 
         assert response.status_code == 401
 
-    @pytest.mark.django_db
     def test_404_returns_empty_data(self, client, mocker):
         user = get_user_model().objects.create(email='test@test.com', is_active=True)
         token = Token.objects.create(user=user)
@@ -43,7 +48,6 @@ class TestCompanySearchView:
             'results': []
         }
 
-    @pytest.mark.django_db
     def test_api_call_with_data(self, client, mocker, company_list_api_response_json):
         user = get_user_model().objects.create(email='test@test.com', is_active=True)
         token = Token.objects.create(user=user)
@@ -69,7 +73,6 @@ class TestCompanySearchView:
         for input_data, expected in zip(company_input_data['searchCandidates'], response_data['results']):
             assert extract_company_data(input_data) == expected
 
-    @pytest.mark.django_db
     def test_api_with_bad_query(self, client):
         user = get_user_model().objects.create(email='test@test.com', is_active=True)
         token = Token.objects.create(user=user)
@@ -84,63 +87,85 @@ class TestCompanySearchView:
         assert response.json() == \
                {'non_field_errors': ["At least one standalone field required: ['duns_number', 'search_term']."]}
 
-    class TestCompanyUpdateView:
-        def _iso_now(self):
-            return datetime.datetime.isoformat(datetime.datetime.now(), sep='T')
+    def test_query_duns_number_updates_local_db_and_monitoring_is_enabled(self, client, mocker, company_list_api_response_json):
+        user = get_user_model().objects.create(email='test@test.com', is_active=True)
+        token = Token.objects.create(user=user)
 
-        @pytest.mark.django_db
-        def test_requires_authentication(self, client):
-            response = client.get(reverse('api:company-updates'))
+        company_input_data = json.loads(company_list_api_response_json)
+        company_input_data['searchCandidates'].pop()
+        company_input_data['candidatesReturnedQuantity'] = 1
+        company_input_data['candidatesMatchedQuantity'] = 1
 
-            assert response.status_code == 401
+        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
+        mock_api_request.return_value.json.return_value = company_input_data
 
-        @freeze_time('2019-11-25 12:00:01 UTC')
-        @pytest.mark.django_db
-        def test_last_updated_field(self, client):
-            user = get_user_model().objects.create(email='test@test.com', is_active=True)
-            token = Token.objects.create(user=user)
+        assert Company.objects.count() == 0
+        response = client.post(reverse('api:company-search'),
+                              {'duns_number': company_input_data['searchCandidates'][0]['organization']['duns']},
+                              content_type='application/json',
+                              HTTP_AUTHORIZATION=f'Token {token.key}')
 
-            CompanyFactory(last_updated=timezone.now() - datetime.timedelta(1))
-            company = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(1))
-            company_data = CompanySerialiser(company).data
+        assert Company.objects.count() == 1
+        assert response.status_code == 200
+        company = Company.objects.first()
+        result_data = response.json()
+        assert company.duns_number == result_data['results'][0]['duns_number']
+        assert company.monitoring_status == MonitoringStatusChoices.pending.name
 
-            response = client.get(reverse('api:company-updates'),
-                                  {'last_updated_after': self._iso_now()},
-                                  content_type='application/json',
-                                  HTTP_AUTHORIZATION=f'Token {token.key}')
 
-            assert response.status_code == 200
-            assert response.json() == {'next': None, 'previous': None, 'results': [
-                company_data
-            ]}
+class TestCompanyUpdateView:
+    def _iso_now(self):
+        return datetime.datetime.isoformat(datetime.datetime.now(), sep='T')
 
-        @pytest.mark.django_db
-        def test_last_updated_invalid_date_results_in_400(self, client):
-            user = get_user_model().objects.create(email='test@test.com', is_active=True)
-            token = Token.objects.create(user=user)
+    def test_requires_authentication(self, client):
+        response = client.get(reverse('api:company-updates'))
 
-            response = client.get(reverse('api:company-updates'),
-                                  {'last_updated_after': 'is-not-a-date'},
-                                  content_type='application/json',
-                                  HTTP_AUTHORIZATION=f'Token {token.key}')
+        assert response.status_code == 401
 
-            assert response.status_code == 400
-            assert response.json() == {'detail': 'Invalid date: is-not-a-date'}
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    def test_last_updated_field(self, client):
+        user = get_user_model().objects.create(email='test@test.com', is_active=True)
+        token = Token.objects.create(user=user)
 
-        @pytest.mark.django_db
-        def test_no_params_returns_all_results(self, client):
-            duns_numbers = [CompanyFactory().duns_number, CompanyFactory().duns_number]
+        CompanyFactory(last_updated=timezone.now() - datetime.timedelta(1))
+        company = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(1))
+        company_data = CompanySerialiser(company).data
 
-            user = get_user_model().objects.create(email='test@test.com', is_active=True)
-            token = Token.objects.create(user=user)
+        response = client.get(reverse('api:company-updates'),
+                              {'last_updated_after': self._iso_now()},
+                              content_type='application/json',
+                              HTTP_AUTHORIZATION=f'Token {token.key}')
 
-            response = client.get(reverse('api:company-updates'),
-                                  {},
-                                  content_type='application/json',
-                                  HTTP_AUTHORIZATION=f'Token {token.key}')
+        assert response.status_code == 200
+        assert response.json() == {'next': None, 'previous': None, 'results': [
+            company_data
+        ]}
 
-            assert response.status_code == 200
+    def test_last_updated_invalid_date_results_in_400(self, client):
+        user = get_user_model().objects.create(email='test@test.com', is_active=True)
+        token = Token.objects.create(user=user)
 
-            result_data = response.json()
-            assert len(result_data['results']) == 2
-            assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
+        response = client.get(reverse('api:company-updates'),
+                              {'last_updated_after': 'is-not-a-date'},
+                              content_type='application/json',
+                              HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        assert response.status_code == 400
+        assert response.json() == {'detail': 'Invalid date: is-not-a-date'}
+
+    def test_no_params_returns_all_results(self, client):
+        duns_numbers = [CompanyFactory().duns_number, CompanyFactory().duns_number]
+
+        user = get_user_model().objects.create(email='test@test.com', is_active=True)
+        token = Token.objects.create(user=user)
+
+        response = client.get(reverse('api:company-updates'),
+                              {},
+                              content_type='application/json',
+                              HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        assert response.status_code == 200
+
+        result_data = response.json()
+        assert len(result_data['results']) == 2
+        assert all(result['duns_number'] in duns_numbers for result in result_data['results'])

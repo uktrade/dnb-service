@@ -10,7 +10,6 @@ from .serialisers import CompanySearchInputSerialiser
 from company.models import Company
 from company.serialisers import CompanySerialiser
 from dnb_direct_plus.api import company_list_search
-from dnb_direct_plus.tasks import update_company_and_enable_monitoring
 
 
 class DNBCompanySearchApiView(APIView):
@@ -21,14 +20,10 @@ class DNBCompanySearchApiView(APIView):
         serialiser.is_valid(raise_exception=True)
 
         try:
-            data = company_list_search(serialiser.data)
+            data = company_list_search(serialiser.data, update_local=True)
         except HTTPError as ex:
             error_detail = ex.response.json()['error']
             return Response(error_detail, status=ex.response.status_code)
-
-        # enable monitoring if the query is against a specific duns number
-        if 'duns_number' in serialiser.data and len(data['results']) == 1:
-            update_company_and_enable_monitoring(data['results'][0])
 
         return Response(data)
 

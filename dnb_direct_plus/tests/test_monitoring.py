@@ -272,14 +272,6 @@ class TestUpdateCompanyFromSource:
         assert company.monitoring_status == expected_status
 
 
-class TestCreateOrUpdateCompany:
-    def test_create_company(self, cmpelk_api_response_json):
-        pass
-
-    def test_update_company(self, cmpelk_api_response_json):
-        pass
-
-
 class TestAddCompaniesToMonitoringRegistration:
     def test_non_202_response_leaves_companies_in_pending_state(self, mocker):
         company = CompanyFactory(monitoring_status=MonitoringStatusChoices.pending.name)

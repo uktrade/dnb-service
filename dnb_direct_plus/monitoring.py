@@ -147,17 +147,6 @@ def add_companies_to_monitoring_registration():
         return pending_registrations.count()
 
 
-def create_or_update_company(source_data, timestamp=None, enable_monitoring=False):
-    """Create or update the company from api data """
-
-    try:
-        company = Company.objects.get(duns_number=source_data['duns_number'])
-    except Company.DoesNotExist:
-        company = Company()
-
-    update_company_from_source(company, source_data, timestamp, enable_monitoring=enable_monitoring)
-
-
 def apply_update_to_company(update_data, timestamp):
     """Apply an individual update supplied from the DNB monitoring service to a company entry"""
 
