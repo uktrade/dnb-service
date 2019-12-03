@@ -129,7 +129,7 @@ class TestCompanyUpdateView:
 
         CompanyFactory(last_updated=timezone.now() - datetime.timedelta(1))
         company = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(1))
-        company_data = CompanySerialiser(company).data
+        expected_company_data = CompanySerialiser(company).data
 
         response = client.get(reverse('api:company-updates'),
                               {'last_updated_after': self._iso_now()},
@@ -138,7 +138,7 @@ class TestCompanyUpdateView:
 
         assert response.status_code == 200
         assert response.json() == {'next': None, 'previous': None, 'results': [
-            company_data
+            expected_company_data
         ]}
 
     def test_last_updated_invalid_date_results_in_400(self, client):
@@ -169,3 +169,32 @@ class TestCompanyUpdateView:
         result_data = response.json()
         assert len(result_data['results']) == 2
         assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
+
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    def test_pagination(self, client):
+        user = get_user_model().objects.create(email='test@test.com', is_active=True)
+        token = Token.objects.create(user=user)
+
+        company1 = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(1))
+        company2 = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(2))
+
+        response = client.get(reverse('api:company-updates'),
+                              {'last_updated_after': self._iso_now(), 'page_size': 1},
+                              content_type='application/json',
+                              HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data['next'] is not None
+        assert len(response_data['results']) == 1
+        assert response_data['results'][0]['duns_number'] == company1.duns_number
+
+        response = client.get(response_data['next'],
+                              content_type='application/json',
+                              HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data['next'] is None
+        assert len(response_data['results']) == 1
+        assert response_data['results'][0]['duns_number'] == company2.duns_number
