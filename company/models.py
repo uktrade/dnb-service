@@ -149,13 +149,13 @@ class Company(models.Model):
 
     primary_name = models.CharField(
         _('Primary name'),
-        max_length=90,
+        max_length=255,
     )
 
     global_ultimate_primary_name = models.CharField(
         _('Global ultimate Primary name'),
         blank=True,
-        max_length=90,
+        max_length=255,
     )
 
     trading_names = ArrayField(
@@ -260,17 +260,8 @@ class Company(models.Model):
         null=True,
     )
 
-    global_ultimate_duns_number = models.CharField(
-        _('Glogal ultimate duns number'),
-        max_length=9,
-        blank=True,
-        validators=[duns_number_validator],
-        db_index=True,
-    )
-
     employee_number = models.PositiveIntegerField(
         _('Employee number'),
-        blank=True,
         null=True,
     )
 

@@ -12,6 +12,7 @@ import pytz
 from smart_open import open as smart_open
 
 from django.conf import settings
+from django.core.exceptions import FieldDoesNotExist
 from django.db import transaction
 from django.utils import timezone
 
@@ -40,6 +41,42 @@ def open_zip_file(file_path):
                 yield extracted_file
 
 
+def _update_field(model_instance, field_name, value):
+    """update a field on a model instance"""
+    try:
+        field_instance = model_instance._meta.get_field(field_name)
+    except FieldDoesNotExist:
+        return
+
+    if value is None and not field_instance.null:
+        value = ''
+
+    setattr(model_instance, field_name, value)
+
+
+def _parse_timestamp_from_file(file_name):
+    """Parse the date from the filename, which is in the format: {RegistrationNumber_{timestamp}_[...].{ext}"}"""
+
+    raw_time = os.path.basename(file_name.split('_')[1])
+
+    timestamp = datetime.datetime.strptime(raw_time, '%Y%m%d%H%M%S')
+
+    tz = pytz.timezone(settings.TIME_ZONE)
+    return timestamp.replace(tzinfo=tz)
+
+
+def _update_dict_key(source_data, elements, value):
+    """Modify a nested key in a dict"""
+    if len(elements) > 0:
+        key = elements.pop(0)
+        if key not in source_data:
+            source_data[key] = {}
+        source_data[key] = _update_dict_key(source_data[key], elements, value)
+        return source_data
+    else:
+        return value
+
+
 @transaction.atomic
 def update_company_from_source(company, updated_source, updated_timestamp=None, enable_monitoring=False):
     """Rebuild a company entry, including related models with new api source data"""
@@ -50,7 +87,6 @@ def update_company_from_source(company, updated_source, updated_timestamp=None, 
         'industry_codes': IndustryCode,
     }
 
-    allow_nulls = ['is_annual_sales_estimated', 'is_employees_number_estimated', 'year_started', 'annual_sales']
     new_company_data = extract_company_data(updated_source)
 
     if not company.source or new_company_data != extract_company_data(company.source):
@@ -61,9 +97,7 @@ def update_company_from_source(company, updated_source, updated_timestamp=None, 
             country = Country.objects.get(iso_alpha2__iexact=value) if value else None
             setattr(company, field, country)
         elif field not in related_fields:
-            if value is None and field not in allow_nulls:
-                value = ''
-            setattr(company, field, value)
+            _update_field(company, field, value)
 
     if enable_monitoring and company.monitoring_status == MonitoringStatusChoices.not_enabled.name:
         company.monitoring_status = MonitoringStatusChoices.pending.name
@@ -76,7 +110,11 @@ def update_company_from_source(company, updated_source, updated_timestamp=None, 
     for field_name, model_class in related_fields.items():
         model_class.objects.filter(company=company).delete()
         for element in new_company_data[field_name]:
-            model_class.objects.create(company=company, **element)
+            instance = model_class()
+            for field, value in element.items():
+                _update_field(instance, field, value)
+            instance.company = company
+            instance.save()
 
 
 def add_companies_to_monitoring_registration():
@@ -109,27 +147,6 @@ def add_companies_to_monitoring_registration():
         return pending_registrations.count()
 
 
-def _parse_timestamp_from_file(file_name):
-    """Parse the date from the filename, which is in the format: {RegistrationNumber_{timestamp}_[...].{ext}"}"""
-
-    raw_time = os.path.basename(file_name.split('_')[1])
-
-    timestamp = datetime.datetime.strptime(raw_time, '%Y%m%d%H%M%S')
-
-    tz = pytz.timezone(settings.TIME_ZONE)
-    return timestamp.replace(tzinfo=tz)
-
-
-def _update_dict_key(source_data, elements, value):
-    """Modify a nested key in a dict"""
-    if len(elements) > 0:
-        key = elements.pop(0)
-        source_data[key] = _update_dict_key(source_data[key], elements, value)
-        return source_data
-    else:
-        return value
-
-
 def create_or_update_company(source_data, timestamp=None, enable_monitoring=False):
     """Create or update the company from api data """
 
@@ -156,22 +173,16 @@ def apply_update_to_company(update_data, timestamp):
 
     update_type = update_data.get('type', 'SEED')
 
+    updated_source = copy.deepcopy(company.source) if update_type == 'UPDATE' else update_data
+
     if update_type == 'UPDATE':
         if not company.id:
             return False, f'{duns_number}: update for company not in DB'
         if not company.source:
             return False, f'{duns_number}: No source data - cannot apply update'
 
-        updated_source = copy.deepcopy(company.source)
-
         for update in update_data['elements']:
-            try:
-                _update_dict_key(updated_source, update['element'].split('.'), update['current'])
-            except (KeyError, IndexError):
-                logger.exception('Missing element')
-                return False, f'{duns_number}: Missing element: {update["element"]}'
-    else:
-        updated_source = update_data
+            _update_dict_key(updated_source, update['element'].split('.'), update['current'])
 
     update_company_from_source(company, updated_source, timestamp)
 
@@ -234,16 +245,20 @@ def process_notification_file(file_path):
             total += 1
 
             if not isinstance(update_data, dict):
-                logger.debug('Error: {file_name}/{line_number} contains incomplete data: {update_data}')
+                logger.debug(f'{file_name}/{line_number} contains incomplete data: {update_data}')
                 continue
 
-            success, reason = apply_update_to_company(update_data, timestamp)
+            try:
+                success, reason = apply_update_to_company(update_data, timestamp)
+            except BaseException as exc:
+                logger.error(f'{file_name}/{line_number} exception: {exc}; input data: {update_data}')
+                continue
 
             if success:
-                logger.info('Successfully processed {line_number')
+                logger.info(f'{file_name}/{line_number}  Successfully processed')
 
                 total_success += 1
             else:
-                logger.warning(f'Error: {file_name}/{line_number} reason: {reason}')
+                logger.warning(f'{file_name}/{line_number} failed reason: {reason}')
 
     return total, total_success

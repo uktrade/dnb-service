@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import copy
 import datetime
 import io
 import json
@@ -22,6 +23,7 @@ from dnb_direct_plus.monitoring import (
     DNBApiError,
     process_exception_file,
     update_company_from_source,
+    _update_dict_key,
 )
 
 pytestmark = [
@@ -162,7 +164,7 @@ class TestUpdateCompanyFromSource:
             ]
         }
 
-    def test_last_updated_field_remains_unchanged_if_(self, cmpelk_api_response_json):
+    def test_last_updated_field_not_modified_if_data_unchanged(self, cmpelk_api_response_json):
         """If there are no changes to the model, then the last_updated field should not be changed"""
 
         with freeze_time('2019-11-25 12:00:01 UTC') as frozen_time:
@@ -497,6 +499,8 @@ class TestApplyUpdateToCompany:
     def test_update_type_bad_data(self, cmpelk_api_response_json):
         company_data = json.loads(cmpelk_api_response_json)
 
+        update_company_from_source(Company(), company_data, None, enable_monitoring=False)
+
         duns_number = company_data['organization']['duns']
 
         update_data = {
@@ -506,24 +510,71 @@ class TestApplyUpdateToCompany:
             'type': 'UPDATE',
             "elements": [
                 {
-                    "element": "a.key.that.does.not.exit",
-                    "previous": "n/a", "current": "invalid", "timestamp": "2018-02-20T05:16:20Z"
+                    "element": "a.key.that.was.added",
+                    "previous": "n/a", "current": True, "timestamp": "2018-02-20T05:16:20Z"
                 },
             ]
         }
 
-        CompanyFactory(duns_number=duns_number, source=company_data)
-
         status, detail = apply_update_to_company(
             update_data, timezone.now() - datetime.timedelta(1))
 
-        assert not status
-        assert detail == f'{duns_number}: Missing element: a.key.that.does.not.exit'
-
-
-class TestProcessSeedFile:
-    pass
+        assert Company.objects.count() == 1
+        company = Company.objects.first()
+        assert status
+        assert company.source['a']['key']['that']['was']['added']
 
 
 class TestProcessNotificationFile:
-    pass
+    def test_incomplete_line(self):
+        pass
+
+    def test_update(self):
+        pass
+
+    def test_seed(self):
+        pass
+
+    def test_multiple_entries(self):
+        pass
+
+
+class TestUpdateDictKey:
+    def test_success(self):
+
+        source = {
+            'a': {
+                'b': {
+                    'c': {
+                        'd': {
+                            'e': 'test'
+                        }
+                    }
+                }
+            }
+        }
+
+        expected = copy.deepcopy(source)
+
+        expected['a']['b']['c']['d']['e'] = 'modified'
+
+        assert _update_dict_key(source, 'a.b.c.d.e'.split('.'), 'modified') == expected
+
+    def test_new_element_is_appended(self):
+        source = {
+            'a': {
+                'b': {
+                    'c': {
+                        'd': {
+                            'e': 'test'
+                        }
+                    }
+                }
+            }
+        }
+
+        expected = copy.deepcopy(source)
+
+        expected['a']['b']['c']['d']['e_sibling'] = 'added'
+
+        assert _update_dict_key(source, 'a.b.c.d.e_sibling'.split('.'), 'added') == expected
