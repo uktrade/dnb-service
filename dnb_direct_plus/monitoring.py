@@ -79,7 +79,8 @@ def _update_dict_key(source_data, elements, value):
 
 @transaction.atomic
 def update_company_from_source(company, updated_source, updated_timestamp=None, enable_monitoring=False):
-    """Rebuild a company entry, including related models with new api source data"""
+    """Rebuild a company entry, including related models with new api source data; NOTE: updated_source can be
+    in the DNB direct plus CMPELK or companies list search api data type"""
 
     related_fields = {
         'registration_numbers': RegistrationNumber,
@@ -92,6 +93,7 @@ def update_company_from_source(company, updated_source, updated_timestamp=None, 
     if not company.source or new_company_data != extract_company_data(company.source):
         company.last_updated = timezone.now()
 
+    # store fields in updated_source in the company instance
     for field, value in new_company_data.items():
         if field in ['address_country', 'registered_address_country']:
             country = Country.objects.get(iso_alpha2__iexact=value) if value else None
@@ -99,6 +101,10 @@ def update_company_from_source(company, updated_source, updated_timestamp=None, 
         elif field not in related_fields:
             _update_field(company, field, value)
 
+    # "enable" monitoring if enable_monitoring=True.  NOTE: we only change the status if the current status is
+    # not_enabled.  If it's already enabled, pending, or failed we do nothing.  Also, we don't actually
+    # enable monitoring at this stage. Instead we set the status to "pending" and a cron task then adds
+    # all companies with status= pending to the dnb monitoring registration via an api call
     if enable_monitoring and company.monitoring_status == MonitoringStatusChoices.not_enabled.name:
         company.monitoring_status = MonitoringStatusChoices.pending.name
 
@@ -106,7 +112,7 @@ def update_company_from_source(company, updated_source, updated_timestamp=None, 
     company.last_updated_source_timestamp = updated_timestamp
     company.save()
 
-    # update related models if they are modified
+    # delete and recreate related models
     for field_name, model_class in related_fields.items():
         model_class.objects.filter(company=company).delete()
         for element in new_company_data[field_name]:
@@ -155,16 +161,25 @@ def apply_update_to_company(update_data, timestamp):
     try:
         company = Company.objects.get(duns_number=duns_number)
     except Company.DoesNotExist:
+        # if type == SEED, we'll create a new company.  This has some use when initially populating the database
+        # however, typically company entries will already exist as they are pre-created from API data
         company = Company()
 
     if company.last_updated_source_timestamp and company.last_updated_source_timestamp > timestamp:
         return False, f'{duns_number}; update is older than last updated timestamp'
 
+    # all entries in NOTIFICATION files will have type = SEED or UPDATE.  SEEDFILE don't specify a type
+    # but are always type = SEED
     update_type = update_data.get('type', 'SEED')
 
+    # if type == "SEED" then update_data contains full copmany data, which overwrites company.source
+    # if type == "UDPATE" then update_data contains a list of keys and changes, which we apply to the existing
+    # company.source
     updated_source = copy.deepcopy(company.source) if update_type == 'UPDATE' else update_data
 
     if update_type == 'UPDATE':
+        # type == UPDATE - a list of changed keys is supplied, which we apply to the original source
+        # data, then rebuild the company models.  We can't proceed if there's a missing company.source
         if not company.id:
             return False, f'{duns_number}: update for company not in DB'
         if not company.source:
