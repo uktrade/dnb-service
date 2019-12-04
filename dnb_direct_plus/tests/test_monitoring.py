@@ -22,7 +22,9 @@ from dnb_direct_plus.monitoring import (
     add_companies_to_monitoring_registration,
     DNBApiError,
     process_exception_file,
+    process_notification_file,
     update_company_from_source,
+    _parse_timestamp_from_file,
     _update_dict_key,
 )
 
@@ -518,17 +520,92 @@ class TestApplyUpdateToCompany:
 
 
 class TestProcessNotificationFile:
-    def test_incomplete_line(self):
-        pass
+    def test_incomplete_line(self, mocker):
+        data = io.BytesIO('"INVALID-LINE"\n'.encode('utf-8'))
 
-    def test_update(self):
-        pass
+        mocked = mocker.patch('dnb_direct_plus.monitoring.open_zip_file')
+        mocked.return_value.__enter__.return_value = data
+        mocked.return_value.__exit__.return_value = False
 
-    def test_seed(self):
-        pass
+        mocked_logger = mocker.patch('dnb_direct_plus.monitoring.logger')
 
-    def test_multiple_entries(self):
-        pass
+        total, total_success = process_notification_file('DITCompanyService_20191113000016_NOTIFICATION_1.zip')
+
+        assert total == 1
+        assert total_success == 0
+        mocked_logger.debug.assert_called_with(
+            'DITCompanyService_20191113000016_NOTIFICATION_1.zip/1 contains incomplete data: INVALID-LINE')
+
+    def test_update(self, mocker, cmpelk_api_response_json):
+        company_data = json.loads(cmpelk_api_response_json)
+
+        update_data = {
+            'type': 'UPDATE',
+            'organization': {
+                'duns': company_data['organization']['duns']
+            },
+            'elements': [
+                {
+                    'element': 'organization.primaryName',
+                    'previous': '',
+                    'current': 'Acme Corp',
+                    'timestamp': '2019-06-25T01:00:17Z"'
+                },
+                {
+                    'element': 'organization.corporateLinkage.globalUltimate.primaryName',
+                    'previous': '',
+                    'current': 'Acme Corp HQ',
+                    'timestamp': '2019-06-25T01:00:17Z"'
+                },
+                {
+                    'element': 'organization.tradeStyleNames',
+                    'previous': '',
+                    'current': [{'name': 'Acme enterprises'}, {'name': 'Acme heavy industries'}],
+                    'timestamp': '2019-06-25T01:00:17Z"'
+                },
+            ]
+        }
+
+        data = io.BytesIO(json.dumps(update_data).encode('utf-8'))
+
+        company = CompanyFactory(duns_number=company_data['organization']['duns'], source=company_data)
+
+        mocked = mocker.patch('dnb_direct_plus.monitoring.open_zip_file')
+        mocked.return_value.__enter__.return_value = data
+        mocked.return_value.__exit__.return_value = False
+
+        total, total_success = process_notification_file('DITCompanyService_20191113000016_NOTIFICATION_1.zip')
+
+        assert total == 1
+        assert total_success == 1
+        company.refresh_from_db()
+        assert company.primary_name == 'Acme Corp'
+        assert company.global_ultimate_primary_name == 'Acme Corp HQ'
+        assert company.trading_names == ['Acme enterprises', 'Acme heavy industries']
+
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    def test_seed(self, mocker, cmpelk_api_response_json):
+        file_name = 'DITCompanyService_20191113000016_NOTIFICATION_1.zip'
+        company_data = json.loads(cmpelk_api_response_json)
+
+        data = io.BytesIO(json.dumps(company_data).encode('utf-8'))
+
+        mocked = mocker.patch('dnb_direct_plus.monitoring.open_zip_file')
+        mocked.return_value.__enter__.return_value = data
+        mocked.return_value.__exit__.return_value = False
+
+        assert Company.objects.count() == 0
+
+        total, total_success = process_notification_file(file_name)
+
+        assert Company.objects.count() == 1
+        company = Company.objects.first()
+        assert company.duns_number == company_data['organization']['duns']
+        assert company.last_updated == timezone.now()
+        assert company.last_updated_source_timestamp == _parse_timestamp_from_file(file_name)
+
+        assert total == 1
+        assert total_success == 1
 
 
 class TestUpdateDictKey:
