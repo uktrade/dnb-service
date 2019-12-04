@@ -50,7 +50,7 @@ def test_company_serialiser():
         'code': '517919',
         'description': 'All Other Telecommunications',
         'typeDescription': 'North American Industry Classification System 2017',
-        'typeDnbCode': 30832,
+        'typeDnBCode': 30832,
         'priority': 2
     })
 
@@ -59,7 +59,7 @@ def test_company_serialiser():
         'code': '423690',
         'description': 'Other Electronic Parts and Equipment Merchant Wholesalers',
         'typeDescription': 'North American Industry Classification System 2017',
-        'typeDnbCode': 30832,
+        'typeDnBCode': 30832,
         'priority': 1
     })
 
@@ -78,7 +78,6 @@ def test_company_serialiser():
                 [
                     ('registration_type', 'VAT Registration number'),
                     ('registration_number', '12341234'),
-                    ('company', 1)
                 ]
             )
         ],
@@ -107,7 +106,6 @@ def test_company_serialiser():
             OrderedDict([
                 ('usSicV4', '5065'),
                 ('usSicV4Description', 'Whol electronic parts/equipment'),
-                ('company', 1),
             ])
         ],
         'industry_codes': [
@@ -117,7 +115,7 @@ def test_company_serialiser():
                     ('description', 'Other Electronic Parts and Equipment Merchant Wholesalers'),
                     ('priority', 1),
                     ('typeDescription', 'North American Industry Classification System 2017'),
-                    ('typeDnbCode', '30832'), ('company', 1)
+                    ('typeDnBCode', '30832'),
                 ]
             ),
             OrderedDict(
@@ -126,8 +124,7 @@ def test_company_serialiser():
                     ('description', 'All Other Telecommunications'),
                     ('priority', 2),
                     ('typeDescription', 'North American Industry Classification System 2017'),
-                    ('typeDnbCode', '30832'),
-                    ('company', 1)
+                    ('typeDnBCode', '30832'),
                 ]
             )
         ],

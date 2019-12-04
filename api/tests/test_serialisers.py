@@ -1,7 +1,8 @@
 import pytest
 
-from api.serialisers import CompanySearchInputSerialiser
 from rest_framework.exceptions import ErrorDetail
+
+from api.serialisers import CompanySearchInputSerialiser
 
 
 @pytest.mark.parametrize('input, data, errors', [

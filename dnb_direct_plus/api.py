@@ -4,11 +4,13 @@ from dnb_direct_plus.mapping import extract_company_data
 
 from requests.exceptions import HTTPError
 
+from dnb_direct_plus.tasks import update_company_and_enable_monitoring
+
 
 DNB_COMPANY_SEARCH_ENDPOINT = '/v1/search/companyList'
 
 
-def company_list_search(query):
+def company_list_search(query, update_local=False):
     """
     Perform a DNB Direct+ company search list api call
 
@@ -34,6 +36,10 @@ def company_list_search(query):
         response_data = response.json()
 
     results = [extract_company_data(item) for item in response_data.get('searchCandidates', [])]
+
+    # update the local company record and enable monitoring
+    if update_local and 'duns_number' in query and len(results) == 1:
+        update_company_and_enable_monitoring(response_data['searchCandidates'][0])
 
     return {
         'total_matches': response_data.get('candidatesMatchedQuantity', 0),

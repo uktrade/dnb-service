@@ -482,7 +482,7 @@ def test_extract_is_out_of_business_bad_data():
         },
         (True, 4000)
     ),
-    # missign data
+    # missing data
     (
         {
             'organization': {}
@@ -504,6 +504,15 @@ def test_extract_is_out_of_business_bad_data():
             }
         },
         (True, 4000)
+    ),
+    # missing data
+    (
+        {
+            'organization': {
+                'numberOfEmployees': []
+            }
+        },
+        (None, None)
     ),
 ])
 def test_extract_employee_numbers(input_data, expected):
@@ -600,6 +609,7 @@ def test_company_list_ingest(company_list_api_response_json):
                 'priority': 1
             }
         ],
+        'year_started': None,
         'legal_status': 'foreign_company'
     }
 
@@ -644,5 +654,6 @@ def test_cmpelk_ingest(cmpelk_api_response_json):
                 'priority': 1
             }
         ],
+        'year_started': None,
         'legal_status': 'corporation'
     }

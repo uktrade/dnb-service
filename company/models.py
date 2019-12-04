@@ -1,4 +1,4 @@
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -69,11 +69,11 @@ class IndustryCode(models.Model):
     )
 
     code = models.CharField(
-        max_length=6,
+        max_length=8,
     )
 
     description = models.CharField(
-        max_length=200,
+        max_length=255,
     )
 
     priority = models.PositiveIntegerField()
@@ -82,7 +82,7 @@ class IndustryCode(models.Model):
         max_length=200,
     )
 
-    typeDnbCode = models.CharField(
+    typeDnBCode = models.CharField(
         max_length=5
     )
 
@@ -108,6 +108,8 @@ class Company(models.Model):
     """The main DNB company model"""
 
     created = models.DateTimeField(auto_now_add=True)
+
+    source = JSONField(null=True)
 
     monitoring_status = models.CharField(
         choices=MonitoringStatusChoices.list(),
@@ -139,7 +141,7 @@ class Company(models.Model):
     )
 
     global_ultimate_duns_number = models.CharField(
-        _('Duns number'),
+        _('Global ultimate Duns number'),
         max_length=9,
         unique=False,
         validators=[duns_number_validator],
@@ -147,13 +149,13 @@ class Company(models.Model):
 
     primary_name = models.CharField(
         _('Primary name'),
-        max_length=90,
+        max_length=255,
     )
 
     global_ultimate_primary_name = models.CharField(
         _('Global ultimate Primary name'),
         blank=True,
-        max_length=90,
+        max_length=255,
     )
 
     trading_names = ArrayField(
@@ -255,19 +257,11 @@ class Company(models.Model):
 
     year_started = models.PositiveIntegerField(
         _('Year started'),
-    )
-
-    global_ultimate_duns_number = models.CharField(
-        _('Glogal ultimate duns number'),
-        max_length=9,
-        blank=True,
-        validators=[duns_number_validator],
-        db_index=True,
+        null=True,
     )
 
     employee_number = models.PositiveIntegerField(
         _('Employee number'),
-        blank=True,
         null=True,
     )
 

@@ -3,7 +3,6 @@ import logging
 
 from django.db import transaction
 
-from company.constants import LastUpdatedSource
 from company.forms import CompanyValidationForm, RegistrationNumberValidationForm
 from company.models import Company
 
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @transaction.atomic
-def validate_and_save_company(company_data, source: LastUpdatedSource):
+def validate_and_save_company(company_data):
     """Validate, then create or update the company data
 
     Returns a tuple (success, created, errors)
