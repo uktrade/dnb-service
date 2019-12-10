@@ -4,5 +4,5 @@ from .models import MonitoringFileRecord
 
 
 @admin.register(MonitoringFileRecord)
-class UserAdmin(admin.ModelAdmin):
+class MonitoringFileRecordAdmin(admin.ModelAdmin):
     list_display = ('timestamp', 'file_name', 'total', 'failed')
