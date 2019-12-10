@@ -47,6 +47,7 @@ class CompanySerialiser(serializers.ModelSerializer):
     class Meta:
         model = Company
         fields = [
+            'last_updated',
             'duns_number',
             'global_ultimate_duns_number',
             'primary_name',
