@@ -40,9 +40,14 @@ class Command(BaseCommand):
 
         for file_name in files:
 
-            if (not file_name.startswith(settings.DNB_MONITORING_REGISTRATION_REFERENCE) or
-                'HEADER' in file_name or
-                file_name.startswith(settings.DNB_ARCHIVE_PATH)):
+            if not file_name.startswith(settings.DNB_MONITORING_REGISTRATION_REFERENCE):
+                # file does not relate to the monitoring registration
+                continue
+
+            if 'HEADER' in file_name:
+                continue
+
+            if file_name.startswith(settings.DNB_ARCHIVE_PATH):
                 continue
 
             if MonitoringFileRecord.objects.filter(file_name=file_name).exists():
