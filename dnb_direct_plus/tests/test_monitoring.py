@@ -64,6 +64,7 @@ class TestProcessExceptionsFile:
 
 
 class TestUpdateCompanyFromSource:
+    @freeze_time('2019-11-25 12:00:01 UTC')
     def test_update_with_unsaved_company(self, cmpelk_api_response_json):
         source_data = json.loads(cmpelk_api_response_json)
 
@@ -73,6 +74,7 @@ class TestUpdateCompanyFromSource:
         assert Company.objects.count() == 1
 
         assert CompanySerialiser(company).data == {
+            'last_updated': '2019-11-25T12:00:01Z',
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -113,6 +115,7 @@ class TestUpdateCompanyFromSource:
             ]
         }
 
+    @freeze_time('2019-11-25 12:00:01 UTC')
     def test_update_existing_company_success(self, cmpelk_api_response_json):
         company = CompanyFactory()
         IndustryCodeFactory(company=company)
@@ -126,6 +129,7 @@ class TestUpdateCompanyFromSource:
         assert Company.objects.count() == 1
 
         assert CompanySerialiser(company).data == {
+            'last_updated': '2019-11-25T12:00:01Z',
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -314,6 +318,7 @@ class TestApplyUpdateToCompany:
         company.refresh_from_db()
 
         assert CompanySerialiser(company).data == {
+            'last_updated': '2019-11-25T12:00:01Z',
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -354,6 +359,7 @@ class TestApplyUpdateToCompany:
             ]
         }
 
+    @freeze_time('2019-11-25 12:00:01 UTC')
     def test_update_type_success(self, cmpelk_api_response_json):
         company_data = json.loads(cmpelk_api_response_json)
 
@@ -396,6 +402,7 @@ class TestApplyUpdateToCompany:
         company.refresh_from_db()
 
         assert CompanySerialiser(company).data == {
+            'last_updated': '2019-11-25T12:00:01Z',
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Acme Corp',
