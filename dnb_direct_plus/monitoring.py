@@ -150,7 +150,7 @@ def add_companies_to_monitoring_registration():
             response_data = response.json()
             raise DNBApiError(response_data)
 
-        return pending_registrations.count()
+    return pending_registrations.count()
 
 
 def apply_update_to_company(update_data, timestamp):
