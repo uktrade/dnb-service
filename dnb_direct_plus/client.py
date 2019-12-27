@@ -142,9 +142,11 @@ def _api_request(method, path, **kwargs):
     url = urljoin(DNB_API_BASE_URL, path)
 
     headers = {
-        'content-type': 'application/json',
         'accept': 'application/json',
     }
+
+    if 'files' not in kwargs:
+        headers['content-type'] = 'application/json'
 
     headers.update(kwargs.pop('headers', {}))
     response = requests.request(method, url, headers=headers, **kwargs)
