@@ -74,7 +74,7 @@ class TestUpdateCompanyFromSource:
         assert Company.objects.count() == 1
 
         assert CompanySerialiser(company).data == {
-            'last_updated': '2019-11-25T12:00:01Z',
+            'last_updated': None,
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -129,7 +129,7 @@ class TestUpdateCompanyFromSource:
         assert Company.objects.count() == 1
 
         assert CompanySerialiser(company).data == {
-            'last_updated': '2019-11-25T12:00:01Z',
+            'last_updated': None,
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -176,6 +176,8 @@ class TestUpdateCompanyFromSource:
         with freeze_time('2019-11-25 12:00:01 UTC') as frozen_time:
             source_data = json.loads(cmpelk_api_response_json)
 
+            source_data['type'] = 'UPDATE'
+
             update_company_from_source(Company(), source_data, None, enable_monitoring=False)
 
             assert Company.objects.count() == 1
@@ -195,6 +197,8 @@ class TestUpdateCompanyFromSource:
     def test_update_to_source_data_but_not_model_last_updated_is_not_changed(self, cmpelk_api_response_json):
         with freeze_time('2019-11-25 12:00:01 UTC') as frozen_time:
             source_data = json.loads(cmpelk_api_response_json)
+
+            source_data['type'] = 'UPDATE'
 
             update_company_from_source(Company(), source_data, None, enable_monitoring=False)
 
@@ -217,44 +221,14 @@ class TestUpdateCompanyFromSource:
             assert company.last_updated == original_update_time
             assert company.last_updated_source_timestamp is None
 
-    def test_last_updated_field_changed(self, cmpelk_api_response_json):
-        """A change to the source API data that results in the company model or associated models being updated
-        should result in the last_updated field being changed"""
-
-        with freeze_time('2019-11-25 12:00:01 UTC') as frozen_time:
-            source_data = json.loads(cmpelk_api_response_json)
-
-            # changing these fields should not result in the last_updated field changing
-
-            update_company_from_source(Company(), source_data, None, enable_monitoring=False)
-
-            assert Company.objects.count() == 1
-            company = Company.objects.first()
-            original_update_time = timezone.now()
-
-            assert original_update_time == company.last_updated
-
-            frozen_time.move_to('2019-11-28 20:00:01 UTC')
-
-            new_duns_number = '11111111'
-
-            source_data['organization']['duns'] = new_duns_number
-            update_company_from_source(company, source_data, None, enable_monitoring=False)
-
-            company.refresh_from_db()
-
-            assert company.duns_number == new_duns_number
-            assert company.last_updated == timezone.now() and timezone.now() != original_update_time
-            assert company.last_updated_source_timestamp is None
-
     @freeze_time('2019-11-25 12:00:01 UTC')
-    def test_last_updated_source_timestamp_is_updated(self, cmpelk_api_response_json):
+    def test_last_updated_source_timestamp_is_not_updated_with_seed_type(self, cmpelk_api_response_json):
         source_data = json.loads(cmpelk_api_response_json)
 
         update_company_from_source(Company(), source_data, timezone.now(), enable_monitoring=False)
 
         company = Company.objects.first()
-        assert company.last_updated == timezone.now()
+        assert company.last_updated == None
         assert company.last_updated_source_timestamp == timezone.now()
 
     @pytest.mark.parametrize('status, expected_status',
@@ -318,7 +292,7 @@ class TestApplyUpdateToCompany:
         company.refresh_from_db()
 
         assert CompanySerialiser(company).data == {
-            'last_updated': '2019-11-25T12:00:01Z',
+            'last_updated': None,
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -525,6 +499,18 @@ class TestApplyUpdateToCompany:
         assert status
         assert company.source['a']['key']['that']['was']['added']
 
+    def test_new_company_monitoring_status_is_enabled(self, cmpelk_api_response_json):
+
+        api_data = json.loads(cmpelk_api_response_json)
+
+        assert Company.objects.count() == 0
+
+        status, detail = apply_update_to_company(api_data, None)
+
+        assert status
+        assert Company.objects.count() == 1
+        assert Company.objects.first().monitoring_status == MonitoringStatusChoices.enabled.name
+
 
 class TestProcessNotificationFile:
     def test_incomplete_line(self, mocker):
@@ -590,7 +576,6 @@ class TestProcessNotificationFile:
         assert company.global_ultimate_primary_name == 'Acme Corp HQ'
         assert company.trading_names == ['Acme enterprises', 'Acme heavy industries']
 
-    @freeze_time('2019-11-25 12:00:01 UTC')
     def test_seed(self, mocker, cmpelk_api_response_json):
         file_name = 'DITCompanyService_20191113000016_NOTIFICATION_1.zip'
         company_data = json.loads(cmpelk_api_response_json)
@@ -608,7 +593,7 @@ class TestProcessNotificationFile:
         assert Company.objects.count() == 1
         company = Company.objects.first()
         assert company.duns_number == company_data['organization']['duns']
-        assert company.last_updated == timezone.now()
+        assert not company.last_updated
         assert company.last_updated_source_timestamp == _parse_timestamp_from_file(file_name)
 
         assert total == 1

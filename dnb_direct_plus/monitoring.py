@@ -90,8 +90,9 @@ def update_company_from_source(company, updated_source, updated_timestamp=None, 
 
     new_company_data = extract_company_data(updated_source)
 
-    if not company.source or new_company_data != extract_company_data(company.source):
-        company.last_updated = timezone.now()
+    if updated_source.get('type', 'SEED') == 'UPDATE':
+        if not company.source or new_company_data != extract_company_data(company.source):
+            company.last_updated = timezone.now()
 
     # store fields in updated_source in the company instance
     for field, value in new_company_data.items():
@@ -163,7 +164,7 @@ def apply_update_to_company(update_data, timestamp):
     except Company.DoesNotExist:
         # if type == SEED, we'll create a new company.  This has some use when initially populating the database
         # however, typically company entries will already exist as they are pre-created from API data
-        company = Company()
+        company = Company(monitoring_status=MonitoringStatusChoices.enabled.name)
 
     if company.last_updated_source_timestamp and company.last_updated_source_timestamp > timestamp:
         return False, f'{duns_number}; update is older than last updated timestamp'
@@ -187,6 +188,8 @@ def apply_update_to_company(update_data, timestamp):
 
         for update in update_data['elements']:
             _update_dict_key(updated_source, update['element'].split('.'), update['current'])
+
+        updated_source['type'] = 'UPDATE'
 
     update_company_from_source(company, updated_source, timestamp)
 
