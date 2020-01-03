@@ -511,6 +511,16 @@ class TestApplyUpdateToCompany:
         assert Company.objects.count() == 1
         assert Company.objects.first().monitoring_status == MonitoringStatusChoices.enabled.name
 
+    def test_apply_update_to_company_wrong_update_type(self):
+        api_data = {
+            'type': 'UNDER_REVIEW'
+        }
+
+        status, detail = apply_update_to_company(api_data, None)
+
+        assert not status
+        assert detail == 'skipping update type: UNDER_REVIEW'
+
 
 class TestProcessNotificationFile:
     def test_incomplete_line(self, mocker):
