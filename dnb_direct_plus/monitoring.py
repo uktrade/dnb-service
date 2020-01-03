@@ -157,6 +157,13 @@ def add_companies_to_monitoring_registration():
 def apply_update_to_company(update_data, timestamp):
     """Apply an individual update supplied from the DNB monitoring service to a company entry"""
 
+    # all entries in NOTIFICATION files will have type = SEED or UPDATE.  SEEDFILE don't specify a type
+    # but are always type = SEED
+    update_type = update_data.get('type', 'SEED')
+
+    if update_type not in ['SEED', 'UPDATE']:
+        return False, f'skipping update type: {update_type}'
+
     duns_number = update_data['organization']['duns']
 
     try:
@@ -168,10 +175,6 @@ def apply_update_to_company(update_data, timestamp):
 
     if company.last_updated_source_timestamp and company.last_updated_source_timestamp > timestamp:
         return False, f'{duns_number}; update is older than last updated timestamp'
-
-    # all entries in NOTIFICATION files will have type = SEED or UPDATE.  SEEDFILE don't specify a type
-    # but are always type = SEED
-    update_type = update_data.get('type', 'SEED')
 
     # if type == "SEED" then update_data contains full copmany data, which overwrites company.source
     # if type == "UDPATE" then update_data contains a list of keys and changes, which we apply to the existing
