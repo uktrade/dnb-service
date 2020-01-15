@@ -118,15 +118,18 @@ def extract_annual_sales(company_data):
     try:
         data = company_data['organization']['financials'][0]['yearlyRevenue'][0]
 
-        return data['currency'], data['value']
+        reliability_code = company_data['organization']['financials'][0].get('reliabilityDnBCode')
+
+        is_estimated = reliability_code if reliability_code is None else reliability_code != RELIABILITY_CODE_ACTUAL
+
+        return is_estimated, data['currency'], data['value']
     except (KeyError, IndexError):
-        return None, None
+        return None, None, None
 
 
 def extract_company_data(company_data):
-
     is_employees_number_estimated, employee_number = extract_employee_numbers(company_data)
-    annual_sales_currency, annual_sales = extract_annual_sales(company_data)
+    is_annual_sales_estimated, annual_sales_currency, annual_sales = extract_annual_sales(company_data)
 
     company = {
         'duns_number': company_data['organization']['duns'],
@@ -143,7 +146,7 @@ def extract_company_data(company_data):
         **extract_registered_address(company_data),
         'annual_sales': annual_sales,
         'annual_sales_currency': annual_sales_currency,
-        'is_annual_sales_estimated': None,  # The API does not supply this data
+        'is_annual_sales_estimated': is_annual_sales_estimated,
         'employee_number': employee_number,
         'is_employees_number_estimated': is_employees_number_estimated,
         'primary_industry_codes': company_data['organization'].get('primaryIndustryCodes', []),
