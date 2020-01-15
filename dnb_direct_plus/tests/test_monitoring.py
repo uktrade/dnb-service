@@ -74,7 +74,7 @@ class TestUpdateCompanyFromSource:
         assert Company.objects.count() == 1
 
         assert CompanySerialiser(company).data == {
-            'last_updated': None,
+            'last_updated': '2019-11-25T12:00:01Z',
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -129,7 +129,7 @@ class TestUpdateCompanyFromSource:
         assert Company.objects.count() == 1
 
         assert CompanySerialiser(company).data == {
-            'last_updated': None,
+            'last_updated': '2019-11-25T12:00:01Z',
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -228,7 +228,7 @@ class TestUpdateCompanyFromSource:
         update_company_from_source(Company(), source_data, timezone.now(), enable_monitoring=False)
 
         company = Company.objects.first()
-        assert company.last_updated == None
+        assert company.last_updated == timezone.now()
         assert company.last_updated_source_timestamp == timezone.now()
 
     @pytest.mark.parametrize('status, expected_status',
@@ -292,7 +292,7 @@ class TestApplyUpdateToCompany:
         company.refresh_from_db()
 
         assert CompanySerialiser(company).data == {
-            'last_updated': None,
+            'last_updated': '2019-11-25T12:00:01Z',
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -586,6 +586,7 @@ class TestProcessNotificationFile:
         assert company.global_ultimate_primary_name == 'Acme Corp HQ'
         assert company.trading_names == ['Acme enterprises', 'Acme heavy industries']
 
+    @freeze_time('2019-11-25 12:00:01 UTC')
     def test_seed(self, mocker, cmpelk_api_response_json):
         file_name = 'DITCompanyService_20191113000016_NOTIFICATION_1.zip'
         company_data = json.loads(cmpelk_api_response_json)
@@ -603,7 +604,7 @@ class TestProcessNotificationFile:
         assert Company.objects.count() == 1
         company = Company.objects.first()
         assert company.duns_number == company_data['organization']['duns']
-        assert not company.last_updated
+        assert company.last_updated == timezone.now()
         assert company.last_updated_source_timestamp == _parse_timestamp_from_file(file_name)
 
         assert total == 1
