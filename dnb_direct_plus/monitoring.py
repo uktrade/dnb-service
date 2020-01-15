@@ -90,9 +90,8 @@ def update_company_from_source(company, updated_source, updated_timestamp=None, 
 
     new_company_data = extract_company_data(updated_source)
 
-    if updated_source.get('type', 'SEED') == 'UPDATE':
-        if not company.source or new_company_data != extract_company_data(company.source):
-            company.last_updated = timezone.now()
+    if not company.source or new_company_data != extract_company_data(company.source):
+        company.last_updated = timezone.now()
 
     # store fields in updated_source in the company instance
     for field, value in new_company_data.items():
@@ -179,7 +178,7 @@ def apply_update_to_company(update_data, timestamp):
         return False, f'{duns_number}; update is older than last updated timestamp'
 
     # if type == "SEED" then update_data contains full copmany data, which overwrites company.source
-    # if type == "UDPATE" then update_data contains a list of keys and changes, which we apply to the existing
+    # if type == "UPDATE" then update_data contains a list of keys and changes, which we apply to the existing
     # company.source
     updated_source = copy.deepcopy(company.source) if update_type == 'UPDATE' else update_data
 
