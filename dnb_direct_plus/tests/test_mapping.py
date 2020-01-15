@@ -3,7 +3,8 @@ import json
 import pytest
 
 from ..constants import (
-    OPERATING_STATUS_ACTIVE
+    OPERATING_STATUS_ACTIVE,
+    RELIABILITY_CODE_ACTUAL,
 )
 
 from ..mapping import (
@@ -535,7 +536,43 @@ def test_extract_employee_numbers(input_data, expected):
                 ]
             }
         },
-        ('USD', 51806612000)
+        (None, 'USD', 51806612000)
+    ),
+    (
+        {
+            'organization': {
+                'financials': [
+                    {
+                        'reliabilityDnBCode': 9092,
+                        'yearlyRevenue': [
+                            {
+                                'value': 51806612000,
+                                'currency': 'USD',
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        (False, 'USD', 51806612000)
+    ),
+    (
+        {
+            'organization': {
+                'financials': [
+                    {
+                        'reliabilityDnBCode': 9000,
+                        'yearlyRevenue': [
+                            {
+                                'value': 51806612000,
+                                'currency': 'USD',
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        (True, 'USD', 51806612000)
     ),
     (
         {
@@ -548,7 +585,7 @@ def test_extract_employee_numbers(input_data, expected):
                 ]
             }
         },
-        (None, None)
+        (None, None, None)
     )
 ])
 def test_extract_annual_sales(input_data, expected):
@@ -641,7 +678,7 @@ def test_cmpelk_ingest(cmpelk_api_response_json):
         'registered_address_country': '',
         'annual_sales': 22589957,
         'annual_sales_currency': 'USD',
-        'is_annual_sales_estimated': None,
+        'is_annual_sales_estimated': False,
         'employee_number': 153,
         'is_employees_number_estimated': False,
         'primary_industry_codes': [],

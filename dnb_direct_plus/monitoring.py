@@ -135,6 +135,8 @@ def add_companies_to_monitoring_registration():
     """
     pending_registrations = Company.objects.filter(monitoring_status=MonitoringStatusChoices.pending.name)
 
+    total = pending_registrations.count()
+
     if pending_registrations.count() > 0:
         duns_list = '\n'.join(pending_registrations.values_list('duns_number', flat=True))
 
@@ -151,7 +153,7 @@ def add_companies_to_monitoring_registration():
             response_data = response.json()
             raise DNBApiError(response_data)
 
-    return pending_registrations.count()
+    return total
 
 
 def apply_update_to_company(update_data, timestamp):
