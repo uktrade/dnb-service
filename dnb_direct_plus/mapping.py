@@ -115,14 +115,20 @@ def extract_employee_numbers(company_data):
 
 
 def extract_annual_sales(company_data):
+
     try:
-        data = company_data['organization']['financials'][0]['yearlyRevenue'][0]
+        financial_data = company_data['organization']['financials'][0]
+        reliability_code = financial_data.get('reliabilityDnBCode')
+        is_estimated = None if reliability_code is None else reliability_code != RELIABILITY_CODE_ACTUAL
 
-        reliability_code = company_data['organization']['financials'][0].get('reliabilityDnBCode')
+        for item in financial_data['yearlyRevenue']:
+            if item['currency'] == 'USD':
+                revenue_data = item
+                break
+        else:
+            revenue_data = financial_data['yearlyRevenue'][0]
 
-        is_estimated = reliability_code if reliability_code is None else reliability_code != RELIABILITY_CODE_ACTUAL
-
-        return is_estimated, data['currency'], data['value']
+        return is_estimated, revenue_data['currency'], revenue_data['value']
     except (KeyError, IndexError):
         return None, None, None
 

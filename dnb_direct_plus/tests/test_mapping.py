@@ -586,7 +586,51 @@ def test_extract_employee_numbers(input_data, expected):
             }
         },
         (None, None, None)
-    )
+    ),
+    (
+        {
+            'organization': {
+                'financials': [
+                    {
+                        'reliabilityDnBCode': 9000,
+                        'yearlyRevenue': [
+                            {
+                                'value': 88888888888,
+                                'currency': 'AUD',
+                            },
+                            {
+                                'value': 51806612000,
+                                'currency': 'EUR',
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        (True, 'AUD', 88888888888)
+    ),
+    (
+        {
+            'organization': {
+                'financials': [
+                    {
+                        'reliabilityDnBCode': 9000,
+                        'yearlyRevenue': [
+                            {
+                                'value': 77777777777,
+                                'currency': 'GBP',
+                            },
+                            {
+                                'value': 51806612000,
+                                'currency': 'USD',
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        (True, 'USD', 51806612000)
+    ),
 ])
 def test_extract_annual_sales(input_data, expected):
     assert extract_annual_sales(input_data) == expected
