@@ -90,8 +90,9 @@ def update_company_from_source(company, updated_source, updated_timestamp=None, 
 
     new_company_data = extract_company_data(updated_source)
 
-    if not company.source or new_company_data != extract_company_data(company.source):
-        company.last_updated = timezone.now()
+    if updated_source.get('type', 'SEED') == 'UPDATE':
+        if not company.source or new_company_data != extract_company_data(company.source):
+            company.last_updated = timezone.now()
 
     # store fields in updated_source in the company instance
     for field, value in new_company_data.items():

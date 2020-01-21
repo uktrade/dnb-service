@@ -65,7 +65,7 @@ class TestProcessExceptionsFile:
 
 class TestUpdateCompanyFromSource:
     @freeze_time('2019-11-25 12:00:01 UTC')
-    def test_update_with_unsaved_company(self, cmpelk_api_response_json):
+    def test_seed_update_with_unsaved_company(self, cmpelk_api_response_json):
         source_data = json.loads(cmpelk_api_response_json)
 
         update_company_from_source(Company(), source_data, None, enable_monitoring=False)
@@ -74,7 +74,7 @@ class TestUpdateCompanyFromSource:
         assert Company.objects.count() == 1
 
         assert CompanySerialiser(company).data == {
-            'last_updated': '2019-11-25T12:00:01Z',
+            'last_updated': None,
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -116,7 +116,7 @@ class TestUpdateCompanyFromSource:
         }
 
     @freeze_time('2019-11-25 12:00:01 UTC')
-    def test_update_existing_company_success(self, cmpelk_api_response_json):
+    def test_seed_existing_company_success(self, cmpelk_api_response_json):
         company = CompanyFactory()
         IndustryCodeFactory(company=company)
         PrimaryIndustryCodeFactory(company=company)
@@ -129,7 +129,7 @@ class TestUpdateCompanyFromSource:
         assert Company.objects.count() == 1
 
         assert CompanySerialiser(company).data == {
-            'last_updated': '2019-11-25T12:00:01Z',
+            'last_updated': None,
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -228,7 +228,7 @@ class TestUpdateCompanyFromSource:
         update_company_from_source(Company(), source_data, timezone.now(), enable_monitoring=False)
 
         company = Company.objects.first()
-        assert company.last_updated == timezone.now()
+        assert not company.last_updated
         assert company.last_updated_source_timestamp == timezone.now()
 
     @pytest.mark.parametrize('status, expected_status',
@@ -292,7 +292,7 @@ class TestApplyUpdateToCompany:
         company.refresh_from_db()
 
         assert CompanySerialiser(company).data == {
-            'last_updated': '2019-11-25T12:00:01Z',
+            'last_updated': None,
             'duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
@@ -604,7 +604,7 @@ class TestProcessNotificationFile:
         assert Company.objects.count() == 1
         company = Company.objects.first()
         assert company.duns_number == company_data['organization']['duns']
-        assert company.last_updated == timezone.now()
+        assert not company.last_updated
         assert company.last_updated_source_timestamp == _parse_timestamp_from_file(file_name)
 
         assert total == 1
