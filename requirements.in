@@ -1,4 +1,4 @@
-django>=2.2.4
+django==2.2.9
 django-rest-framework
 boto3
 dj-database-url
