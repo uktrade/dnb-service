@@ -515,6 +515,40 @@ def test_extract_is_out_of_business_bad_data():
         },
         (None, None)
     ),
+    # empty first element
+    (
+        {
+            'organization': {
+                'numberOfEmployees': [
+                    {},     # <- note first element is empty
+                    {
+                        'informationScopeDescription': 'Individual',
+                        'informationScopeDnBCode': 9066,
+                        'reliabilityDescription': 'Actual',
+                        'reliabilityDnBCode': 9092,
+                        'value': 8
+                    }
+                ]
+            }
+        },
+        (False, 8)
+    ),
+    # missing value field
+    (
+        {
+            'organization': {
+                'numberOfEmployees': [
+                    {
+                        'informationScopeDescription': 'Individual',
+                        'informationScopeDnBCode': 9066,
+                        'reliabilityDescription': 'Actual',
+                        'reliabilityDnBCode': 9092
+                    }
+                ]
+            }
+        },
+        (None, None)
+    ),
 ])
 def test_extract_employee_numbers(input_data, expected):
     assert extract_employee_numbers(input_data) == expected

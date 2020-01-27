@@ -93,21 +93,23 @@ def extract_is_out_of_business(company_data):
 
 
 def extract_employee_numbers(company_data):
-    employee_number_entries = company_data['organization'].get('numberOfEmployees')
-
-    if not employee_number_entries:
-        return None, None
+    employee_number_entries = company_data['organization'].get('numberOfEmployees', [])
 
     employee_data = None
 
-    if len(employee_number_entries) > 0:
+    for entry in employee_number_entries:
+        if entry.get('informationScopeDnBCode') == INFORMATION_SCOPE_CONSOLIDATED:
+            employee_data = entry
+            break
+    else:
+        # find the first non empty entry
         for entry in employee_number_entries:
-            if entry.get('informationScopeDnBCode') == INFORMATION_SCOPE_CONSOLIDATED:
+            if entry:
                 employee_data = entry
                 break
 
-    if not employee_data:
-        employee_data = employee_number_entries[0]
+    if not employee_data or 'value' not in employee_data:
+        return None, None
 
     is_estimated = employee_data.get('reliabilityDnBCode') != RELIABILITY_CODE_ACTUAL
 
