@@ -283,6 +283,26 @@ def test_extract_registered_address(input_data, expected):
             }
         ]
     ),
+    # partial data with missing description
+    (
+        {
+            'organization': {
+                'registrationNumbers': [
+                    {
+                        'registrationNumber': '123456789'
+                    }
+                ]
+            }
+        },
+        [
+            {
+                'registration_type': 'unmapped',
+                'original_registration_type': None,
+                'original_registration_number': '123456789',
+                'original_registration_description': ''
+            }
+        ]
+    ),
 ])
 def test_extract_registration_numbers(input_data, expected):
     assert extract_registration_numbers(input_data) == expected

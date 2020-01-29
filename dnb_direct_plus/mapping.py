@@ -51,7 +51,7 @@ def extract_registration_numbers(company_data):
                 'registration_type': 'unmapped',
                 'original_registration_type': registration_number.get('typeDnBCode'),
                 'original_registration_number': registration_number['registrationNumber'],
-                'original_registration_description': registration_number['typeDescription'],
+                'original_registration_description': registration_number.get('typeDescription', ''),
             })
 
     return registration_numbers
