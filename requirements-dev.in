@@ -20,3 +20,4 @@ factory_boy
 
 # Miscellaneous
 docutils
+django-extensions
