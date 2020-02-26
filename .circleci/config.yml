@@ -10,12 +10,13 @@ jobs:
       - image: circleci/postgres:9.5
         environment:
           POSTGRES_DB: dnb-service
+          POSTGRES_PASSWORD: dnb-service
       - image: redis:5.0.5
 
     working_directory: ~/repo
 
     environment:
-      DATABASE_URL: postgresql://postgres@localhost/dnb-service
+      DATABASE_URL: postgresql://postgres:dnb-service@localhost/dnb-service
 
     steps:
       - checkout

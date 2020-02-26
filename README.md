@@ -14,7 +14,7 @@ Postgres 10
 
 3. Install pip-tools: `pip install pip-tools`
 
-## Installation
+## Installation on the metal
 
 1. Install packages in requirements-dev.txt using pip-sync: `pip-sync requirements-dev.txt`
 
@@ -26,6 +26,15 @@ Postgres 10
 4. Load country fixtures (optional): `./manage.py loaddata company/fixtures/countries.yaml`
 
 4. Run migrations and start a web server: `./manage.py migrate` and then `./manage.py runserver`
+
+## Running with docker
+
+1. Create a .env file: `cp sample_env.docker .env`
+
+1. Get some SSO credentials and add them to your .env file. See the section below on staff-sso integration.
+   NOTE: only required if you want to access the admin section.
+
+1. Run the app under docker-compose: `docker-compose up -d`
 
 ## Run tests
 

@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'user',
 ]
 
+if DEBUG:
+    INSTALLED_APPS.append('django_extensions')
+
 MIDDLEWARE = [
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
