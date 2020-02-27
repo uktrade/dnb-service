@@ -84,10 +84,17 @@ class TestCompanySearchView:
 
         assert response.status_code == 400
 
-        assert response.json() == \
-               {'non_field_errors': ["At least one standalone field required: ['duns_number', 'search_term']."]}
+        expected_response = {
+            'non_field_errors': ["At least one standalone field required: ['duns_number', 'search_term']."]
+        }
+        assert response.json() == expected_response
 
-    def test_query_duns_number_updates_local_db_and_monitoring_is_enabled(self, client, mocker, company_list_api_response_json):
+    def test_query_duns_number_updates_local_db_and_monitoring_is_enabled(
+        self,
+        client,
+        mocker,
+        company_list_api_response_json,
+    ):
         user = get_user_model().objects.create(email='test@test.com', is_active=True)
         token = Token.objects.create(user=user)
 
@@ -100,10 +107,12 @@ class TestCompanySearchView:
         mock_api_request.return_value.json.return_value = company_input_data
 
         assert Company.objects.count() == 0
-        response = client.post(reverse('api:company-search'),
-                              {'duns_number': company_input_data['searchCandidates'][0]['organization']['duns']},
-                              content_type='application/json',
-                              HTTP_AUTHORIZATION=f'Token {token.key}')
+        response = client.post(
+            reverse('api:company-search'),
+            {'duns_number': company_input_data['searchCandidates'][0]['organization']['duns']},
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Token {token.key}'
+        )
 
         assert Company.objects.count() == 1
         assert response.status_code == 200
@@ -137,9 +146,14 @@ class TestCompanyUpdateView:
                               HTTP_AUTHORIZATION=f'Token {token.key}')
 
         assert response.status_code == 200
-        assert response.json() == {'next': None, 'previous': None, 'results': [
-            expected_company_data
-        ]}
+        assert response.json() == {
+            'next': None,
+            'previous': None,
+            'count': 1,
+            'results': [
+                expected_company_data
+            ],
+        }
 
     def test_last_updated_invalid_date_results_in_400(self, client):
         user = get_user_model().objects.create(email='test@test.com', is_active=True)
@@ -168,6 +182,7 @@ class TestCompanyUpdateView:
 
         result_data = response.json()
         assert len(result_data['results']) == 2
+        assert result_data['count'] == 2
         assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
 
     @freeze_time('2019-11-25 12:00:01 UTC')
@@ -187,6 +202,7 @@ class TestCompanyUpdateView:
         response_data = response.json()
         assert response_data['next'] is not None
         assert len(response_data['results']) == 1
+        assert response_data['count'] == 2
         assert response_data['results'][0]['duns_number'] == company1.duns_number
 
         response = client.get(response_data['next'],
