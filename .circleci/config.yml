@@ -17,6 +17,7 @@ jobs:
 
     environment:
       DATABASE_URL: postgresql://postgres:dnb-service@localhost/dnb-service
+      REDIS_URL: redis://localhost:6379
 
     steps:
       - checkout
