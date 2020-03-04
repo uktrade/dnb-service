@@ -214,3 +214,83 @@ class TestCompanyUpdateView:
         assert response_data['next'] is None
         assert len(response_data['results']) == 1
         assert response_data['results'][0]['duns_number'] == company2.duns_number
+
+
+class TestChangeRequestApiView:
+    """
+    Test the change-request API endpoint.
+    """
+
+    def test_requires_authentication(self, client):
+        """
+        Test that requests without authentication are not permitted.
+        """
+        response = client.post(reverse('api:change-request'))
+
+        assert response.status_code == 401
+
+    @pytest.mark.parametrize(
+        'request_data,expected_error_message',
+        (
+            (
+                {
+                    "duns_number": "1",
+                },
+                {
+                    'duns_number': ['Ensure this field has at least 9 characters.'],
+                    'changes': ['This field is required.'],
+                },
+            ),
+            (
+                {
+                    "duns_number": "123456789",
+                    "changes": {
+                        "annual_sales": "foooooooob",
+                    },
+                },
+                {'changes': {'annual_sales': ['A valid number is required.']}},
+            ),
+        )
+    )
+    def test_invalid_request_responds_400(self, client, request_data, expected_error_message):
+        """
+        Test that various badly formed inputs are rejected with 400 responses.
+        """
+        user = get_user_model().objects.create(email='test@test.com', is_active=True)
+        token = Token.objects.create(user=user)
+        response = client.post(
+            reverse('api:change-request'),
+            request_data,
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Token {token.key}'
+        )
+        assert response.status_code == 400
+        assert response.json() == expected_error_message
+
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    def test_valid_request_responds_200(self, client):
+        """
+        Test that a valid request responds with a 200.
+        """
+        # TODO: This test should be adjusted to assert that a ChangeRequest record
+        # is created once we have ChangeRequest modelling
+        user = get_user_model().objects.create(email='test@test.com', is_active=True)
+        token = Token.objects.create(user=user)
+        response = client.post(
+            reverse('api:change-request'),
+            {
+                'duns_number': '123456789',
+                'changes': {
+                    'primary_name': 'Foo Bar',
+                },
+            },
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Token {token.key}'
+        )
+        assert response.status_code == 200
+
+        response_data = response.json()
+        assert response_data['duns_number'] == '123456789'
+        assert response_data['created_on'] == timezone.now().isoformat()
+        assert response_data['changes'] == {'primary_name': 'Foo Bar'}
+        assert len(response_data['id']) == 36

@@ -80,3 +80,55 @@ class CompanySerialiser(serializers.ModelSerializer):
             'primary_industry_codes',
             'industry_codes',
         ]
+
+
+class ChangeRequestChangesSerialiser(CompanySerialiser):
+    """
+    Serialised representation of company field changes that can be requested.
+    """
+
+    class Meta:
+        model = Company
+        fields = [
+            'primary_name',
+            'trading_names',
+            'domain',
+            'address_line_1',
+            'address_line_2',
+            'address_town',
+            'address_county',
+            'address_country',
+            'address_postcode',
+            'registered_address_line_1',
+            'registered_address_line_2',
+            'registered_address_town',
+            'registered_address_county',
+            'registered_address_country',
+            'registered_address_postcode',
+            'employee_number',
+            'annual_sales',
+            'annual_sales_currency',
+        ]
+        extra_kwargs = {
+            'primary_name': {
+                'required': False,
+            },
+            'annual_sales': {
+                'required': False,
+                'allow_null': False,
+            },
+            'employee_number': {
+                'required': False,
+                'allow_null': False,
+            },
+        }
+
+
+# TODO: Replace this with a ModelSerializer for the ChangeRequest model when we
+# add it
+class ChangeRequestSerialiser(serializers.Serializer):
+    """
+    Serialised representation of a ChangeRequest.
+    """
+    duns_number = serializers.CharField(max_length=9, min_length=9)
+    changes = ChangeRequestChangesSerialiser()
