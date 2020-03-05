@@ -1,5 +1,6 @@
 import datetime
 import json
+from unittest import mock
 
 import pytest
 from freezegun import freeze_time
@@ -214,3 +215,107 @@ class TestCompanyUpdateView:
         assert response_data['next'] is None
         assert len(response_data['results']) == 1
         assert response_data['results'][0]['duns_number'] == company2.duns_number
+
+
+class TestChangeRequestApiView:
+    """
+    Test the change-request API endpoint.
+    """
+
+    def test_requires_authentication(self, client):
+        """
+        Test that requests without authentication are not permitted.
+        """
+        response = client.post(reverse('api:change-request'))
+
+        assert response.status_code == 401
+
+    @pytest.mark.parametrize(
+        'request_data,expected_error_message',
+        (
+            (
+                {
+                    "duns_number": "1",
+                },
+                {
+                    'duns_number': ['Ensure this field has at least 9 characters.'],
+                    'changes': ['This field is required.'],
+                },
+            ),
+            (
+                {
+                    "duns_number": "123456789",
+                    "changes": {
+                        "annual_sales": "foooooooob",
+                    },
+                },
+                {'changes': {'annual_sales': ['A valid number is required.']}},
+            ),
+        )
+    )
+    def test_invalid_request_responds_400(self, client, request_data, expected_error_message):
+        """
+        Test that various badly formed inputs are rejected with 400 responses.
+        """
+        user = get_user_model().objects.create(email='test@test.com', is_active=True)
+        token = Token.objects.create(user=user)
+        response = client.post(
+            reverse('api:change-request'),
+            request_data,
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Token {token.key}'
+        )
+        assert response.status_code == 400
+        assert response.json() == expected_error_message
+
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    def test_valid_request_responds_200(self, monkeypatch, client):
+        """
+        Test that a valid request responds with a 200.
+        """
+        # TODO: This test should be adjusted to assert that a ChangeRequest record
+        # is created once we have ChangeRequest modelling
+        mock_uuid4 = mock.Mock()
+        mock_uuid4.return_value = 'aec71599-77a5-4575-b56d-4e9c66262cd4'
+        monkeypatch.setattr('api.views.uuid.uuid4', mock_uuid4)
+        user = get_user_model().objects.create(email='test@test.com', is_active=True)
+        token = Token.objects.create(user=user)
+        request_data = {
+            'duns_number': '123456789',
+            'changes': {
+                'primary_name': 'Foo Bar',
+                'trading_names': ['Foo Bar INC'],
+                'domain': 'example.com',
+                'address_line_1': '123 Fake Street',
+                'address_line_2': 'Foo',
+                'address_town': 'London',
+                'address_county': 'Greater London',
+                'address_country': 'GB',
+                'address_postcode': 'W1 0TN',
+                'registered_address_line_1': '123 Fake Street',
+                'registered_address_line_2': 'Foo',
+                'registered_address_town': 'London',
+                'registered_address_county': 'Greater London',
+                'registered_address_country': 'GB',
+                'registered_address_postcode': 'W1 0TN',
+                'employee_number': 673,
+                'annual_sales': 416807212.0,
+                'annual_sales_currency': 'GBP',
+            },
+        }
+        response = client.post(
+            reverse('api:change-request'),
+            request_data,
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Token {token.key}'
+        )
+        assert response.status_code == 200
+
+        response_data = response.json()
+        expected_response_data = {
+            'id': mock_uuid4.return_value,
+            'status': 'pending',
+            'created_on': timezone.now().isoformat(),
+            **request_data,
+        }
+        assert response_data == expected_response_data
