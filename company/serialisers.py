@@ -1,6 +1,12 @@
 from rest_framework import serializers
 
-from company.models import Company, IndustryCode, PrimaryIndustryCode, RegistrationNumber
+from company.models import (
+    Company,
+    Country,
+    IndustryCode,
+    PrimaryIndustryCode,
+    RegistrationNumber,
+)
 
 
 class RegistrationNumberSerialiser(serializers.ModelSerializer):
@@ -86,6 +92,19 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
     """
     Serialised representation of company field changes that can be requested.
     """
+    address_country = serializers.SlugRelatedField(
+        many=False,
+        slug_field='iso_alpha2',
+        queryset=Country.objects.all(),
+        required=False,
+    )
+
+    registered_address_country = serializers.SlugRelatedField(
+        many=False,
+        slug_field='iso_alpha2',
+        queryset=Country.objects.all(),
+        required=False,
+    )
 
     class Meta:
         model = Company

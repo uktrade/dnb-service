@@ -1,5 +1,6 @@
 import datetime
 import json
+from unittest import mock
 
 import pytest
 from freezegun import freeze_time
@@ -268,29 +269,53 @@ class TestChangeRequestApiView:
         assert response.json() == expected_error_message
 
     @freeze_time('2019-11-25 12:00:01 UTC')
-    def test_valid_request_responds_200(self, client):
+    def test_valid_request_responds_200(self, monkeypatch, client):
         """
         Test that a valid request responds with a 200.
         """
         # TODO: This test should be adjusted to assert that a ChangeRequest record
         # is created once we have ChangeRequest modelling
+        mock_uuid4 = mock.Mock()
+        mock_uuid4.return_value = 'aec71599-77a5-4575-b56d-4e9c66262cd4'
+        monkeypatch.setattr('api.views.uuid.uuid4', mock_uuid4)
         user = get_user_model().objects.create(email='test@test.com', is_active=True)
         token = Token.objects.create(user=user)
+        request_data = {
+            'duns_number': '123456789',
+            'changes': {
+                'primary_name': 'Foo Bar',
+                'trading_names': ['Foo Bar INC'],
+                'domain': 'example.com',
+                'address_line_1': '123 Fake Street',
+                'address_line_2': 'Foo',
+                'address_town': 'London',
+                'address_county': 'Greater London',
+                'address_country': 'GB',
+                'address_postcode': 'W1 0TN',
+                'registered_address_line_1': '123 Fake Street',
+                'registered_address_line_2': 'Foo',
+                'registered_address_town': 'London',
+                'registered_address_county': 'Greater London',
+                'registered_address_country': 'GB',
+                'registered_address_postcode': 'W1 0TN',
+                'employee_number': 673,
+                'annual_sales': 416807212.0,
+                'annual_sales_currency': 'GBP',
+            },
+        }
         response = client.post(
             reverse('api:change-request'),
-            {
-                'duns_number': '123456789',
-                'changes': {
-                    'primary_name': 'Foo Bar',
-                },
-            },
+            request_data,
             content_type='application/json',
             HTTP_AUTHORIZATION=f'Token {token.key}'
         )
         assert response.status_code == 200
 
         response_data = response.json()
-        assert response_data['duns_number'] == '123456789'
-        assert response_data['created_on'] == timezone.now().isoformat()
-        assert response_data['changes'] == {'primary_name': 'Foo Bar'}
-        assert len(response_data['id']) == 36
+        expected_response_data = {
+            'id': mock_uuid4.return_value,
+            'status': 'pending',
+            'created_on': timezone.now().isoformat(),
+            **request_data,
+        }
+        assert response_data == expected_response_data
