@@ -1,20 +1,19 @@
-import uuid
 import datetime
 
-from django.utils.timezone import now
 from rest_framework import generics
 from requests.exceptions import HTTPError
+from rest_framework.generics import CreateAPIView
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .serialisers import CompanySearchInputSerialiser
-from company.models import Company
+from company.models import ChangeRequest, Company
 from company.serialisers import ChangeRequestSerialiser, CompanySerialiser
 from dnb_direct_plus.api import company_list_search
 
 
-class DNBCompanySearchApiView(APIView):
+class DNBCompanySearchAPIView(APIView):
     """
     An API view that proxies requests to Dun & Bradstreet's CompanyList search.
     """
@@ -32,7 +31,7 @@ class DNBCompanySearchApiView(APIView):
         return Response(data)
 
 
-class CompanyUpdatesApiView(generics.ListAPIView):
+class CompanyUpdatesAPIView(generics.ListAPIView):
     serializer_class = CompanySerialiser
 
     def get_queryset(self):
@@ -50,21 +49,9 @@ class CompanyUpdatesApiView(generics.ListAPIView):
         return queryset
 
 
-class ChangeRequestApiView(APIView):
+class ChangeRequestAPIView(CreateAPIView):
     """
     Endpoint to save a new ChangeRequest record on POST.
     """
-
-    def post(self, request):
-        serialiser = ChangeRequestSerialiser(data=request.data)
-        serialiser.is_valid(raise_exception=True)
-
-        # TODO: Once we have a ChangeRequest model, this view should save a new
-        # change request and respond with a serialised version of it. For now
-        # we are stubbing the response out
-        return Response({
-            'id': uuid.uuid4(),
-            **serialiser.data,
-            'status': 'pending',
-            'created_on': now().isoformat(),
-        })
+    queryset = ChangeRequest.objects.all()
+    serializer_class = ChangeRequestSerialiser
