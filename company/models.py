@@ -1,9 +1,16 @@
+import uuid
+
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from company.constants import LegalStatusChoices, MonitoringStatusChoices, RegistrationNumberChoices
+from company.constants import (
+    ChangeRequestStatus,
+    LegalStatusChoices,
+    MonitoringStatusChoices,
+    RegistrationNumberChoices,
+)
 
 
 duns_number_validator = RegexValidator(
@@ -305,3 +312,26 @@ class Company(models.Model):
     @property
     def is_monitored(self):
         return self.monitoring_status == MonitoringStatusChoices.enabled.name
+
+
+class ChangeRequest(models.Model):
+    """
+    A request for changes to company details.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    duns_number = models.CharField(
+        _('Duns number'),
+        max_length=9,
+        unique=True,
+        validators=[duns_number_validator],
+    )
+    changes = JSONField()
+    status = models.CharField(
+        _('Change Request Status'),
+        choices=ChangeRequestStatus.list(),
+        max_length=100,
+        default=ChangeRequestStatus.pending.name,
+    )
+    created_on = models.DateTimeField(auto_now_add=True)
+    submitted_on = models.DateTimeField(null=True, blank=True)
