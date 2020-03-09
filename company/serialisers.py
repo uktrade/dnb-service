@@ -1,6 +1,9 @@
+from django.utils.functional import cached_property
+
 from rest_framework import serializers
 
 from company.models import (
+    ChangeRequest,
     Company,
     Country,
     IndustryCode,
@@ -92,19 +95,8 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
     """
     Serialised representation of company field changes that can be requested.
     """
-    address_country = serializers.SlugRelatedField(
-        many=False,
-        slug_field='iso_alpha2',
-        queryset=Country.objects.all(),
-        required=False,
-    )
-
-    registered_address_country = serializers.SlugRelatedField(
-        many=False,
-        slug_field='iso_alpha2',
-        queryset=Country.objects.all(),
-        required=False,
-    )
+    address_country = serializers.CharField(max_length=2, required=False)
+    registered_address_country = serializers.CharField(max_length=2, required=False)
 
     class Meta:
         model = Company
@@ -142,12 +134,49 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
             },
         }
 
+    @cached_property
+    def _country_slugs(self):
+        return Country.objects.all().values_list('iso_alpha2', flat=True)
 
-# TODO: Replace this with a ModelSerializer for the ChangeRequest model when we
-# add it
-class ChangeRequestSerialiser(serializers.Serializer):
+    def _validate_country_slug(self, value):
+        if value not in self._country_slugs:
+            raise serializers.ValidationError('This is not a valid ISO Alpha2 country code.')
+
+    def validate_address_country(self, value):
+        """
+        Validate that the address_country field is a valid ISO alpha2 slug.
+        """
+        self._validate_country_slug(value)
+        return value
+
+    def validate_registered_address_country(self, value):
+        """
+        Validate that the registered_address_country field is a valid ISO alpha2 slug.
+        """
+        self._validate_country_slug(value)
+        return value
+
+
+class ChangeRequestSerialiser(serializers.ModelSerializer):
     """
     Serialised representation of a ChangeRequest.
     """
-    duns_number = serializers.CharField(max_length=9, min_length=9)
     changes = ChangeRequestChangesSerialiser()
+
+    class Meta:
+        model = ChangeRequest
+        fields = [
+            'id',
+            'duns_number',
+            'changes',
+            'status',
+            'created_on',
+        ]
+
+    def create(self, validated_data):
+        """
+        Create the ChangeRequest record.
+        """
+        change_request = ChangeRequest(**validated_data)
+        change_request.save()
+        return change_request

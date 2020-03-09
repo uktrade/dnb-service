@@ -1,11 +1,11 @@
 from django.urls import path
 
-from .views import ChangeRequestApiView, CompanyUpdatesApiView, DNBCompanySearchApiView
+from .views import ChangeRequestAPIView, CompanyUpdatesAPIView, DNBCompanySearchAPIView
 
 app_name = 'api'
 
 urlpatterns = [
-    path('companies/', CompanyUpdatesApiView.as_view(), name='company-updates'),
-    path('companies/search/', DNBCompanySearchApiView.as_view(), name='company-search'),
-    path('change-request/', ChangeRequestApiView.as_view(), name='change-request'),
+    path('companies/', CompanyUpdatesAPIView.as_view(), name='company-updates'),
+    path('companies/search/', DNBCompanySearchAPIView.as_view(), name='company-search'),
+    path('change-request/', ChangeRequestAPIView.as_view(), name='change-request'),
 ]

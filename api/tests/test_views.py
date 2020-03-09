@@ -1,6 +1,5 @@
 import datetime
 import json
-from unittest import mock
 
 import pytest
 from freezegun import freeze_time
@@ -9,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from company.constants import MonitoringStatusChoices
-from company.models import Company
+from company.models import ChangeRequest, Company
 from company.serialisers import CompanySerialiser
 from company.tests.factories import CompanyFactory
 from dnb_direct_plus.mapping import extract_company_data
@@ -17,9 +16,7 @@ from requests.exceptions import HTTPError
 from rest_framework.authtoken.models import Token
 
 
-pytestmark = [
-    pytest.mark.django_db
-]
+pytestmark = pytest.mark.django_db
 
 
 class TestCompanySearchView:
@@ -238,7 +235,7 @@ class TestChangeRequestApiView:
                     "duns_number": "1",
                 },
                 {
-                    'duns_number': ['Ensure this field has at least 9 characters.'],
+                    'duns_number': ['Field should contain 9 numbers only'],
                     'changes': ['This field is required.'],
                 },
             ),
@@ -250,6 +247,15 @@ class TestChangeRequestApiView:
                     },
                 },
                 {'changes': {'annual_sales': ['A valid number is required.']}},
+            ),
+            (
+                {
+                    "duns_number": "123456789",
+                    "changes": {
+                        "address_country": "99",
+                    },
+                },
+                {'changes': {'address_country': ['This is not a valid ISO Alpha2 country code.']}},
             ),
         )
     )
@@ -269,15 +275,10 @@ class TestChangeRequestApiView:
         assert response.json() == expected_error_message
 
     @freeze_time('2019-11-25 12:00:01 UTC')
-    def test_valid_request_responds_200(self, monkeypatch, client):
+    def test_valid_request_responds_200(self, client):
         """
         Test that a valid request responds with a 200.
         """
-        # TODO: This test should be adjusted to assert that a ChangeRequest record
-        # is created once we have ChangeRequest modelling
-        mock_uuid4 = mock.Mock()
-        mock_uuid4.return_value = 'aec71599-77a5-4575-b56d-4e9c66262cd4'
-        monkeypatch.setattr('api.views.uuid.uuid4', mock_uuid4)
         user = get_user_model().objects.create(email='test@test.com', is_active=True)
         token = Token.objects.create(user=user)
         request_data = {
@@ -309,13 +310,22 @@ class TestChangeRequestApiView:
             content_type='application/json',
             HTTP_AUTHORIZATION=f'Token {token.key}'
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
+        assert ChangeRequest.objects.all().count() == 1
+        change_request = ChangeRequest.objects.first()
 
+        # Assert that the response is correctly formatted
         response_data = response.json()
         expected_response_data = {
-            'id': mock_uuid4.return_value,
+            'id': str(change_request.id),
             'status': 'pending',
-            'created_on': timezone.now().isoformat(),
+            'created_on': '2019-11-25T12:00:01Z',
             **request_data,
         }
         assert response_data == expected_response_data
+
+        # Assert that the ChangeRequest has been saved correctly in the DB
+        assert change_request.status == 'pending'
+        assert change_request.created_on == timezone.now()
+        assert change_request.duns_number == request_data['duns_number']
+        assert change_request.changes == request_data['changes']

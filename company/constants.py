@@ -25,3 +25,8 @@ class MonitoringStatusChoices(StrEnum):
     pending = 'Pending submission'
     enabled = 'Enabled'
     failed = 'Failed'
+
+
+class ChangeRequestStatus(StrEnum):
+    pending = 'Pending submission'
+    submitted = 'Submitted'
