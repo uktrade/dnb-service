@@ -320,12 +320,7 @@ class ChangeRequest(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    duns_number = models.CharField(
-        _('Duns number'),
-        max_length=9,
-        unique=True,
-        validators=[duns_number_validator],
-    )
+    duns_number = models.CharField(_('Duns number'), max_length=9, validators=[duns_number_validator])
     changes = JSONField()
     status = models.CharField(
         _('Change Request Status'),
