@@ -54,7 +54,7 @@ def _get_change_request_row(change_request):
 def generate_change_request_csv(change_requests):
     """
     Given an iterable of ChangeRequest records, generate a CSV of changes which is readable by D&B
-    support staff. The returned CSV content is a bytes object, ready for sending by email.
+    support staff. The returned CSV content is file object, ready for sending by email.
     """
     if not change_requests:
         raise IndexError("Cannot generate a change request CSV for an empty list of change requests.")
@@ -62,5 +62,4 @@ def generate_change_request_csv(change_requests):
     writer = csv.writer(writer_file, dialect='excel', delimiter=',')
     for change_request in change_requests:
         writer.writerow(_get_change_request_row(change_request))
-    content = writer_file.getvalue().encode('utf-8')
-    return content
+    return writer_file

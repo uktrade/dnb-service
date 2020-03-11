@@ -51,8 +51,8 @@ class TestGenerateChangeRequestCSV:
                 ),
             ],
         ]
-        csv_content = generate_change_request_csv([partial_change_request, full_change_request])
-        reader = csv.reader(io.StringIO(csv_content.decode('utf-8')), dialect='excel', delimiter=',')
+        csv_file = generate_change_request_csv([partial_change_request, full_change_request])
+        reader = csv.reader(csv_file, dialect='excel', delimiter=',')
         for row, expected_row in zip(reader, expected_rows):
             assert row == expected_row
 
