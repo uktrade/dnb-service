@@ -1,5 +1,4 @@
 import csv
-import io
 
 import pytest
 
@@ -36,6 +35,7 @@ class TestGenerateChangeRequestCSV:
             'annual_sales_currency': 'GBP',
         })
         expected_rows = [
+            ['duns_number', 'changes'],
             [partial_change_request.duns_number, 'Business Name: Foo'],
             [
                 full_change_request.duns_number,
@@ -62,8 +62,3 @@ class TestGenerateChangeRequestCSV:
         """
         with pytest.raises(IndexError):
             generate_change_request_csv([])
-
-    def test_exception_raised_for_partial_address(self):
-        incomplete_change_request = ChangeRequestFactory(changes={'address_line_1': 'Foo'})
-        with pytest.raises(IncompleteAddressException):
-            generate_change_request_csv([incomplete_change_request])
