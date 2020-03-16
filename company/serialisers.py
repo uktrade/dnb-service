@@ -144,10 +144,9 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
             raise serializers.ValidationError('This is not a valid ISO Alpha2 country code.')
 
     def _ensure_address_all_or_nothing(self, fields_prefix, data):
-        address_fields = [f'{fields_prefix}_{field}' for field in ADDRESS_FIELDS]
-        any_address_fields_in_data = any(field_in_data in address_fields for field_in_data in data.keys())
-        all_address_fields_in_data = all(address_field in data.keys() for address_field in address_fields)
-        if any_address_fields_in_data and not all_address_fields_in_data:
+        address_fields = {f'{fields_prefix}_{field}' for field in ADDRESS_FIELDS}
+        address_fields_in_data = address_fields.intersection(data.keys())
+        if address_fields_in_data != address_fields:
             message = f"If any '{fields_prefix}' fields are set, all '{fields_prefix}' fields must be set."
             raise serializers.ValidationError(message)
 
