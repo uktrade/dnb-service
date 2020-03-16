@@ -257,6 +257,21 @@ class TestChangeRequestApiView:
                 },
                 {'changes': {'address_country': ['This is not a valid ISO Alpha2 country code.']}},
             ),
+            (
+                {
+                    "duns_number": "123456789",
+                    "changes": {
+                        "address_line_1": "Foo",
+                    },
+                },
+                {
+                    'changes': {
+                        'non_field_errors': [
+                            "If any 'address' fields are set, all 'address' fields must be set."
+                        ]
+                    }
+                },
+            ),
         )
     )
     def test_invalid_request_responds_400(self, client, request_data, expected_error_message):
@@ -294,7 +309,7 @@ class TestChangeRequestApiView:
                 'address_country': 'GB',
                 'address_postcode': 'W1 0TN',
                 'registered_address_line_1': '123 Fake Street',
-                'registered_address_line_2': 'Foo',
+                'registered_address_line_2': '',
                 'registered_address_town': 'London',
                 'registered_address_county': 'Greater London',
                 'registered_address_country': 'GB',

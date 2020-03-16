@@ -2,6 +2,7 @@ from django.utils.functional import cached_property
 
 from rest_framework import serializers
 
+from company.constants import ADDRESS_FIELDS
 from company.models import (
     ChangeRequest,
     Company,
@@ -142,6 +143,13 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
         if value not in self._country_slugs:
             raise serializers.ValidationError('This is not a valid ISO Alpha2 country code.')
 
+    def _ensure_address_all_or_nothing(self, fields_prefix, data):
+        address_fields = {f'{fields_prefix}_{field}' for field in ADDRESS_FIELDS}
+        address_fields_in_data = address_fields.intersection(data.keys())
+        if address_fields_in_data != address_fields:
+            message = f"If any '{fields_prefix}' fields are set, all '{fields_prefix}' fields must be set."
+            raise serializers.ValidationError(message)
+
     def validate_address_country(self, value):
         """
         Validate that the address_country field is a valid ISO alpha2 slug.
@@ -155,6 +163,15 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
         """
         self._validate_country_slug(value)
         return value
+
+    def validate(self, data):
+        """
+        Ensure that address and registered_address fields are all or nothing i.e.
+        if one address field is set, raise a 400 error if all of the rest are not set.
+        """
+        self._ensure_address_all_or_nothing('address', data)
+        self._ensure_address_all_or_nothing('registered_address', data)
+        return data
 
 
 class ChangeRequestSerialiser(serializers.ModelSerializer):
