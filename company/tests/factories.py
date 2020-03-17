@@ -31,7 +31,7 @@ class RegistrationNumberFactory(factory.django.DjangoModelFactory):
 class IndustryCodeFactory(factory.django.DjangoModelFactory):
 
     code = factory.Sequence(lambda n: str(n).zfill(4))
-    priority = factory.Sequence(lambda n: n+1)
+    priority = factory.Sequence(lambda n: n + 1)
 
     class Meta:
         model = 'company.IndustryCode'
@@ -43,3 +43,11 @@ class PrimaryIndustryCodeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = 'company.PrimaryIndustryCode'
+
+
+class ChangeRequestFactory(factory.django.DjangoModelFactory):
+
+    duns_number = factory.Sequence(lambda n: str(n).zfill(9))
+
+    class Meta:
+        model = 'company.ChangeRequest'
