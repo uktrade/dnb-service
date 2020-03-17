@@ -215,3 +215,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomCursorPagination',
 }
+
+# GOVUK notify
+
+GOVUK_NOTIFICATIONS_API_KEY = env('GOVUK_NOTIFICATIONS_API_KEY')
