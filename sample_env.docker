@@ -22,3 +22,5 @@ DNB_S3_MONITORING_BUCKET=
 DNB_ARCHIVE_PROCESSED_FILES=
 DEV_AUTH_EMAIL=datahub.dev@digital.trade.gov.uk
 DEV_AUTH_TOKEN=cc373a2a49ce7143817a9d036fa2a0be92da0d6a
+# Replace GOVUK_NOTIFICATIONS_API_KEY with a real key to use notify functionality
+GOVUK_NOTIFICATIONS_API_KEY=ainaidahNgaeteghei3yooshaiyeeShi8heSie3Ba9AGhoos8eicie5lei2nahue9DaiBait5Ba4ajeiMee6Photh4alegh4Eez8Quopaith5B
