@@ -3,6 +3,7 @@ import uuid
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 
@@ -333,6 +334,13 @@ class ChangeRequest(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     submitted_on = models.DateTimeField(null=True, blank=True)
 
+    def mark_as_submitted(self, submitted_on=None):
+        """
+        Mark this ChangeRequest as submitted and save it.
+        """
+        self.submitted_on = submitted_on or timezone.now()
+        self.status = ChangeRequestStatus.submitted.name
+        self.save()
 
 class InvestigationRequest(models.Model):
     """
