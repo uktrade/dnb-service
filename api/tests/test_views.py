@@ -30,7 +30,7 @@ class TestCompanySearchView:
 
         response = auth_client.post(
             reverse('api:company-search'),
-                               {'search_term': 'micro'},
+            {'search_term': 'micro'},
         )
 
         assert response.status_code == 200
@@ -50,7 +50,7 @@ class TestCompanySearchView:
 
         response = auth_client.post(
             reverse('api:company-search'),
-                               {'search_term': 'micro'},
+            {'search_term': 'micro'},
         )
 
         assert response.status_code == 200
@@ -67,7 +67,7 @@ class TestCompanySearchView:
     def test_api_with_bad_query(self, auth_client):
         response = auth_client.post(
             reverse('api:company-search'),
-                               {},
+            {},
         )
 
         assert response.status_code == 400
@@ -122,7 +122,7 @@ class TestCompanyUpdateView:
 
         response = auth_client.get(
             reverse('api:company-updates'),
-                              {'last_updated_after': self._iso_now()},
+            {'last_updated_after': self._iso_now()},
         )
 
         assert response.status_code == 200
@@ -138,7 +138,7 @@ class TestCompanyUpdateView:
     def test_last_updated_invalid_date_results_in_400(self, auth_client):
         response = auth_client.get(
             reverse('api:company-updates'),
-                              {'last_updated_after': 'is-not-a-date'},
+            {'last_updated_after': 'is-not-a-date'},
         )
 
         assert response.status_code == 400
@@ -149,7 +149,7 @@ class TestCompanyUpdateView:
 
         response = auth_client.get(
             reverse('api:company-updates'),
-                              {},
+            {},
         )
 
         assert response.status_code == 200
@@ -166,7 +166,7 @@ class TestCompanyUpdateView:
 
         response = auth_client.get(
             reverse('api:company-updates'),
-                              {'last_updated_after': self._iso_now(), 'page_size': 1},
+            {'last_updated_after': self._iso_now(), 'page_size': 1},
         )
 
         assert response.status_code == 200
@@ -356,3 +356,30 @@ class TestChangeRequestApiView:
         assert change_request.created_on == timezone.now()
         assert change_request.duns_number == request_data['duns_number']
         assert change_request.changes == request_data['changes']
+
+
+class TestInvestigationApiView:
+    """
+    Test the investigation API endpoint.
+    """
+
+    def test_requires_authentication(self, client):
+        """
+        Test that requests without authentication are not permitted.
+        """
+        response = client.post(
+            reverse('api:investigation')
+        )
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_not_implemented(self, auth_client):
+        """
+        Test that authenticated request return 501 - Not Implemented.
+        """
+        response = auth_client.post(
+            reverse('api:investigation'),
+            {},
+        )
+
+        assert response.status_code == status.HTTP_501_NOT_IMPLEMENTED
