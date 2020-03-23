@@ -330,6 +330,7 @@ class ChangeRequest(models.Model):
         choices=ChangeRequestStatus.list(),
         max_length=100,
         default=ChangeRequestStatus.pending.name,
+        db_index=True,
     )
     created_on = models.DateTimeField(auto_now_add=True)
     submitted_on = models.DateTimeField(null=True, blank=True)
