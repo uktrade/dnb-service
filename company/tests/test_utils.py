@@ -1,8 +1,9 @@
+import io
 import csv
 
 import pytest
 
-from company.utils import generate_change_request_csv, IncompleteAddressException
+from company.utils import generate_change_request_csv
 from company.tests.factories import ChangeRequestFactory
 
 
@@ -52,7 +53,9 @@ class TestGenerateChangeRequestCSV:
             ],
         ]
         csv_file = generate_change_request_csv([partial_change_request, full_change_request])
-        reader = csv.reader(csv_file, dialect='excel', delimiter=',')
+        csv_file_contents = csv_file.read().decode('utf-8')
+        csv_file_stringio = io.StringIO(csv_file_contents)
+        reader = csv.reader(csv_file_stringio, dialect='excel', delimiter=',')
         for row, expected_row in zip(reader, expected_rows):
             assert row == expected_row
 

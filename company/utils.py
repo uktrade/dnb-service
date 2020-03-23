@@ -42,7 +42,7 @@ def _get_change_request_row(change_request):
     flat_readable_changes = [f'{key}: {value}' for key, value in readable_changes.items()]
     return {
         'duns_number': change_request.duns_number,
-        'changes': flat_readable_changes,
+        'changes': '; '.join(flat_readable_changes),
     }
 
 
@@ -63,4 +63,6 @@ def generate_change_request_csv(change_requests):
     writer.writeheader()
     for change_request in change_requests:
         writer.writerow(_get_change_request_row(change_request))
-    return writer_file
+    writer_file.seek(0)
+    bytes_file = io.BytesIO(writer_file.read().encode('utf-8'))
+    return bytes_file
