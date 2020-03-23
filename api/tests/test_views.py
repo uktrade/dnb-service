@@ -290,35 +290,82 @@ class TestChangeRequestApiView:
         assert response.json() == expected_error_message
 
     @freeze_time('2019-11-25 12:00:01 UTC')
-    def test_valid_request_responds_200(self, client):
+    @pytest.mark.parametrize(
+        'request_data',
+        (
+            {
+                'duns_number': '123456789',
+                'changes': {
+                    'primary_name': 'Foo Bar',
+                    'trading_names': ['Foo Bar INC'],
+                    'domain': 'example.com',
+                    'address_line_1': '123 Fake Street',
+                    'address_line_2': 'Foo',
+                    'address_town': 'London',
+                    'address_county': 'Greater London',
+                    'address_country': 'GB',
+                    'address_postcode': 'W1 0TN',
+                    'registered_address_line_1': '123 Fake Street',
+                    'registered_address_line_2': '',
+                    'registered_address_town': 'London',
+                    'registered_address_county': 'Greater London',
+                    'registered_address_country': 'GB',
+                    'registered_address_postcode': 'W1 0TN',
+                    'employee_number': 673,
+                    'annual_sales': 416807212.0,
+                    'annual_sales_currency': 'GBP',
+                },
+            },
+            # No registered address fields
+            {
+                'duns_number': '123456789',
+                'changes': {
+                    'primary_name': 'Foo Bar',
+                    'trading_names': ['Foo Bar INC'],
+                    'domain': 'example.com',
+                    'address_line_1': '123 Fake Street',
+                    'address_line_2': 'Foo',
+                    'address_town': 'London',
+                    'address_county': 'Greater London',
+                    'address_country': 'GB',
+                    'address_postcode': 'W1 0TN',
+                    'employee_number': 673,
+                    'annual_sales': 416807212.0,
+                    'annual_sales_currency': 'GBP',
+                },
+            },
+            # No address fields
+            {
+                'duns_number': '123456789',
+                'changes': {
+                    'primary_name': 'Foo Bar',
+                    'trading_names': ['Foo Bar INC'],
+                    'domain': 'example.com',
+                    'employee_number': 673,
+                    'annual_sales': 416807212.0,
+                    'annual_sales_currency': 'GBP',
+                },
+            },
+            # Only address fields
+            {
+                'duns_number': '123456789',
+                'changes': {
+                    'address_line_1': '123 Fake Street',
+                    'address_line_2': 'Foo',
+                    'address_town': 'London',
+                    'address_county': 'Greater London',
+                    'address_country': 'GB',
+                    'address_postcode': 'W1 0TN',
+                },
+            },
+        )
+    )
+    def test_valid_request_responds_200(self, client, request_data):
         """
         Test that a valid request responds with a 200.
         """
         user = get_user_model().objects.create(email='test@test.com', is_active=True)
         token = Token.objects.create(user=user)
-        request_data = {
-            'duns_number': '123456789',
-            'changes': {
-                'primary_name': 'Foo Bar',
-                'trading_names': ['Foo Bar INC'],
-                'domain': 'example.com',
-                'address_line_1': '123 Fake Street',
-                'address_line_2': 'Foo',
-                'address_town': 'London',
-                'address_county': 'Greater London',
-                'address_country': 'GB',
-                'address_postcode': 'W1 0TN',
-                'registered_address_line_1': '123 Fake Street',
-                'registered_address_line_2': '',
-                'registered_address_town': 'London',
-                'registered_address_county': 'Greater London',
-                'registered_address_country': 'GB',
-                'registered_address_postcode': 'W1 0TN',
-                'employee_number': 673,
-                'annual_sales': 416807212.0,
-                'annual_sales_currency': 'GBP',
-            },
-        }
         response = client.post(
             reverse('api:change-request'),
             request_data,
