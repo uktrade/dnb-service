@@ -5,6 +5,7 @@ from requests.exceptions import HTTPError
 from rest_framework.generics import CreateAPIView
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.views import APIView
 
 from .serialisers import CompanySearchInputSerialiser
@@ -55,3 +56,17 @@ class ChangeRequestAPIView(CreateAPIView):
     """
     queryset = ChangeRequest.objects.all()
     serializer_class = ChangeRequestSerialiser
+
+
+class InvestigationAPIView(CreateAPIView):
+    """
+    Endpoint to save a new Investigation record on POST.
+
+    At the moment, this will return 501 - Not Implemented.
+    """
+
+    def post(self, request, *args, **kwargs):
+        """
+        Returns a 501 - Not Implemented.
+        """
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)

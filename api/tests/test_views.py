@@ -2,18 +2,17 @@ import datetime
 import json
 
 import pytest
-from freezegun import freeze_time
-from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
+from freezegun import freeze_time
+from requests.exceptions import HTTPError
+from rest_framework import status
 
 from company.constants import MonitoringStatusChoices
 from company.models import ChangeRequest, Company
 from company.serialisers import CompanySerialiser
 from company.tests.factories import CompanyFactory
 from dnb_direct_plus.mapping import extract_company_data
-from requests.exceptions import HTTPError
-from rest_framework.authtoken.models import Token
 
 
 pytestmark = pytest.mark.django_db
@@ -25,17 +24,14 @@ class TestCompanySearchView:
 
         assert response.status_code == 401
 
-    def test_404_returns_empty_data(self, client, mocker):
-        user = get_user_model().objects.create(email='test@test.com', is_active=True)
-        token = Token.objects.create(user=user)
-
+    def test_404_returns_empty_data(self, auth_client, mocker):
         mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
         mock_api_request.side_effect = HTTPError(response=mocker.Mock(status_code=404))
 
-        response = client.post(reverse('api:company-search'),
-                               {'search_term': 'micro'},
-                               content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Token {token.key}')
+        response = auth_client.post(
+            reverse('api:company-search'),
+            {'search_term': 'micro'},
+        )
 
         assert response.status_code == 200
         assert response.json() == {
@@ -46,19 +42,16 @@ class TestCompanySearchView:
             'results': []
         }
 
-    def test_api_call_with_data(self, client, mocker, company_list_api_response_json):
-        user = get_user_model().objects.create(email='test@test.com', is_active=True)
-        token = Token.objects.create(user=user)
-
+    def test_api_call_with_data(self, auth_client, mocker, company_list_api_response_json):
         company_input_data = json.loads(company_list_api_response_json)
 
         mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
         mock_api_request.return_value.json.return_value = company_input_data
 
-        response = client.post(reverse('api:company-search'),
-                               {'search_term': 'micro'},
-                               content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Token {token.key}')
+        response = auth_client.post(
+            reverse('api:company-search'),
+            {'search_term': 'micro'},
+        )
 
         assert response.status_code == 200
 
@@ -71,14 +64,11 @@ class TestCompanySearchView:
         for input_data, expected in zip(company_input_data['searchCandidates'], response_data['results']):
             assert extract_company_data(input_data) == expected
 
-    def test_api_with_bad_query(self, client):
-        user = get_user_model().objects.create(email='test@test.com', is_active=True)
-        token = Token.objects.create(user=user)
-
-        response = client.post(reverse('api:company-search'),
-                               {},
-                               content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Token {token.key}')
+    def test_api_with_bad_query(self, auth_client):
+        response = auth_client.post(
+            reverse('api:company-search'),
+            {},
+        )
 
         assert response.status_code == 400
 
@@ -89,13 +79,10 @@ class TestCompanySearchView:
 
     def test_query_duns_number_updates_local_db_and_monitoring_is_enabled(
         self,
-        client,
+        auth_client,
         mocker,
         company_list_api_response_json,
     ):
-        user = get_user_model().objects.create(email='test@test.com', is_active=True)
-        token = Token.objects.create(user=user)
-
         company_input_data = json.loads(company_list_api_response_json)
         company_input_data['searchCandidates'].pop()
         company_input_data['candidatesReturnedQuantity'] = 1
@@ -105,11 +92,9 @@ class TestCompanySearchView:
         mock_api_request.return_value.json.return_value = company_input_data
 
         assert Company.objects.count() == 0
-        response = client.post(
+        response = auth_client.post(
             reverse('api:company-search'),
             {'duns_number': company_input_data['searchCandidates'][0]['organization']['duns']},
-            content_type='application/json',
-            HTTP_AUTHORIZATION=f'Token {token.key}'
         )
 
         assert Company.objects.count() == 1
@@ -130,18 +115,15 @@ class TestCompanyUpdateView:
         assert response.status_code == 401
 
     @freeze_time('2019-11-25 12:00:01 UTC')
-    def test_last_updated_field(self, client):
-        user = get_user_model().objects.create(email='test@test.com', is_active=True)
-        token = Token.objects.create(user=user)
-
+    def test_last_updated_field(self, auth_client):
         CompanyFactory(last_updated=timezone.now() - datetime.timedelta(1))
         company = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(1))
         expected_company_data = CompanySerialiser(company).data
 
-        response = client.get(reverse('api:company-updates'),
-                              {'last_updated_after': self._iso_now()},
-                              content_type='application/json',
-                              HTTP_AUTHORIZATION=f'Token {token.key}')
+        response = auth_client.get(
+            reverse('api:company-updates'),
+            {'last_updated_after': self._iso_now()},
+        )
 
         assert response.status_code == 200
         assert response.json() == {
@@ -153,28 +135,22 @@ class TestCompanyUpdateView:
             ],
         }
 
-    def test_last_updated_invalid_date_results_in_400(self, client):
-        user = get_user_model().objects.create(email='test@test.com', is_active=True)
-        token = Token.objects.create(user=user)
-
-        response = client.get(reverse('api:company-updates'),
-                              {'last_updated_after': 'is-not-a-date'},
-                              content_type='application/json',
-                              HTTP_AUTHORIZATION=f'Token {token.key}')
+    def test_last_updated_invalid_date_results_in_400(self, auth_client):
+        response = auth_client.get(
+            reverse('api:company-updates'),
+            {'last_updated_after': 'is-not-a-date'},
+        )
 
         assert response.status_code == 400
         assert response.json() == {'detail': 'Invalid date: is-not-a-date'}
 
-    def test_no_params_returns_all_results(self, client):
+    def test_no_params_returns_all_results(self, auth_client):
         duns_numbers = [CompanyFactory().duns_number, CompanyFactory().duns_number]
 
-        user = get_user_model().objects.create(email='test@test.com', is_active=True)
-        token = Token.objects.create(user=user)
-
-        response = client.get(reverse('api:company-updates'),
-                              {},
-                              content_type='application/json',
-                              HTTP_AUTHORIZATION=f'Token {token.key}')
+        response = auth_client.get(
+            reverse('api:company-updates'),
+            {},
+        )
 
         assert response.status_code == 200
 
@@ -184,17 +160,14 @@ class TestCompanyUpdateView:
         assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
 
     @freeze_time('2019-11-25 12:00:01 UTC')
-    def test_pagination(self, client):
-        user = get_user_model().objects.create(email='test@test.com', is_active=True)
-        token = Token.objects.create(user=user)
-
+    def test_pagination(self, auth_client):
         company1 = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(1))
         company2 = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(2))
 
-        response = client.get(reverse('api:company-updates'),
-                              {'last_updated_after': self._iso_now(), 'page_size': 1},
-                              content_type='application/json',
-                              HTTP_AUTHORIZATION=f'Token {token.key}')
+        response = auth_client.get(
+            reverse('api:company-updates'),
+            {'last_updated_after': self._iso_now(), 'page_size': 1},
+        )
 
         assert response.status_code == 200
         response_data = response.json()
@@ -203,9 +176,9 @@ class TestCompanyUpdateView:
         assert response_data['count'] == 2
         assert response_data['results'][0]['duns_number'] == company1.duns_number
 
-        response = client.get(response_data['next'],
-                              content_type='application/json',
-                              HTTP_AUTHORIZATION=f'Token {token.key}')
+        response = auth_client.get(
+            response_data['next'],
+        )
 
         assert response.status_code == 200
         response_data = response.json()
@@ -274,17 +247,13 @@ class TestChangeRequestApiView:
             ),
         )
     )
-    def test_invalid_request_responds_400(self, client, request_data, expected_error_message):
+    def test_invalid_request_responds_400(self, auth_client, request_data, expected_error_message):
         """
         Test that various badly formed inputs are rejected with 400 responses.
         """
-        user = get_user_model().objects.create(email='test@test.com', is_active=True)
-        token = Token.objects.create(user=user)
-        response = client.post(
+        response = auth_client.post(
             reverse('api:change-request'),
             request_data,
-            content_type='application/json',
-            HTTP_AUTHORIZATION=f'Token {token.key}'
         )
         assert response.status_code == 400
         assert response.json() == expected_error_message
@@ -360,17 +329,13 @@ class TestChangeRequestApiView:
             },
         )
     )
-    def test_valid_request_responds_200(self, client, request_data):
+    def test_valid_request_responds_200(self, auth_client, request_data):
         """
         Test that a valid request responds with a 200.
         """
-        user = get_user_model().objects.create(email='test@test.com', is_active=True)
-        token = Token.objects.create(user=user)
-        response = client.post(
+        response = auth_client.post(
             reverse('api:change-request'),
             request_data,
-            content_type='application/json',
-            HTTP_AUTHORIZATION=f'Token {token.key}'
         )
         assert response.status_code == 201
         assert ChangeRequest.objects.all().count() == 1
@@ -391,3 +356,30 @@ class TestChangeRequestApiView:
         assert change_request.created_on == timezone.now()
         assert change_request.duns_number == request_data['duns_number']
         assert change_request.changes == request_data['changes']
+
+
+class TestInvestigationApiView:
+    """
+    Test the investigation API endpoint.
+    """
+
+    def test_requires_authentication(self, client):
+        """
+        Test that requests without authentication are not permitted.
+        """
+        response = client.post(
+            reverse('api:investigation')
+        )
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_not_implemented(self, auth_client):
+        """
+        Test that authenticated request return 501 - Not Implemented.
+        """
+        response = auth_client.post(
+            reverse('api:investigation'),
+            {},
+        )
+
+        assert response.status_code == status.HTTP_501_NOT_IMPLEMENTED
