@@ -32,4 +32,9 @@ class ChangeRequestStatus(StrEnum):
     submitted = 'Submitted'
 
 
+class InvestigationRequestStatus(StrEnum):
+    pending = 'Pending submission'
+    submitted = 'Submitted'
+
+
 ADDRESS_FIELDS = ['line_1', 'line_2', 'town', 'county', 'country', 'postcode']
