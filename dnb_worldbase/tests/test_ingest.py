@@ -1,13 +1,17 @@
 import csv
 import io
+from collections import OrderedDict
 
 import pytest
+from django.utils import timezone
+from freezegun import freeze_time
 
 from company.constants import LegalStatusChoices
 from company.models import Company, Country
+from company.serialisers import CompanySerialiser
 
 from ..constants import WB_HEADER_FIELDS
-from ..ingest import process_file, validate_and_save_company
+from ..ingest import process_file, update_company
 
 pytestmark = [
     pytest.mark.django_db
@@ -19,13 +23,26 @@ def test_input_data():
     """A set of fields required to validate the company form"""
 
     return {
-        'duns_number': '123456789',
-        'primary_name': 'widgets pty',
-        'address_country': 'GB',
-        'last_updated_source': LastUpdatedSource.api.name,
-        'year_started': 1999,
-        'legal_status': LegalStatusChoices.corporation.name,
-        'registration_numbers': []
+        'DUNS Number': '123456789',
+        'Business Name': 'Widgets Pty',
+        'Secondary Name': 'Lots-a-widgets',
+        'National Identification System Code': '12',
+        'National Identification Number': '1234567',
+        'Street Address': 'address 1',
+        'Street Address 2': 'address 2',
+        'City Name': 'city',
+        'State/Province Name': 'county',
+        'Postal Code for Street Address': 'postcode',
+        'Country Code': '790',
+        'Line of Business': 'agriculture',
+        'Year Started': '2000',
+        'Global Ultimate DUNS Number': '',
+        'Out of Business indicator': 'N',
+        'Legal Status': '3',  # corporation
+        'Employees Total Indicator': '2',
+        'Employees Total': 5,
+        'Annual Sales Indicator': '2',
+        'Annual Sales in US dollars': 8.00,
     }
 
 
@@ -67,100 +84,183 @@ def _build_test_csv(rows):
     return output
 
 
-@pytest.mark.skip()
-class TestValidateAndSaveCompany:
-    def test_create_new_company(self, test_input_data):
+class TestUpdateCompany:
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    def test_source_and_updated_field(self, test_input_data):
 
-        assert Company.objects.count() == 0
-
-        success, created, errors = validate_and_save_company(test_input_data, LastUpdatedSource.api)
-
-        assert (success, created, errors) == (True, True, None)
+        update_company(test_input_data)
 
         assert Company.objects.count() == 1
         company = Company.objects.first()
 
-        assert company.registrationnumber_set.count() == 0
+        assert company.worldbase_source == test_input_data
+        assert company.worldbase_source_updated_timestamp == timezone.now()
 
-        for field, value in test_input_data.items():
+    def test_create_new_company(self, test_input_data):
+        assert Company.objects.count() == 0
 
-            expected = _lookup_country(value) if 'country' in field else value
+        created = update_company(test_input_data)
 
-            assert getattr(company, field) == expected
+        assert created
+
+        assert Company.objects.count() == 1
+        company = Company.objects.first()
+
+        assert company.registration_numbers.count() == 1
+
+        serialiser = CompanySerialiser(company)
+
+        assert serialiser.data == {
+            'last_updated': None,
+            'duns_number': '123456789',
+            'global_ultimate_duns_number': '',
+            'primary_name': 'Widgets Pty',
+            'global_ultimate_primary_name': '',
+            'trading_names': ['Lots-a-widgets'],
+            'domain': '',
+            'address_line_1': 'address 1',
+            'address_line_2': 'address 2',
+            'address_town': 'city',
+            'address_county': 'county',
+            'address_country': 'GB',
+            'address_postcode': 'postcode',
+            'registered_address_line_1': '',
+            'registered_address_line_2': '',
+            'registered_address_town': '',
+            'registered_address_county': '',
+            'registered_address_country': None,
+            'registered_address_postcode': '',
+            'line_of_business': 'agriculture',
+            'is_out_of_business': False,
+            'year_started': 2000,
+            'employee_number': 5,
+            'is_employees_number_estimated': None,
+            'annual_sales': 8.0,
+            'annual_sales_currency': '',
+            'is_annual_sales_estimated': True,
+            'legal_status': 'corporation',
+            'registration_numbers': [
+                OrderedDict([('registration_type', 'uk_companies_house_number'),
+                             ('registration_number', '1234567')])],
+            'primary_industry_codes': [],
+            'industry_codes': []
+        }
 
     def test_update_company(self, test_input_data):
-
         assert Company.objects.count() == 0
 
         Company.objects.create(
             duns_number='123456789',
             primary_name='test company',
             address_country=Country.objects.get(iso_alpha2='US'),
-            last_updated_source=LastUpdatedSource.worldbase.name,
             year_started=2000,
             legal_status=LegalStatusChoices.partnership.name,
             is_out_of_business=True,
+            source=None,
+            last_updated=None,
         )
 
-        success, created, errors = validate_and_save_company(test_input_data, LastUpdatedSource.api)
+        created = update_company(test_input_data)
 
+        assert not created
         assert Company.objects.count() == 1
-        assert (success, created, errors) == (True, False, None)
 
         company = Company.objects.first()
 
-        for field, value in test_input_data.items():
-            expected = _lookup_country(value) if 'country' in field else value
-            assert getattr(company, field) == expected
+        serialiser = CompanySerialiser(company)
+
+        assert serialiser.data == {
+            'last_updated': None,
+            'duns_number': '123456789',
+            'global_ultimate_duns_number': '',
+            'primary_name': 'Widgets Pty',
+            'global_ultimate_primary_name': '',
+            'trading_names': ['Lots-a-widgets'],
+            'domain': '',
+            'address_line_1': 'address 1',
+            'address_line_2': 'address 2',
+            'address_town': 'city',
+            'address_county': 'county',
+            'address_country': 'GB',
+            'address_postcode': 'postcode',
+            'registered_address_line_1': '',
+            'registered_address_line_2': '',
+            'registered_address_town': '',
+            'registered_address_county': '',
+            'registered_address_country': None,
+            'registered_address_postcode': '',
+            'line_of_business': 'agriculture',
+            'is_out_of_business': False,
+            'year_started': 2000,
+            'employee_number': 5,
+            'is_employees_number_estimated': None,
+            'annual_sales': 8.0,
+            'annual_sales_currency': '',
+            'is_annual_sales_estimated': True,
+            'legal_status': 'corporation',
+            'registration_numbers': [
+                OrderedDict([('registration_type', 'uk_companies_house_number'),
+                             ('registration_number', '1234567')])],
+            'primary_industry_codes': [],
+            'industry_codes': []
+        }
+
+    def test_update_company_with_api_data(self, test_input_data):
+        assert Company.objects.count() == 0
+
+        original_company = Company.objects.create(
+            duns_number='123456789',
+            primary_name='test company',
+            address_country=Country.objects.get(iso_alpha2='US'),
+            year_started=2000,
+            legal_status=LegalStatusChoices.partnership.name,
+            is_out_of_business=True,
+            source='{"some_data": "do not amend"}',
+        )
+
+        original_company_data = CompanySerialiser(original_company)
+
+        created = update_company(test_input_data)
+
+        assert not created
+        assert Company.objects.count() == 1
+
+        company = Company.objects.first()
+
+        serialiser = CompanySerialiser(company)
+
+        assert serialiser.data == original_company_data.data
 
     @pytest.mark.parametrize(
-        'test_input,expected_errors',
+        'test_input,exception,message',
         [
             (
                 {
-                    'duns_number': 'xxxxx',
-                    'primary_name': 'widgets pty',
-                    'address_country': 'GB',
-                    'year_started': 1999,
-                    'legal_status': LegalStatusChoices.corporation.name,
-                    'registration_numbers': [],
+                    'DUNS': 'xxxxx',
+                    'Business Name': 'widgets pty',
+                    'Country Code': 'GB',
+                    'Year Started': 1999,
+                    'Secondary Name': 'widgets limited',
+                    'Legal Status': LegalStatusChoices.corporation.name,
+                    'National Identification System Code': '12',
+                    'National Identification Number': '1234567',
                 },
-                [{
-                    'duns_number': ['Field should contain 9 numbers only']
-                }],
-            ),
-            (
-                {
-                    'duns_number': '123345678',
-                    'primary_name': 'widgets pty',
-                    'address_country': 'GB',
-                    'year_started': 1999,
-                    'legal_status': LegalStatusChoices.corporation.name,
-                    'registration_numbers': [
-                        {
-                            'registration_type': 'invalid-type',
-                            'registration_number': '12345',
-                        }
-                    ]
-                },
-                [{
-                    'registration_type': ['Select a valid choice. invalid-type is not one of the available choices.']
-                }],
+                KeyError,
+                'Secondary Name',
             ),
         ],
     )
-    def test_invalid_data(self, test_input, expected_errors):
+    def test_invalid_data(self, test_input, exception, message):
+        with pytest.raises(exception) as ex:
+            update_company(test_input)
 
-        success, created, errors = validate_and_save_company(test_input, LastUpdatedSource.api)
-
-        assert (success, created, errors) == (False, None, expected_errors)
+            assert ex.value == message
 
 
-@pytest.mark.skip()
 class TestProcessFile:
     def _sample_data(self, extra_data={}):
         test_data = {
-            'DUNS': '123456789',
+            'DUNS Number': '123456789',
             'Business Name': 'Widgets Pty',
             'Secondary Name': 'Lots-a-widgets',
             'National Identification System Code': '12',
@@ -197,7 +297,7 @@ class TestProcessFile:
 
         assert Company.objects.count() == 1
         company = Company.objects.first()
-        assert company.registrationnumber_set.count() == 1
+        assert company.registration_numbers.count() == 1
 
     def test_update_success(self):
         csv_data = _build_test_csv([self._sample_data(), self._sample_data()])
@@ -212,11 +312,11 @@ class TestProcessFile:
 
         assert Company.objects.count() == 1
         company = Company.objects.first()
-        assert company.registrationnumber_set.count() == 1
+        assert company.registration_numbers.count() == 1
 
     def test_bad_data(self):
         test_data = self._sample_data({
-            'DUNS': 'invalid-duns-number'
+            'DUNS Number': 'invalid-duns-number'
         })
 
         csv_data = _build_test_csv([test_data])
@@ -230,30 +330,3 @@ class TestProcessFile:
         }
 
         assert Company.objects.count() == 0
-
-    def test_mismatched_header_rows(self):
-        csv_data = io.StringIO()
-
-        bad_header_fields = WB_HEADER_FIELDS.copy()
-        bad_header_fields[0] = 'not-expected'
-
-        csv_data.write(','.join(bad_header_fields))
-
-        csv_data.seek(0)
-
-        with pytest.raises(AssertionError) as ex:
-            process_file(csv_data)
-
-        assert str(ex.value) == 'CSV column headings do not match expected values'
-
-    def test_incorrect_column_length(self):
-        csv_data = io.StringIO()
-
-        bad_header_fields = WB_HEADER_FIELDS[:-5]
-
-        csv_data.write(','.join(bad_header_fields))
-
-        csv_data.seek(0)
-
-        with pytest.raises(AssertionError):
-            process_file(csv_data)

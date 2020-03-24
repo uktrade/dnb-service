@@ -1,45 +1,23 @@
-from decimal import Decimal
-from enum import Enum
+import logging
 
-from .constants import (BUSINESS_INDICATOR_MAPPING, DNB_COUNTRY_CODE_MAPPING,
-                        LEGAL_STATUS_CODE_MAPPING, NATIONAL_ID_CODE_MAPPING)
+from decimal import Decimal, InvalidOperation
+
+from company.constants import LegalStatusChoices
+from .constants import (
+    BUSINESS_INDICATOR_MAPPING,
+    DNB_COUNTRY_CODE_MAPPING,
+    EmployeesIndicator,
+    LEGAL_STATUS_CODE_MAPPING,
+    NATIONAL_ID_CODE_MAPPING,
+    TurnoverIndicator,
+)
 
 
 class DataMappingError(Exception):
     pass
 
 
-class EmployeesIndicator(Enum):
-    """
-    Indicates if the field Employees Total/Here is an actual value,
-    estimated value or not available.
-    """
-
-    NOT_AVAILABLE = ''
-    ACTUAL = '0'
-    LOW_END_OF_RANGE = '1'
-    ESTIMATED = '2'
-    MODELLED = '3'
-
-
-class TurnoverIndicator(Enum):
-    """
-    Indicates if the field 'Annual Sales in US dollars' is an actual value,
-    estimated value or not available.
-    """
-
-    NOT_AVAILABLE = ''
-    ACTUAL = '0'
-    LOW_END_OF_RANGE = '1'
-    ESTIMATED = '2'
-    MODELLED = '3'
-
-
-class OutOfBusinessIndicator(Enum):
-    """Indicates if a business is out of business."""
-
-    OUT_OF_BUSINESS = 'Y'
-    NOT_OUT_OF_BUSINESS = 'N'
+logger = logging.getLogger(__name__)
 
 
 def extract_employees(wb_record):
@@ -48,22 +26,24 @@ def extract_employees(wb_record):
     if that value is estimated or not.
     The data is extracted from the 'Employees Total' field in the Worldbase record
     if defined or 'Employees Here' otherwise.
-    None values are returned if the data is not available in the Worldbase record.
-    :returns: (number_of_employees, is_number_of_employees_estimated) for the
-        given D&B Worldbase record or (None, None) if the data is not available in the record
+    None values are returned if the data is not available.
     """
-    number_of_employees = int(wb_record['Employees Total'])
-    employees_indicator = EmployeesIndicator(wb_record['Employees Total Indicator'])
 
-    if not number_of_employees:
-        employees_here_indicator = EmployeesIndicator(wb_record['Employees Here Indicator'])
-        if employees_here_indicator != EmployeesIndicator.NOT_AVAILABLE:
+    employees_indicator, number_of_employees = None, None
+
+    try:
+        number_of_employees = int(wb_record['Employees Total'])
+        employees_indicator = EmployeesIndicator(wb_record['Employees Total Indicator'])
+    except (ValueError, KeyError):
+
+        try:
             number_of_employees = int(wb_record['Employees Here'])
-            employees_indicator = employees_here_indicator
+            employees_indicator = EmployeesIndicator(wb_record['Employees Here Indicator'])
+        except (ValueError, KeyError):
+            pass
 
-    if employees_indicator == EmployeesIndicator.NOT_AVAILABLE:
-        assert not number_of_employees
-
+    if number_of_employees is None or employees_indicator is None or \
+                    employees_indicator == EmployeesIndicator.NOT_AVAILABLE:
         return None, None
 
     is_number_of_employees_estimated = employees_indicator != EmployeesIndicator.ACTUAL
@@ -76,20 +56,19 @@ def extract_turnover(wb_record):
     Returns a tuple with the turnover as an int and a bool indicating if the value
     is estimated or not.
     None values are returned if the data is not available in the Worldbase record.
-    :returns: (turnover, is_turnover_estimated) for the given D&B Worldbase record
-        or (None, None) if the data is not available in the record
     """
-    turnover = round(Decimal(wb_record['Annual Sales in US dollars']))
-    turnover_indicator = TurnoverIndicator(wb_record['Annual Sales Indicator'])
 
-    if turnover_indicator == turnover_indicator.NOT_AVAILABLE:
-        assert not turnover
-
+    try:
+        turnover_indicator = TurnoverIndicator(wb_record['Annual Sales Indicator'])
+        turnover = round(Decimal(wb_record['Annual Sales in US dollars']))
+    except (InvalidOperation, ValueError, KeyError):
         return None, None
 
-    is_turnover_estimated = turnover_indicator != turnover_indicator.ACTUAL
+    if turnover_indicator == turnover_indicator.NOT_AVAILABLE:
+        return None, None
 
-    return turnover, is_turnover_estimated
+    is_number_of_employees_estimated = turnover_indicator != turnover_indicator.ACTUAL
+    return turnover, is_number_of_employees_estimated
 
 
 def dnb_country_lookup(dnb_country_code):
@@ -114,13 +93,17 @@ def dnb_country_lookup(dnb_country_code):
     return iso_alpha2_code
 
 
-def map_legal_status(legal_status_code):
+def extract_legal_status(legal_status_code):
     """Takes the worldbase status code and returns the local status code value"""
 
-    if legal_status_code == '' or legal_status_code not in LEGAL_STATUS_CODE_MAPPING:
-        raise DataMappingError(f'no mapping for legal status code: {legal_status_code}')
+    local_code = LegalStatusChoices.unknown.name
 
-    return LEGAL_STATUS_CODE_MAPPING[legal_status_code].name
+    try:
+        local_code = LEGAL_STATUS_CODE_MAPPING[int(legal_status_code)].name
+    except (KeyError, ValueError):
+        logger.warning(f'DNB legal code: {legal_status_code} has no local mapping')
+
+    return local_code
 
 
 def extract_registration_number(company_data):
@@ -128,25 +111,34 @@ def extract_registration_number(company_data):
     Return the registration number and code, if present.
     """
 
-    if company_data['National Identification System Code'] == '':
+    national_id_number = company_data['National Identification Number']
+
+    try:
+        national_id_code = int(company_data['National Identification System Code'])
+    except ValueError:
         return []
 
-    national_id_code = company_data['National Identification System Code']
+    if national_id_code in NATIONAL_ID_CODE_MAPPING:
+        registration_type = NATIONAL_ID_CODE_MAPPING[national_id_code].name
 
-    if national_id_code not in NATIONAL_ID_CODE_MAPPING:
-        raise DataMappingError(f'National ID code {national_id_code} is not in mapping')
+        registration_numbers = [
+            {
+                'registration_type': registration_type,
+                'registration_number': national_id_number,
+            }
+        ]
+    else:
+        registration_numbers = [{
+            'registration_type': 'unmapped',
+            'original_registration_type': national_id_code,
+            'original_registration_number': national_id_number,
+            'original_registration_description': '',
+        }]
 
-    registration_type = NATIONAL_ID_CODE_MAPPING[national_id_code].name
-
-    return [
-        {
-            'registration_type': registration_type,
-            'registration_number': company_data['National Identification Number'],
-        }
-    ]
+    return registration_numbers
 
 
-def map_business_indicator(field_data):
+def extract_business_indicator(field_data):
     """
     Convert Y/N field into a boolean
     """
@@ -167,7 +159,7 @@ def extract_company_data(wb_data):
     annual_sales, is_annual_sales_estimated = extract_turnover(wb_data)
 
     company_data = {
-        'duns_number': wb_data['DUNS'],
+        'duns_number': wb_data['DUNS Number'],
         'primary_name': wb_data['Business Name'],
         'trading_names': [wb_data['Secondary Name']] if wb_data['Secondary Name'].strip() else [],
         'registration_numbers': extract_registration_number(wb_data),
@@ -180,12 +172,14 @@ def extract_company_data(wb_data):
         'line_of_business': wb_data['Line of Business'],
         'year_started': wb_data['Year Started'],
         'global_ultimate_duns_number': wb_data['Global Ultimate DUNS Number'],
-        'is_out_of_business': map_business_indicator(wb_data['Out of Business indicator']),
-        'legal_status': map_legal_status(wb_data['Legal Status']),
+        'is_out_of_business': extract_business_indicator(wb_data['Out of Business indicator']),
+        'legal_status': extract_legal_status(wb_data['Legal Status']),
         'employee_number': employee_number,
         'is_employee_number_estimated': is_employee_number_estimated,
         'annual_sales': annual_sales,
         'is_annual_sales_estimated': is_annual_sales_estimated,
+        'primary_industry_codes': [],
+        'industry_codes': [],
     }
 
     return company_data
