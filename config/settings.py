@@ -14,7 +14,10 @@ env = environ.Env(
     DEBUG=(bool, False),
     RESTRICT_ADMIN=(bool, False),
 )
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+ENV_FILE = os.path.join(BASE_DIR, '.env')
+if os.path.exists(ENV_FILE):
+    environ.Env.read_env(ENV_FILE)
 
 VCAP_SERVICES = env.json('VCAP_SERVICES', {})
 
