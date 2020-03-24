@@ -4,9 +4,11 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.utils.timezone import now
 
 from company.constants import (
     ChangeRequestStatus,
+    InvestigationRequestStatus,
     LegalStatusChoices,
     MonitoringStatusChoices,
     RegistrationNumberChoices,
@@ -330,3 +332,29 @@ class ChangeRequest(models.Model):
     )
     created_on = models.DateTimeField(auto_now_add=True)
     submitted_on = models.DateTimeField(null=True, blank=True)
+
+
+class InvestigationRequest(models.Model):
+    """
+    A request for D&B to investigate new company details.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    company_details = JSONField()
+    status = models.CharField(
+        _('Investigation Request Status'),
+        choices=InvestigationRequestStatus.list(),
+        max_length=100,
+        default=InvestigationRequestStatus.pending.name,
+        db_index=True,
+    )
+    created_on = models.DateTimeField(auto_now_add=True)
+    submitted_on = models.DateTimeField(null=True, blank=True)
+
+    def mark_as_submitted(self, submitted_on=None):
+        """
+        Mark this InvestigationRequest as submitted and save it.
+        """
+        self.submitted_on = submitted_on or now()
+        self.status = InvestigationRequestStatus.submitted.name
+        self.save()
