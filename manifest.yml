@@ -1,3 +1,5 @@
 ---
 applications:
-  - timeout: 80
+  - buildpacks:
+    - python_buildpack
+    timeout: 80
