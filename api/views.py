@@ -9,8 +9,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 
 from .serialisers import CompanySearchInputSerialiser
-from company.models import ChangeRequest, Company
-from company.serialisers import ChangeRequestSerialiser, CompanySerialiser
+from company.models import ChangeRequest, Company, InvestigationRequest
+from company.serialisers import ChangeRequestSerialiser, CompanySerialiser, InvestigationRequestSerializer
 from dnb_direct_plus.api import company_list_search
 
 
@@ -65,8 +65,5 @@ class InvestigationAPIView(CreateAPIView):
     At the moment, this will return 501 - Not Implemented.
     """
 
-    def post(self, request, *args, **kwargs):
-        """
-        Returns a 501 - Not Implemented.
-        """
-        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+    queryset = InvestigationRequest.objects.all()
+    serializer_class = InvestigationRequestSerializer
