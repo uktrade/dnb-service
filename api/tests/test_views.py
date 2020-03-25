@@ -373,18 +373,6 @@ class TestInvestigationApiView:
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    @pytest.mark.xfail
-    def test_not_implemented(self, auth_client):
-        """
-        Test that authenticated request return 501 - Not Implemented.
-        """
-        response = auth_client.post(
-            reverse('api:investigation'),
-            {},
-        )
-
-        assert response.status_code == status.HTTP_501_NOT_IMPLEMENTED
-
     @freeze_time('2019-11-25 12:00:01 UTC')
     @pytest.mark.parametrize(
         'request_data',
