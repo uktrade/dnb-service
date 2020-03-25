@@ -9,7 +9,8 @@ notifications_client = NotificationsAPIClient(settings.GOVUK_NOTIFICATIONS_API_K
 
 
 TEMPLATE_IDS = {
-    'change-request': 'd3fb8a4b-61d5-44f3-b9e9-8fa5a4894ffb',
+    'change-request': '54d1cca9-5aea-4dcd-8d70-72c2fcc80f11',
+    'investigation-request': 'd895cace-d746-4888-b08e-a8758ad7ba8b',
 }
 
 
