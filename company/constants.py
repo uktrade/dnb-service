@@ -37,4 +37,4 @@ class InvestigationRequestStatus(StrEnum):
     submitted = 'Submitted'
 
 
-ADDRESS_FIELDS = ['line_1', 'line_2', 'town', 'county', 'country', 'postcode']
+ADDRESS_FIELDS = ['line_1', 'line_2', 'town', 'county', 'postcode', 'country']

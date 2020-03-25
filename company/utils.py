@@ -2,7 +2,11 @@ import io
 import csv
 from copy import deepcopy
 
+from django.conf import settings
+from django.utils.timezone import now
+
 from company.constants import ADDRESS_FIELDS
+from core.notify import notify_by_email, TEMPLATE_IDS
 
 
 FIELD_LABELS = {
@@ -15,13 +19,6 @@ FIELD_LABELS = {
     'annual_sales': 'Annual Sales',
     'annual_sales_currency': 'Annual Sales Currency',
 }
-
-
-class IncompleteAddressException(Exception):
-    """
-    An error to explain that some address fields were missing for a particular ChangeRequest
-    record.  ChangeRequests for addresses must be all or nothing.
-    """
 
 
 def _get_address_string(prefix, changes):
@@ -42,14 +39,20 @@ def _get_change_request_row(change_request):
     flat_readable_changes = [f'{key}: {value}' for key, value in readable_changes.items()]
     return {
         'duns_number': change_request.duns_number,
-        'changes': flat_readable_changes,
+        'changes': '; '.join(flat_readable_changes),
     }
+
+
+def _convert_stringio_to_bytesio(stringio_file):
+    stringio_file.seek(0)
+    bytesio_file = io.BytesIO(stringio_file.read().encode('utf-8'))
+    return bytesio_file
 
 
 def generate_change_request_csv(change_requests):
     """
     Given an iterable of ChangeRequest records, generate a CSV of changes which is readable by D&B
-    support staff. The returned CSV content is file object, ready for sending by email.
+    support staff. The returned CSV content is a BytesIO file object, ready for sending by email.
 
     The CSV file is in the following example format:
     "duns_number","changes"
@@ -63,4 +66,19 @@ def generate_change_request_csv(change_requests):
     writer.writeheader()
     for change_request in change_requests:
         writer.writerow(_get_change_request_row(change_request))
-    return writer_file
+    return _convert_stringio_to_bytesio(writer_file)
+
+
+def send_change_request_batch(change_requests, batch_identifier):
+    """
+    Send a batch of change requests in a formatted CSV by email to settings.CHANGE_REQUESTS_RECIPIENTS.
+    """
+    context = {
+        'batch_identifier': batch_identifier,
+        'link_to_file': generate_change_request_csv(change_requests),
+    }
+    for email_address in settings.CHANGE_REQUESTS_RECIPIENTS:
+        notify_by_email(email_address, TEMPLATE_IDS['change-request'], context)
+    submitted_on = now()
+    for change_request in change_requests:
+        change_request.mark_as_submitted(submitted_on)
