@@ -21,3 +21,4 @@ factory_boy
 # Miscellaneous
 docutils
 django-extensions
+watchdog[watchmedo]

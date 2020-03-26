@@ -15,6 +15,15 @@ services:
       - redis
     command: /app/start_docker.sh
 
+  celery:
+    build:
+      context: .
+    volumes:
+      - .:/app
+    entrypoint: dockerize -wait tcp://postgres:5432 -wait tcp://redis:6379 -timeout 180s
+    env_file: .env
+    command: watchmedo auto-restart -d . -R -p '*.py' -- celery worker -A config -l info -Q celery -B
+
   postgres:
     image: postgres:10
     restart: always

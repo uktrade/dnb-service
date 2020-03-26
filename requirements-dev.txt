@@ -5,6 +5,7 @@
 #    pip-compile --output-file=requirements-dev.txt requirements-dev.in
 #
 amqp==2.4.2               # via -r requirements.txt (line 7), kombu
+argh==0.26.2              # via watchdog
 atomicwrites==1.3.0       # via pytest
 attrs==19.1.0             # via pytest
 backoff==1.8.0            # via -r requirements.txt (line 8)
@@ -51,6 +52,7 @@ more-itertools==7.0.0     # via pytest
 notifications-python-client==5.5.1  # via -r requirements.txt (line 34)
 oauthlib==3.0.1           # via -r requirements.txt (line 35), requests-oauthlib
 packaging==19.0           # via pytest
+pathtools==0.1.2          # via watchdog
 pluggy==0.12.0            # via pytest
 prometheus-client==0.7.1  # via -r requirements.txt (line 36), django-prometheus
 psycopg2==2.8.1           # via -r requirements.txt (line 37)
@@ -67,7 +69,7 @@ pytest==4.6.3             # via -r requirements-dev.in (line 17), pytest-cov, py
 python-crontab==2.3.6     # via -r requirements.txt (line 39), django-celery-beat
 python-dateutil==2.8.0    # via -r requirements.txt (line 40), botocore, faker, freezegun, python-crontab
 pytz==2018.9              # via -r requirements.txt (line 41), celery, django, django-timezone-field
-pyyaml==5.1               # via -r requirements.txt (line 42)
+pyyaml==5.1               # via -r requirements.txt (line 42), watchdog
 raven==6.10.0             # via -r requirements.txt (line 43), django-staff-sso-client
 redis==3.2.1              # via -r requirements.txt (line 44)
 requests-mock==1.6.0      # via -r requirements-dev.in (line 18)
@@ -81,6 +83,7 @@ sqlparse==0.3.0           # via -r requirements.txt (line 51), django
 text-unidecode==1.3       # via faker
 urllib3==1.24.3           # via -r requirements.txt (line 52), botocore, requests, sentry-sdk
 vine==1.3.0               # via -r requirements.txt (line 53), amqp, celery
+watchdog[watchmedo]==0.10.2  # via -r requirements-dev.in (line 24)
 wcwidth==0.1.7            # via pytest
 whitenoise==4.1.2         # via -r requirements.txt (line 54)
 zipp==0.5.1               # via importlib-metadata
