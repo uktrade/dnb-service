@@ -149,6 +149,8 @@ LOGIN_REDIRECT_URL = 'admin:index'
 
 AUTH_USER_MODEL = 'user.User'
 
+ENABLE_STAFF_SSO = env.bool('ENABLE_STAFF_SSO', True)
+
 # IP restriction
 
 IP_RESTRICT = env.bool('IP_RESTRICT')
