@@ -40,6 +40,12 @@ class User(AbstractUser):
     username = None
 
     email = models.EmailField(_('email address'), unique=True)
+    auto_enable_monitoring = models.BooleanField(
+        _('auto enable company monitoring'),
+        help_text=_('Automatically register companies for live updates when queried via the API; '
+                    'NOTE: this option should only be enabled for data-hub.'),
+        default=False,
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
