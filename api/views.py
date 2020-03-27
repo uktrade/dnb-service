@@ -24,7 +24,10 @@ class DNBCompanySearchAPIView(APIView):
         serialiser.is_valid(raise_exception=True)
 
         try:
-            data = company_list_search(serialiser.data, update_local=True)
+            data = company_list_search(
+                serialiser.data,
+                update_local=True,
+                enable_monitoring=request.user.auto_enable_monitoring)
         except HTTPError as ex:
             error_detail = ex.response.json()['error']
             return Response(error_detail, status=ex.response.status_code)

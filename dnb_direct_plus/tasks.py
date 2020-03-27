@@ -11,8 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task
-def update_company_and_enable_monitoring(api_data):
-    """Create or update the company entry and set monitoring_status to 'pending' if not already enabled"""
+def update_company_from_api_data(api_data, enable_monitoring=False):
+    """
+    Create or update the company entry from DNB API data.
+    if `enable_monitoring` is `True` then set `monitoring_status` to 'pending',
+    if monitoring has not already been enabled for this company
+    """
 
     duns_number = api_data["organization"]["duns"]
 
@@ -23,4 +27,4 @@ def update_company_and_enable_monitoring(api_data):
     except Company.DoesNotExist:
         company = Company()
 
-    update_company_from_source(company, api_data, timezone.now(), enable_monitoring=True)
+    update_company_from_source(company, api_data, timezone.now(), enable_monitoring=enable_monitoring)

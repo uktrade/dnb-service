@@ -2,11 +2,13 @@ import datetime
 import json
 
 import pytest
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
 from requests.exceptions import HTTPError
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 
 from company.constants import MonitoringStatusChoices
 from company.models import ChangeRequest, Company
@@ -77,11 +79,17 @@ class TestCompanySearchView:
         }
         assert response.json() == expected_response
 
-    def test_query_duns_number_updates_local_db_and_monitoring_is_enabled(
+    @pytest.mark.parametrize('enable_monitoring,monitoring_status', [
+        (True, MonitoringStatusChoices.pending.name),
+        (False, MonitoringStatusChoices.not_enabled.name),
+    ])
+    def test_query_duns_number_updates_local_db(
         self,
-        auth_client,
+        api_client,
         mocker,
         company_list_api_response_json,
+        enable_monitoring,
+        monitoring_status
     ):
         company_input_data = json.loads(company_list_api_response_json)
         company_input_data['searchCandidates'].pop()
@@ -92,9 +100,17 @@ class TestCompanySearchView:
         mock_api_request.return_value.json.return_value = company_input_data
 
         assert Company.objects.count() == 0
-        response = auth_client.post(
+
+        user = get_user_model().objects.create(
+            email='test@test.com',
+            is_active=True,
+            auto_enable_monitoring=enable_monitoring,
+        )
+        token = Token.objects.create(user=user)
+        response = api_client.post(
             reverse('api:company-search'),
             {'duns_number': company_input_data['searchCandidates'][0]['organization']['duns']},
+            HTTP_AUTHORIZATION=f'Token {token.key}'
         )
 
         assert Company.objects.count() == 1
@@ -102,7 +118,7 @@ class TestCompanySearchView:
         company = Company.objects.first()
         result_data = response.json()
         assert company.duns_number == result_data['results'][0]['duns_number']
-        assert company.monitoring_status == MonitoringStatusChoices.pending.name
+        assert company.monitoring_status == monitoring_status
 
 
 class TestCompanyUpdateView:
