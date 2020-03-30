@@ -1,6 +1,14 @@
 from django.contrib import admin
 
-from .models import Company, Country, IndustryCode, PrimaryIndustryCode, RegistrationNumber
+from .models import (
+    ChangeRequest,
+    Company,
+    Country,
+    IndustryCode,
+    InvestigationRequest,
+    PrimaryIndustryCode,
+    RegistrationNumber,
+)
 
 
 class RegistrationNumberInline(admin.TabularInline):
@@ -31,3 +39,13 @@ class CompanyAdmin(admin.ModelAdmin):
 @admin.register(Country)
 class CountryAdmin(admin.ModelAdmin):
     list_display = ('name', 'iso_alpha2', 'iso_alpha3', 'iso_numeric')
+
+
+@admin.register(ChangeRequest)
+class ChangeRequestAdmin(admin.ModelAdmin):
+    list_display = ('duns_number', 'status', 'created_on')
+
+
+@admin.register(InvestigationRequest)
+class InvestigationRequestAdmin(admin.ModelAdmin):
+    list_display = ('id', 'status', 'created_on')
