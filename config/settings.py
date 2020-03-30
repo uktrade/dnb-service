@@ -4,6 +4,7 @@ import dj_database_url
 import environ
 
 import sentry_sdk
+from celery.schedules import crontab
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -225,3 +226,13 @@ GOVUK_NOTIFICATIONS_API_KEY = env('GOVUK_NOTIFICATIONS_API_KEY')
 
 CHANGE_REQUESTS_BATCH_SIZE = env.int('CHANGE_REQUESTS_BATCH_SIZE', 20)
 CHANGE_REQUESTS_RECIPIENTS = env.list('CHANGE_REQUESTS_RECIPIENTS', default=[])
+
+# Celery beat
+
+CELERY_BEAT_SCHEDULE = {}
+
+if env.bool('ENABLE_CHANGE_REQUESTS_SUBMISSION', False):
+    CELERY_BEAT_SCHEDULE['change_requests_submission'] = {
+        'task': 'company.tasks.send_pending_change_requests',
+        'schedule': crontab(minute=0, hour=1,),
+    }
