@@ -373,13 +373,220 @@ class TestInvestigationApiView:
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_not_implemented(self, auth_client):
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    @pytest.mark.parametrize(
+        'request_data',
+        (
+            {
+                'company_details': {
+                    'primary_name': 'Foo Bar',
+                    'domain': 'example.com',
+                    'telephone_number': '12345678',
+                    'address_line_1': '123 Fake Street',
+                    'address_line_2': 'Foo',
+                    'address_town': 'London',
+                    'address_county': 'Greater London',
+                    'address_country': 'GB',
+                    'address_postcode': 'W1 0TN',
+                },
+            },
+            # No domain
+            {
+                'company_details': {
+                    'primary_name': 'Foo Bar',
+                    'telephone_number': '12345678',
+                    'address_line_1': '123 Fake Street',
+                    'address_line_2': 'Foo',
+                    'address_town': 'London',
+                    'address_county': 'Greater London',
+                    'address_country': 'GB',
+                    'address_postcode': 'W1 0TN',
+                },
+            },
+            # No telephone_number
+            {
+                'company_details': {
+                    'primary_name': 'Foo Bar',
+                    'domain': 'example.com',
+                    'address_line_1': '123 Fake Street',
+                    'address_line_2': 'Foo',
+                    'address_town': 'London',
+                    'address_county': 'Greater London',
+                    'address_country': 'GB',
+                    'address_postcode': 'W1 0TN',
+                },
+            },
+            # No non-required address fields
+            {
+                'company_details': {
+                    'primary_name': 'Foo Bar',
+                    'domain': 'example.com',
+                    'telephone_number': '12345678',
+                    'address_line_1': '123 Fake Street',
+                    'address_town': 'London',
+                    'address_country': 'GB',
+                },
+            },
+        )
+    )
+    def test_valid(self, auth_client, request_data):
         """
-        Test that authenticated request return 501 - Not Implemented.
+        Test that a valid investigation payload returns the expected
+        response.
         """
         response = auth_client.post(
             reverse('api:investigation'),
-            {},
+            request_data,
         )
+        assert response.status_code == status.HTTP_201_CREATED
+        response_data = response.json()
+        response_data.pop('id')
+        assert response_data == {
+            'status': 'pending',
+            'created_on': '2019-11-25T12:00:01Z',
+            'submitted_on': None,
+            **request_data,
+        }
 
-        assert response.status_code == status.HTTP_501_NOT_IMPLEMENTED
+    @pytest.mark.parametrize(
+        'request_data, expected_response',
+        (
+            # Missing company_details
+            (
+                {},
+                {
+                    'company_details': ['This field is required.'],
+                },
+            ),
+            # Missing primary_name
+            (
+                {
+                    'company_details': {
+                        'domain': 'example.com',
+                        'telephone_number': '12345678',
+                        'address_line_1': '123 Fake Street',
+                        'address_line_2': 'Foo',
+                        'address_town': 'London',
+                        'address_county': 'Greater London',
+                        'address_country': 'GB',
+                        'address_postcode': 'W1 0TN',
+                    },
+                },
+                {
+                    'company_details': {
+                        'primary_name': ['This field is required.'],
+                    },
+                },
+            ),
+            # Missing domain & telephone_number
+            (
+                {
+                    'company_details': {
+                        'primary_name': 'Foo Bar',
+                        'address_line_1': '123 Fake Street',
+                        'address_line_2': 'Foo',
+                        'address_town': 'London',
+                        'address_county': 'Greater London',
+                        'address_country': 'GB',
+                        'address_postcode': 'W1 0TN',
+                    },
+                },
+                {
+                    'company_details': {
+                        'non_field_errors': [
+                            'Either domain or telephone_number must be '
+                            'provided for D&B investigation.'
+                        ],
+                    },
+                },
+            ),
+            # Missing address_line_1
+            (
+                {
+                    'company_details': {
+                        'primary_name': 'Foo Bar',
+                        'domain': 'example.com',
+                        'address_line_2': 'Foo',
+                        'address_town': 'London',
+                        'address_county': 'Greater London',
+                        'address_country': 'GB',
+                        'address_postcode': 'W1 0TN',
+                    },
+                },
+                {
+                    'company_details': {
+                        'address_line_1': ['This field is required.'],
+                    },
+                },
+            ),
+            # Missing address_town
+            (
+                {
+                    'company_details': {
+                        'primary_name': 'Foo Bar',
+                        'domain': 'example.com',
+                        'address_line_1': '123 Fake Street',
+                        'address_line_2': 'Foo',
+                        'address_county': 'Greater London',
+                        'address_country': 'GB',
+                        'address_postcode': 'W1 0TN',
+                    },
+                },
+                {
+                    'company_details': {
+                        'address_town': ['This field is required.'],
+                    },
+                },
+            ),
+            # Missing address_country
+            (
+                {
+                    'company_details': {
+                        'primary_name': 'Foo Bar',
+                        'domain': 'example.com',
+                        'address_line_1': '123 Fake Street',
+                        'address_line_2': 'Foo',
+                        'address_town': 'London',
+                        'address_county': 'Greater London',
+                        'address_postcode': 'W1 0TN',
+                    },
+                },
+                {
+                    'company_details': {
+                        'address_country': ['This field is required.'],
+                    },
+                },
+            ),
+            # Invalid address_country
+            (
+                {
+                    'company_details': {
+                        'primary_name': 'Foo Bar',
+                        'domain': 'example.com',
+                        'address_line_1': '123 Fake Street',
+                        'address_line_2': 'Foo',
+                        'address_town': 'London',
+                        'address_county': 'Greater London',
+                        'address_country': 'XX',
+                        'address_postcode': 'W1 0TN',
+                    },
+                },
+                {
+                    'company_details': {
+                        'address_country': ['This is not a valid ISO Alpha2 country code.'],
+                    },
+                },
+            ),
+        )
+    )
+    def test_invalid(self, auth_client, request_data, expected_response):
+        """
+        Test that an invalid investigation payload returns a 400 response and
+        a helpful error message.
+        """
+        response = auth_client.post(
+            reverse('api:investigation'),
+            request_data,
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == expected_response

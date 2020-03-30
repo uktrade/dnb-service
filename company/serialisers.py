@@ -8,6 +8,7 @@ from company.models import (
     Company,
     Country,
     IndustryCode,
+    InvestigationRequest,
     PrimaryIndustryCode,
     RegistrationNumber,
 )
@@ -197,3 +198,87 @@ class ChangeRequestSerialiser(serializers.ModelSerializer):
         change_request = ChangeRequest(**validated_data)
         change_request.save()
         return change_request
+
+
+class CompanyDetailsSerialiser(CompanySerialiser):
+    """
+    Serialised representation of `company_details` JSON field
+    in the InvestigationRequest model.
+    """
+
+    telephone_number = serializers.CharField(max_length=20, required=False)
+    address_country = serializers.CharField(max_length=2, required=True)
+
+    @cached_property
+    def _country_slugs(self):
+        return Country.objects.all().values_list('iso_alpha2', flat=True)
+
+    def _validate_country_slug(self, value):
+        if value not in self._country_slugs:
+            raise serializers.ValidationError('This is not a valid ISO Alpha2 country code.')
+
+    def validate_address_country(self, value):
+        """
+        Validate that the address_country field is a valid ISO alpha2 slug.
+        """
+        self._validate_country_slug(value)
+        return value
+
+    def validate(self, data):
+        """
+        Cross-field validation e.g. ensuring that either domain or
+        telephone_number is present.
+        """
+        super().validate(data)
+        if 'domain' not in data and 'telephone_number' not in data:
+            raise serializers.ValidationError(
+                'Either domain or telephone_number must be provided for D&B investigation.'
+            )
+        return data
+
+    class Meta:
+        model = Company
+        fields = (
+            'primary_name',
+            'domain',
+            'telephone_number',
+            'address_line_1',
+            'address_line_2',
+            'address_town',
+            'address_county',
+            'address_country',
+            'address_postcode',
+        )
+        extra_kwargs = {
+            'address_line_1': {
+                'required': True,
+            },
+            'address_town': {
+                'required': True,
+            },
+        }
+
+
+class InvestigationRequestSerializer(serializers.ModelSerializer):
+    """
+    Serialised representation of the Investigation object.
+    """
+    company_details = CompanyDetailsSerialiser()
+
+    class Meta:
+        model = InvestigationRequest
+        fields = (
+            'id',
+            'company_details',
+            'status',
+            'created_on',
+            'submitted_on',
+        )
+
+    def create(self, validated_data):
+        """
+        Create the ChangeRequest record.
+        """
+        investigation_request = InvestigationRequest(**validated_data)
+        investigation_request.save()
+        return investigation_request
