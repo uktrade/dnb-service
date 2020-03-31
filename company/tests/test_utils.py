@@ -8,9 +8,15 @@ from django.utils import timezone
 from freezegun import freeze_time
 from notifications_python_client.errors import HTTPError
 
-from company.utils import generate_change_request_csv, send_change_request_batch
+from company.models import InvestigationRequest
+from company.utils import (
+    generate_change_request_csv,
+    generate_investigation_request_csv,
+    send_change_request_batch,
+    send_investigation_request_batch,
+)
 from company.tests.factories import ChangeRequestFactory
-from company.constants import ChangeRequestStatus
+from company.constants import ChangeRequestStatus, InvestigationRequestStatus
 from core.notify import TEMPLATE_IDS
 
 
@@ -144,3 +150,153 @@ class TestSendChangeRequestBatch:
             change_request.refresh_from_db()
             assert change_request.status == ChangeRequestStatus.pending.name
             assert change_request.submitted_on is None
+
+
+class TestGenerateInvestigationRequestCSV:
+
+    def test_index_error(self):
+        """
+        Given an empty list of InvestigationRequest objects, the function
+        should throw an IndexError.
+        """
+        with pytest.raises(IndexError):
+            generate_investigation_request_csv([])
+
+    @pytest.mark.parametrize(
+        'company_details, expected_output',
+        (
+            (
+                {
+                    'primary_name': 'Foo',
+                    'domain': 'foo.com',
+                    'telephone_number': '(+44) 123 45678',
+                    'address_line_1': 'Bar',
+                    'address_line_2': 'Buz',
+                    'address_town': 'London',
+                    'address_county': 'London',
+                    'address_country': 'GB',
+                    'address_postcode': 'ABC DEF',
+                },
+                (
+                    (
+                        'ID',
+                        'Name',
+                        'Address',
+                        'Domain',
+                        'Telephone Number',
+                        'DUNS Number',
+                    ),
+                    (
+                        mock.ANY,
+                        'Foo',
+                        'Bar, Buz, London, London, ABC DEF, GB',
+                        'foo.com',
+                        '(+44) 123 45678',
+                        '',
+                    ),
+                ),
+            ),
+        ),
+    )
+    def test_csv(self, company_details, expected_output):
+        """
+        Given a valid record, the function will return a CSV in a valid format.
+        """
+        investigation_request = InvestigationRequest(company_details=company_details)
+        content = generate_investigation_request_csv([investigation_request])
+        reader = csv.reader(content, dialect='excel', delimiter=',')
+        [row for row in reader] == expected_output
+
+
+class TestSendInvestigationRequestBatch:
+
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    @override_settings(
+        INVESTIGATION_REQUESTS_RECIPIENTS=[
+            'foo@example.net',
+            'bar@example.net',
+        ]
+    )
+    @mock.patch('company.utils.notify_by_email')
+    def test_success(self, mock_notify):
+        """
+        Given a list of `InvestigationRequest` objects and a `batch_identifier`:
+
+        1) The function will trigger a valid call to `notify_by_email`
+        2) The `InvestigationRequest` objects will be marked as `submitted`.
+        """
+        investigation_request = InvestigationRequest(
+            company_details={
+                'primary_name': 'Foo',
+                'domain': 'foo.com',
+                'telephone_number': '(+44) 123 45678',
+                'address_line_1': 'Bar',
+                'address_line_2': 'Buz',
+                'address_town': 'London',
+                'address_county': 'London',
+                'address_country': 'GB',
+                'address_postcode': 'ABC DEF',
+            },
+        )
+
+        send_investigation_request_batch(
+            [investigation_request],
+            'Batch 1',
+        )
+
+        csv_bytes = io.BytesIO(
+            generate_investigation_request_csv(
+                [investigation_request],
+            ).getvalue().encode('utf-8')
+        ).getvalue()
+
+        mock_notify.assert_called_with(
+            'bar@example.net',
+            TEMPLATE_IDS['investigation-request'],
+            {
+                'batch_identifier': 'Batch 1',
+                'link_to_file': mock.ANY,
+            }
+        )
+        assert mock_notify.call_count == 2
+        assert mock_notify.call_args[0][2]['link_to_file'].getvalue() == csv_bytes
+
+        assert investigation_request.status == InvestigationRequestStatus.submitted.name
+        assert investigation_request.submitted_on == timezone.now()
+
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    @override_settings(
+        INVESTIGATION_REQUESTS_RECIPIENTS=[
+            'foo@example.net',
+            'bar@example.net',
+        ]
+    )
+    @mock.patch('company.utils.notify_by_email')
+    def test_failure(self, mock_notify):
+        """
+        Test that send_change_request_batch fails gracefully without marking
+        InvestigationRequests as submitted.
+        """
+        mock_notify.side_effect = HTTPError()
+        investigation_request = InvestigationRequest(
+            company_details={
+                'primary_name': 'Foo',
+                'domain': 'foo.com',
+                'telephone_number': '(+44) 123 45678',
+                'address_line_1': 'Bar',
+                'address_line_2': 'Buz',
+                'address_town': 'London',
+                'address_county': 'London',
+                'address_country': 'GB',
+                'address_postcode': 'ABC DEF',
+            },
+        )
+
+        with pytest.raises(HTTPError):
+            send_investigation_request_batch(
+                [investigation_request],
+                'Batch 1',
+            )
+
+        assert investigation_request.status == InvestigationRequestStatus.pending.name
+        assert investigation_request.submitted_on == None
