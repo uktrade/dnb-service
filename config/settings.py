@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'dnb_worldbase',
     'health_check',
     'user',
+    'workspace',
 ]
 
 if DEBUG:
