@@ -82,3 +82,74 @@ def send_change_request_batch(change_requests, batch_identifier):
     submitted_on = now()
     for change_request in change_requests:
         change_request.mark_as_submitted(submitted_on)
+
+
+def _get_investigation_request_row(investigation_request):
+    company_details = investigation_request.company_details
+    return {
+        'ID': str(investigation_request.id),
+        'Name': company_details.get('name'),
+        'Address': ','.join(
+            [
+                company_details.get(f'address_{address_field}', '')
+                for address_field in ADDRESS_FIELDS
+            ]
+        ),
+        'Domain': company_details.get('domain'),
+        'Telephone Number': company_details.get('telephone_number'),
+        'DUNS Number': '',
+    }
+
+
+def generate_investigation_request_csv(investigation_requests):
+    """
+    Given a list of InvestigationRequest records, generate a CSV which is readable by D&B
+    support staff. The returned CSV content is a StringIO object.
+    """
+    if not investigation_requests:
+        raise IndexError(
+            'Cannot generate a CSV from an empty list of investigation requests.'
+        )
+
+    field_names = _get_investigation_request_row(
+        investigation_requests[0]
+    ).keys()
+
+    csv_file = io.StringIO()
+    writer = csv.DictWriter(
+        csv_file,
+        fieldnames=field_names,
+        dialect='excel',
+        delimiter=',',
+    )
+
+    writer.writeheader()
+    for investigation_request in investigation_requests:
+        writer.writerow(
+            _get_investigation_request_row(investigation_request)
+        )
+
+    return csv_file
+
+
+def send_investigation_request_batch(investigation_requests, batch_identifier):
+    """
+    Send a batch of investigation requests in a CSV by email to
+    settings.INVESTIGATION_REQUESTS_RECIPIENTS.
+    """
+    context = {
+        'batch_identifier': batch_identifier,
+        'link_to_file': _convert_stringio_to_bytesio(
+            generate_investigation_request_csv(investigation_requests),
+        ),
+    }
+
+    for email_address in settings.INVESTIGATION_REQUESTS_RECIPIENTS:
+        notify_by_email(
+            email_address,
+            TEMPLATE_IDS['investigation-request'],
+            context
+        )
+
+    for investigation_request in investigation_requests:
+        investigation_request.mark_as_submitted()
