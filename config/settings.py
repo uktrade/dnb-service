@@ -244,3 +244,9 @@ if env.bool('ENABLE_CHANGE_REQUESTS_SUBMISSION', False):
         'task': 'company.tasks.send_pending_change_requests',
         'schedule': crontab(minute=0, hour=1,),
     }
+
+if env.bool('ENABLE_INVESTIGATION_REQUESTS_SUBMISSION', False):
+    CELERY_BEAT_SCHEDULE['investigation_requests_submission'] = {
+        'task': 'company.tasks.send_pending_investigation_requests',
+        'schedule': crontab(minute=0, hour=2,),
+    }

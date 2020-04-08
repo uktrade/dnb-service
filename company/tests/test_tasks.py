@@ -5,9 +5,11 @@ import pytest
 from django.test import override_settings
 from freezegun import freeze_time
 
-from company.constants import ChangeRequestStatus
-from company.tasks import send_pending_change_requests
+from company.constants import ChangeRequestStatus, InvestigationRequestStatus
+from company.models import InvestigationRequest
+from company.tasks import send_pending_change_requests, send_pending_investigation_requests
 from company.tests.factories import ChangeRequestFactory
+from company.utils import generate_investigation_request_csv
 from core.notify import TEMPLATE_IDS
 
 
@@ -111,4 +113,88 @@ class TestSendPendingChangeRequests:
                     },
                 ),
             ],
+        )
+
+
+class TestSendPendingInvestigationRequests:
+
+    @pytest.fixture()
+    def company_details(self):
+        return {
+            'primary_name': 'foo',
+            'address_line_1': 'bar',
+            'address_town': 'buz',
+            'address_country': 'GB',
+        }
+
+    @mock.patch('company.tasks.send_investigation_request_batch')
+    def test_empty(self, mock_send, company_details):
+        """
+        When there are no InvestigationRequest objects with status
+        `pending`, nothing is sent.
+        """
+        InvestigationRequest(
+            status=InvestigationRequestStatus.submitted.name,
+            company_details=company_details,
+        )
+
+        send_pending_investigation_requests.apply()
+        mock_send.assert_not_called()
+
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    @mock.patch('company.tasks.send_investigation_request_batch')
+    def test_single_batch(self, mock_send, company_details):
+        """
+        Test that the task works correctly for a single batch.
+        """
+        investigation_request = InvestigationRequest.objects.create(
+            company_details=company_details,
+        )
+
+        send_pending_investigation_requests.apply()
+        mock_send.assert_called_with(
+            [investigation_request],
+            'Monday 25 November 2019',
+        )
+
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    @override_settings(INVESTIGATION_REQUESTS_BATCH_SIZE=1)
+    @mock.patch('company.tasks.send_investigation_request_batch')
+    def test_multiple_batches(self, mock_send, company_details):
+        """
+        Test that the task works correctly for multiple batches.
+        """
+        investigation_requests = [
+            InvestigationRequest.objects.create(company_details=company_details),
+            InvestigationRequest.objects.create(company_details=company_details),
+        ]
+
+        send_pending_investigation_requests.apply()
+        mock_send.call_count == 2
+        mock_send.assert_called_with(
+            investigation_requests[:-1],
+            'Monday 25 November 2019 Part 2',
+        )
+
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    @mock.patch('core.notify.notifications_client')
+    @override_settings(INVESTIGATION_REQUESTS_RECIPIENTS=['foo@example.net'])
+    def test_end_to_end(self, mock_notify, company_details, get_csv_bytes):
+        """
+        Integration test to ensure that the task calls through to the notify client
+        correctly.
+        """
+        investigation_request = InvestigationRequest.objects.create(company_details=company_details)
+
+        send_pending_investigation_requests.apply()
+        csv_bytes = get_csv_bytes([investigation_request])
+
+        assert mock_notify.send_email_notification.call_count == 1
+        mock_notify.send_email_notification.assert_called_with(
+            email_address='foo@example.net',
+            template_id=TEMPLATE_IDS['investigation-request'],
+            personalisation={
+                'batch_identifier': 'Monday 25 November 2019',
+                'link_to_file': {'file': b64encode(csv_bytes).decode('ascii')},
+            },
         )

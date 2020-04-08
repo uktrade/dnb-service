@@ -151,5 +151,6 @@ def send_investigation_request_batch(investigation_requests, batch_identifier):
             context
         )
 
+    submitted_on = now()
     for investigation_request in investigation_requests:
-        investigation_request.mark_as_submitted()
+        investigation_request.mark_as_submitted(submitted_on=submitted_on)
