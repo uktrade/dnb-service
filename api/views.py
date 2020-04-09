@@ -36,7 +36,7 @@ class CompanyUpdatesAPIView(generics.ListAPIView):
     serializer_class = CompanySerialiser
 
     def get_queryset(self):
-        queryset = Company.objects.all()
+        queryset = Company.objects.filter(source__isnull=False)
         last_updated = self.request.query_params.get('last_updated_after', None)
 
         if last_updated is not None:

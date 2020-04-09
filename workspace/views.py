@@ -6,4 +6,4 @@ from .serialisers import WorkspaceCompanySerialiser
 
 class CompanyListApiView(generics.ListAPIView):
     serializer_class = WorkspaceCompanySerialiser
-    queryset = Company.objects.all()
+    queryset = Company.objects.filter(worldbase_source__isnull=False)

@@ -9,14 +9,19 @@ from rest_framework.authtoken.models import Token
 pytestmark = pytest.mark.django_db
 
 
-class TestDWCompanyListView:
+class TestCompanyListView:
     def test_requires_authentication(self, client):
         response = client.get(reverse('workspace:company-list'))
 
         assert response.status_code == 401
 
     def test_response(self, client):
-        CompanyFactory(source={'for': 'bar'}, worldbase_source={'bar': 'baz'})
+        CompanyFactory(
+            primary_name="acme limited",
+            duns_number="000000020",
+            source={'for': 'bar'},
+            worldbase_source={'bar': 'baz'}
+        )
 
         user = get_user_model().objects.create(email='test@test.com', is_active=True)
         token = Token.objects.create(user=user)
@@ -34,7 +39,7 @@ class TestDWCompanyListView:
             'last_updated': None,
             'duns_number': '000000020',
             'global_ultimate_duns_number': '',
-            'primary_name': 'Company 21',
+            'primary_name': 'acme limited',
             'global_ultimate_primary_name': '',
             'trading_names': [],
             'domain': '',
@@ -65,3 +70,19 @@ class TestDWCompanyListView:
             'worldbase_source': {'bar': 'baz'},
             'source': {'for': 'bar'}
         }
+
+    def test_worldbase_source_field_is_required(self, client):
+        user = get_user_model().objects.create(email='test@test.com', is_active=True)
+        token = Token.objects.create(user=user)
+
+        CompanyFactory(worldbase_source=None)
+
+        response = client.get(
+            reverse('api:company-updates'),
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Token {token.key}'
+        )
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert len(response_data['results']) == 0
