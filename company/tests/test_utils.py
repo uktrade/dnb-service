@@ -218,7 +218,7 @@ class TestSendInvestigationRequestBatch:
         ]
     )
     @mock.patch('company.utils.notify_by_email')
-    def test_success(self, mock_notify):
+    def test_success(self, mock_notify, get_csv_bytes):
         """
         Given a list of `InvestigationRequest` objects and a `batch_identifier`:
 
@@ -243,12 +243,7 @@ class TestSendInvestigationRequestBatch:
             [investigation_request],
             'Batch 1',
         )
-
-        csv_bytes = io.BytesIO(
-            generate_investigation_request_csv(
-                [investigation_request],
-            ).getvalue().encode('utf-8')
-        ).getvalue()
+        csv_bytes = get_csv_bytes([investigation_request])
 
         mock_notify.assert_called_with(
             'bar@example.net',

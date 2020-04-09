@@ -4,9 +4,12 @@ from celery import shared_task
 from django.conf import settings
 from django.utils.timezone import now
 
-from company.constants import ChangeRequestStatus
-from company.models import ChangeRequest
-from company.utils import send_change_request_batch
+from company.constants import ChangeRequestStatus, InvestigationRequestStatus
+from company.models import ChangeRequest, InvestigationRequest
+from company.utils import (
+    send_change_request_batch,
+    send_investigation_request_batch,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -38,3 +41,24 @@ def send_pending_change_requests():
     batches = get_batches(pending_change_requests, settings.CHANGE_REQUESTS_BATCH_SIZE)
     for batch, batch_identifier in batches:
         send_change_request_batch(batch, batch_identifier)
+
+
+@shared_task
+def send_pending_investigation_requests():
+    """
+    Send all pending InvestigationRequests to D&B in a CSV file
+    attached to an email.
+    """
+    pending_investigation_requests = list(
+        InvestigationRequest.objects.filter(
+            status=InvestigationRequestStatus.pending.name
+        ).order_by('created_on')
+    )
+
+    batches = get_batches(
+        pending_investigation_requests,
+        settings.INVESTIGATION_REQUESTS_BATCH_SIZE
+    )
+
+    for batch, batch_identifier in batches:
+        send_investigation_request_batch(batch, batch_identifier)
