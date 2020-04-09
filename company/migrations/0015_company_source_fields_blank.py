@@ -19,6 +19,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='company',
             name='worldbase_source',
-            field=django.contrib.postgres.fields.jsonb.JSONField(null=True),
+            field=django.contrib.postgres.fields.jsonb.JSONField(null=True, blank=True),
+        ),
+        migrations.AlterField(
+            model_name='company',
+            name='worldbase_source',
+            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True),
         ),
     ]
