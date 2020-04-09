@@ -1,17 +1,15 @@
 import datetime
 
-from rest_framework import generics
 from requests.exceptions import HTTPError
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.views import APIView
 
-from .serialisers import CompanySearchInputSerialiser
 from company.models import ChangeRequest, Company, InvestigationRequest
 from company.serialisers import ChangeRequestSerialiser, CompanySerialiser, InvestigationRequestSerializer
 from dnb_direct_plus.api import company_list_search
+from .serialisers import CompanySearchInputSerialiser
 
 
 class DNBCompanySearchAPIView(APIView):
@@ -32,7 +30,7 @@ class DNBCompanySearchAPIView(APIView):
         return Response(data)
 
 
-class CompanyUpdatesAPIView(generics.ListAPIView):
+class CompanyUpdatesAPIView(ListAPIView):
     serializer_class = CompanySerialiser
 
     def get_queryset(self):

@@ -2,11 +2,15 @@ import datetime
 import json
 
 import pytest
+
+from django.contrib.auth import get_user_model
+
 from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
 from requests.exceptions import HTTPError
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 
 from company.constants import MonitoringStatusChoices
 from company.models import ChangeRequest, Company
@@ -72,6 +76,7 @@ class TestCompanySearchView:
 
         assert response.status_code == 400
 
+
         expected_response = {
             'non_field_errors': ["At least one standalone field required: ['duns_number', 'search_term']."]
         }
@@ -83,6 +88,7 @@ class TestCompanySearchView:
         mocker,
         company_list_api_response_json,
     ):
+
         company_input_data = json.loads(company_list_api_response_json)
         company_input_data['searchCandidates'].pop()
         company_input_data['candidatesReturnedQuantity'] = 1

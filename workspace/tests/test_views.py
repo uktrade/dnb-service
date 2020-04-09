@@ -2,9 +2,9 @@ import pytest
 
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from rest_framework.authtoken.models import Token
 
 from company.tests.factories import CompanyFactory
-from rest_framework.authtoken.models import Token
 
 pytestmark = pytest.mark.django_db
 
@@ -17,8 +17,8 @@ class TestCompanyListView:
 
     def test_response(self, client):
         CompanyFactory(
-            primary_name="acme limited",
-            duns_number="000000020",
+            primary_name='acme limited',
+            duns_number='000000020',
             source={'for': 'bar'},
             worldbase_source={'bar': 'baz'}
         )
