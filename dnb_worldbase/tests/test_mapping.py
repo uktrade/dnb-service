@@ -3,7 +3,6 @@ import pytest
 from company.constants import LegalStatusChoices, RegistrationNumberChoices
 from dnb_worldbase.constants import LEGAL_STATUS_CODE_MAPPING
 from dnb_worldbase.mapping import (
-    DataMappingError,
     dnb_country_lookup,
     EmployeesIndicator,
     extract_business_indicator,
@@ -26,9 +25,9 @@ class TestDnbCountryLookup:
         assert dnb_country_lookup(test_input) == expected
 
     @pytest.mark.parametrize('test_input,exception,message', [
-        ('99999', DataMappingError, '99999 is not in mapping'),
+        ('99999', IndexError, 'Country code 99999 is not in mapping'),
         # country does not have an associated ISO2 alpha code
-        ('897', DataMappingError, '897 does not have an associated iso alpha 2 code'),
+        ('897', IndexError, 'Country code 897 does not have an associated iso alpha 2 code'),
     ])
     def test_invalid_data(self, test_input, exception, message):
         with pytest.raises(exception) as ex:
@@ -299,8 +298,8 @@ class TestExtractBusinessIndicator:
         assert extract_business_indicator(test_input) == expected
 
     @pytest.mark.parametrize('test_input,exception,message', [
-        ('', DataMappingError, 'no mapping for business indicator: '),
-        ('X', DataMappingError, 'no mapping for business indicator: X'),
+        ('', IndexError, 'no mapping for business indicator: '),
+        ('X', IndexError, 'no mapping for business indicator: X'),
     ])
     def test_invalid_data(self, test_input, exception, message):
         with pytest.raises(exception) as ex:
