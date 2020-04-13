@@ -267,9 +267,9 @@ DNB_COUNTRY_CODE_MAPPING = {
     '000': None,  # Unknown
 }
 
+
 WB_HEADER_FIELDS = [
-    '_DUNS_Number', 'DNB_REF_ID', 'DUNS', 'DUNS Recertification Code', 'Filler 1', 'DUNS Number',
-    'Business Name', 'Secondary Name', 'Registered Address Indicator', 'Street Address',
+    'DUNS Number', 'Business Name', 'Secondary Name', 'Registered Address Indicator', 'Street Address',
     'Street Address 2', 'City Name', 'State/Province Name', 'Country Name', 'City Code',
     'County Code', 'State/Province Code', 'State/Province Abbreviation', 'Country Code',
     'Postal Code for Street Address', 'Continent Code', 'Mailing Address', 'Mailing City Name',

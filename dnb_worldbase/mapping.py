@@ -13,10 +13,6 @@ from .constants import (
 )
 
 
-class DataMappingError(Exception):
-    pass
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -83,12 +79,12 @@ def dnb_country_lookup(dnb_country_code):
         return None
 
     if dnb_country_code not in DNB_COUNTRY_CODE_MAPPING:
-        raise DataMappingError(f'{dnb_country_code} is not in mapping')
+        raise IndexError(f'Country code {dnb_country_code} is not in mapping')
 
     iso_alpha2_code = DNB_COUNTRY_CODE_MAPPING[dnb_country_code]
 
     if not iso_alpha2_code:
-        raise DataMappingError(f'{dnb_country_code} does not have an associated iso alpha 2 code')
+        raise IndexError(f'Country code {dnb_country_code} does not have an associated iso alpha 2 code')
 
     return iso_alpha2_code
 
@@ -111,9 +107,8 @@ def extract_registration_number(company_data):
     Return the registration number and code, if present.
     """
 
-    national_id_number = company_data['National Identification Number']
-
     try:
+        national_id_number = company_data['National Identification Number']
         national_id_code = int(company_data['National Identification System Code'])
     except ValueError:
         return []
@@ -146,7 +141,7 @@ def extract_business_indicator(field_data):
     try:
         return BUSINESS_INDICATOR_MAPPING[field_data]
     except KeyError:
-        raise DataMappingError(f'no mapping for business indicator: {field_data}')
+        raise IndexError(f'no mapping for business indicator: {field_data}')
 
 
 def extract_company_data(wb_data):

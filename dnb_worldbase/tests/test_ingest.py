@@ -1,4 +1,5 @@
 import csv
+import datetime
 import io
 from collections import OrderedDict
 
@@ -11,7 +12,7 @@ from company.models import Company, Country
 from company.serialisers import CompanySerialiser
 
 from ..constants import WB_HEADER_FIELDS
-from ..ingest import process_file, update_company
+from ..ingest import process_csv_data, update_company
 
 pytestmark = [
     pytest.mark.django_db
@@ -68,13 +69,14 @@ def _create_csv_row(data):
     return row
 
 
-def _build_test_csv(rows):
+def _build_test_csv(rows, include_header=True):
     """Builds a test worldbase file and returns a string buffer"""
 
     output = io.StringIO()
     writer = csv.writer(output)
 
-    writer.writerow(WB_HEADER_FIELDS)
+    if include_header:
+        writer.writerow(WB_HEADER_FIELDS)
 
     for row in rows:
         writer.writerow(_create_csv_row(row))
@@ -85,10 +87,24 @@ def _build_test_csv(rows):
 
 
 class TestUpdateCompany:
+
+    @freeze_time('2019-11-25 12:00:01 UTC')
+    def test_created_date(self, test_input_data):
+
+        created_date = timezone.now() - datetime.timedelta(7)
+
+        update_company(test_input_data, created_date)
+
+        assert Company.objects.count() == 1
+        assert created_date != timezone.now()
+        company = Company.objects.first()
+
+        assert company.worldbase_source_updated_timestamp == created_date
+
     @freeze_time('2019-11-25 12:00:01 UTC')
     def test_source_and_updated_field(self, test_input_data):
 
-        update_company(test_input_data)
+        update_company(test_input_data, timezone.now())
 
         assert Company.objects.count() == 1
         company = Company.objects.first()
@@ -99,7 +115,7 @@ class TestUpdateCompany:
     def test_create_new_company(self, test_input_data):
         assert Company.objects.count() == 0
 
-        created = update_company(test_input_data)
+        created = update_company(test_input_data, timezone.now())
 
         assert created
 
@@ -160,7 +176,7 @@ class TestUpdateCompany:
             last_updated=None,
         )
 
-        created = update_company(test_input_data)
+        created = update_company(test_input_data, timezone.now())
 
         assert not created
         assert Company.objects.count() == 1
@@ -220,7 +236,7 @@ class TestUpdateCompany:
 
         original_company_data = CompanySerialiser(original_company)
 
-        created = update_company(test_input_data)
+        created = update_company(test_input_data, timezone.now())
 
         assert not created
         assert Company.objects.count() == 1
@@ -252,12 +268,12 @@ class TestUpdateCompany:
     )
     def test_invalid_data(self, test_input, exception, message):
         with pytest.raises(exception) as ex:
-            update_company(test_input)
+            update_company(test_input, timezone.now())
 
             assert ex.value == message
 
 
-class TestProcessFile:
+class TestProcessCsvData:
     def _sample_data(self, extra_data={}):
         test_data = {
             'DUNS Number': '123456789',
@@ -285,9 +301,9 @@ class TestProcessFile:
         return dict(test_data, **extra_data)
 
     def test_create_success(self):
-        csv_data = _build_test_csv([self._sample_data()])
+        csv_data = iter([_create_csv_row(self._sample_data())])
 
-        stats = process_file(csv_data)
+        stats = process_csv_data(csv_data)
 
         assert stats == {
             'failed': 0,
@@ -300,9 +316,9 @@ class TestProcessFile:
         assert company.registration_numbers.count() == 1
 
     def test_update_success(self):
-        csv_data = _build_test_csv([self._sample_data(), self._sample_data()])
+        csv_data = iter([_create_csv_row(self._sample_data()), _create_csv_row(self._sample_data())])
 
-        stats = process_file(csv_data)
+        stats = process_csv_data(csv_data)
 
         assert stats == {
             'failed': 0,
@@ -319,9 +335,9 @@ class TestProcessFile:
             'DUNS Number': 'invalid-duns-number'
         })
 
-        csv_data = _build_test_csv([test_data])
+        csv_data = iter([_create_csv_row([test_data])])
 
-        stats = process_file(csv_data)
+        stats = process_csv_data(csv_data)
 
         assert stats == {
             'failed': 1,
