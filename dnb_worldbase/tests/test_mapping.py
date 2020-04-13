@@ -350,9 +350,7 @@ class TestExtractRegistrationNumber:
             [
                 {
                     'registration_type': 'unmapped',
-                    'original_registration_type': 999,
-                    'original_registration_number': 'a number',
-                    'original_registration_description': ''
+                    'registration_number': 'a number',
                 }
             ]
         ),
