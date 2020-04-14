@@ -1,19 +1,17 @@
-from decimal import InvalidOperation
-
 import pytest
 
-from company.constants import RegistrationNumberChoices
+from company.constants import LegalStatusChoices, RegistrationNumberChoices
 from dnb_worldbase.constants import LEGAL_STATUS_CODE_MAPPING
 from dnb_worldbase.mapping import (
     DataMappingError,
     dnb_country_lookup,
     EmployeesIndicator,
+    extract_business_indicator,
     extract_company_data,
     extract_employees,
+    extract_legal_status,
     extract_registration_number,
     extract_turnover,
-    map_business_indicator,
-    map_legal_status,
     TurnoverIndicator)
 
 
@@ -81,50 +79,6 @@ class TestExtractEmployees:
                 (111, False),
             ),
 
-            # (estimated) Employees Here used as Employees Total is 0
-            (
-                {
-                    'Employees Total': '0',
-                    'Employees Total Indicator': EmployeesIndicator.MODELLED,
-                    'Employees Here': '2',
-                    'Employees Here Indicator': EmployeesIndicator.ESTIMATED,
-                },
-                (2, True),
-            ),
-
-            # (estimated because 'modelled') Employees Here used as Employees Total is 0
-            (
-                {
-                    'Employees Total': '0',
-                    'Employees Total Indicator': EmployeesIndicator.MODELLED,
-                    'Employees Here': '2',
-                    'Employees Here Indicator': EmployeesIndicator.MODELLED,
-                },
-                (2, True),
-            ),
-
-            # (estimated because 'low end of range') Employees Here used as Employees Total is 0
-            (
-                {
-                    'Employees Total': '0',
-                    'Employees Total Indicator': EmployeesIndicator.MODELLED,
-                    'Employees Here': '2',
-                    'Employees Here Indicator': EmployeesIndicator.LOW_END_OF_RANGE,
-                },
-                (2, True),
-            ),
-
-            # (actual) Employees Here used as Employees Total is 0
-            (
-                {
-                    'Employees Total': '0',
-                    'Employees Total Indicator': EmployeesIndicator.MODELLED,
-                    'Employees Here': '111',
-                    'Employees Here Indicator': EmployeesIndicator.ACTUAL,
-                },
-                (111, False),
-            ),
-
             # (estimated) Employees Total used as Employees Here is not available
             (
                 {
@@ -146,25 +100,13 @@ class TestExtractEmployees:
                 },
                 (None, None),
             ),
-        ),
-    )
-    def test_success(self, wb_record, expected_output):
-        """
-        Test successful cases related to _extract_employees().
-        """
-        actual_output = extract_employees(wb_record)
-        assert actual_output == expected_output
-
-    @pytest.mark.parametrize(
-        'wb_record,expected_exception',
-        (
             # Employees Total is not a number
             (
                 {
                     'Employees Total': 'a',
                     'Employees Total Indicator': EmployeesIndicator.ESTIMATED,
                 },
-                ValueError,
+                (None, None),
             ),
 
             # Employees Total is empty
@@ -173,7 +115,7 @@ class TestExtractEmployees:
                     'Employees Total': '',
                     'Employees Total Indicator': EmployeesIndicator.ESTIMATED,
                 },
-                ValueError,
+                (None, None),
             ),
 
             # Employees Total Indicator is invalid
@@ -182,7 +124,7 @@ class TestExtractEmployees:
                     'Employees Total': '',
                     'Employees Total Indicator': 'a',
                 },
-                ValueError,
+                (None, None),
             ),
 
             # Employees Here is not a number
@@ -193,7 +135,7 @@ class TestExtractEmployees:
                     'Employees Here': 'a',
                     'Employees Here Indicator': EmployeesIndicator.ESTIMATED,
                 },
-                ValueError,
+                (0, True),
             ),
 
             # Employees Here is empty
@@ -204,7 +146,7 @@ class TestExtractEmployees:
                     'Employees Here': '',
                     'Employees Here Indicator': EmployeesIndicator.ESTIMATED,
                 },
-                ValueError,
+                (0, True),
             ),
 
             # Employees Here Indicator is invalid
@@ -215,7 +157,7 @@ class TestExtractEmployees:
                     'Employees Here': '',
                     'Employees Here Indicator': 'a',
                 },
-                ValueError,
+                (0, True),
             ),
 
             # Indicator == NOT_AVAILABLE but Employees value != 0
@@ -224,16 +166,16 @@ class TestExtractEmployees:
                     'Employees Total': '1',
                     'Employees Total Indicator': EmployeesIndicator.NOT_AVAILABLE,
                 },
-                AssertionError,
+                (None, None),
             ),
         ),
     )
-    def test_bad_data(self, wb_record, expected_exception):
+    def test_success(self, wb_record, expected_output):
         """
-        Test cases related to bad input data when calling _extract_employees().
+        Test successful cases related to _extract_employees().
         """
-        with pytest.raises(expected_exception):
-            extract_employees(wb_record)
+        actual_output = extract_employees(wb_record)
+        assert actual_output == expected_output
 
 
 class TestExtractTurnover:
@@ -304,6 +246,40 @@ class TestExtractTurnover:
                 },
                 (None, None),
             ),
+            (
+                {
+                    'Annual Sales in US dollars': 'a',
+                    'Annual Sales Indicator': TurnoverIndicator.ESTIMATED,
+                },
+                (None, None),
+            ),
+
+            # Annual Sales in US dollars is empty
+            (
+                {
+                    'Annual Sales in US dollars': '',
+                    'Annual Sales Indicator': TurnoverIndicator.ESTIMATED,
+                },
+                (None, None),
+            ),
+
+            # Annual Sales Indicator is invalid
+            (
+                {
+                    'Annual Sales in US dollars': '1',
+                    'Annual Sales Indicator': 'a',
+                },
+                (None, None),
+            ),
+
+            # Indicator == NOT_AVAILABLE but Annual Sales in US dollars value != 0
+            (
+                {
+                    'Annual Sales in US dollars': '1',
+                    'Annual Sales Indicator': TurnoverIndicator.NOT_AVAILABLE,
+                },
+                (None, None),
+            ),
         ),
     )
     def test_success(self, wb_record, expected_output):
@@ -313,61 +289,14 @@ class TestExtractTurnover:
         actual_output = extract_turnover(wb_record)
         assert actual_output == expected_output
 
-    @pytest.mark.parametrize(
-        'wb_record,exception',
-        (
-            # Annual Sales in US dollars is not a number
-            (
-                {
-                    'Annual Sales in US dollars': 'a',
-                    'Annual Sales Indicator': TurnoverIndicator.ESTIMATED,
-                },
-                InvalidOperation,
-            ),
 
-            # Annual Sales in US dollars is empty
-            (
-                {
-                    'Annual Sales in US dollars': '',
-                    'Annual Sales Indicator': TurnoverIndicator.ESTIMATED,
-                },
-                InvalidOperation,
-            ),
-
-            # Annual Sales Indicator is invalid
-            (
-                {
-                    'Annual Sales in US dollars': '1',
-                    'Annual Sales Indicator': 'a',
-                },
-                ValueError,
-            ),
-
-            # Indicator == NOT_AVAILABLE but Annual Sales in US dollars value != 0
-            (
-                {
-                    'Annual Sales in US dollars': '1',
-                    'Annual Sales Indicator': TurnoverIndicator.NOT_AVAILABLE,
-                },
-                AssertionError,
-            ),
-        ),
-    )
-    def test_bad_data(self, wb_record, exception):
-        """
-        Test cases related to bad input data when calling _extract_turnover().
-        """
-        with pytest.raises(exception):
-            extract_turnover(wb_record)
-
-
-class TestMapBusinessIndicator:
+class TestExtractBusinessIndicator:
     @pytest.mark.parametrize('test_input,expected', [
         ('Y', True),
         ('N', False),
     ])
     def test_valid_data(self, test_input, expected):
-        assert map_business_indicator(test_input) == expected
+        assert extract_business_indicator(test_input) == expected
 
     @pytest.mark.parametrize('test_input,exception,message', [
         ('', DataMappingError, 'no mapping for business indicator: '),
@@ -375,28 +304,20 @@ class TestMapBusinessIndicator:
     ])
     def test_invalid_data(self, test_input, exception, message):
         with pytest.raises(exception) as ex:
-            map_business_indicator(test_input)
+            extract_business_indicator(test_input)
 
         assert str(ex.value) == message
 
 
-class TestMapLegalStatus:
+class TestExtractLegalStatus:
     @pytest.mark.parametrize('test_input,expected', [
-        ('0', LEGAL_STATUS_CODE_MAPPING['0'].name),
-        ('3', LEGAL_STATUS_CODE_MAPPING['3'].name),
+        ('0', LEGAL_STATUS_CODE_MAPPING[0].name),
+        ('3', LEGAL_STATUS_CODE_MAPPING[3].name),
+        ('9999', LegalStatusChoices.unknown.name),
+        ('', LegalStatusChoices.unknown.name),
     ])
     def test_valid_data(self, test_input, expected):
-        assert map_legal_status(test_input) == expected
-
-    @pytest.mark.parametrize('test_input,exception,message', [
-        ('9999', DataMappingError, 'no mapping for legal status code: 9999'),
-        ('', DataMappingError, 'no mapping for legal status code: '),
-    ])
-    def test_invalid_data(self, test_input, exception, message):
-        with pytest.raises(exception) as ex:
-            map_legal_status(test_input)
-
-        assert str(ex.value) == message
+        assert extract_legal_status(test_input) == expected
 
 
 class TestExtractRegistrationNumber:
@@ -422,26 +343,23 @@ class TestExtractRegistrationNumber:
                 }
             ]
         ),
-    ])
-    def test_valid_data(self, test_input, expected):
-        assert extract_registration_number(test_input) == expected
-
-    @pytest.mark.parametrize('test_input,exception,message', [
-        # Invalid system code
         (
             {
                 'National Identification System Code': '999',
                 'National Identification Number': 'a number',
             },
-            DataMappingError,
-            'National ID code 999 is not in mapping',
+            [
+                {
+                    'registration_type': 'unmapped',
+                    'original_registration_type': 999,
+                    'original_registration_number': 'a number',
+                    'original_registration_description': ''
+                }
+            ]
         ),
     ])
-    def test_invalid_data(self, test_input, exception, message):
-        with pytest.raises(exception) as ex:
-            extract_registration_number(test_input)
-
-        assert str(ex.value) == message
+    def test_valid_data(self, test_input, expected):
+        assert extract_registration_number(test_input) == expected
 
 
 @pytest.mark.django_db
@@ -449,7 +367,7 @@ class TestExtractCompanyData:
     @pytest.mark.parametrize('raw_data,expected', [
         (
             {
-                'DUNS': '1234567',
+                'DUNS Number': '1234567',
                 'Business Name': 'Widgets Pty',
                 'Secondary Name': 'Lots-a-widgets',
                 'National Identification System Code': '12',
@@ -494,7 +412,9 @@ class TestExtractCompanyData:
                 'employee_number': 5,
                 'is_annual_sales_estimated': True,
                 'annual_sales': 8.0,
-                'address_country': 'GB'
+                'address_country': 'GB',
+                'industry_codes': [],
+                'primary_industry_codes': []
             }
         ),
     ])

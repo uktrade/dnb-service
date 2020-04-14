@@ -1,3 +1,5 @@
+from enum import Enum
+
 from company.constants import LegalStatusChoices, RegistrationNumberChoices
 
 DNB_COUNTRY_CODE_MAPPING = {
@@ -265,68 +267,99 @@ DNB_COUNTRY_CODE_MAPPING = {
     '000': None,  # Unknown
 }
 
-WB_HEADER_FIELDS = ['_DUNS_Number', 'DNB_REF_ID', 'DUNS', 'DUNS Recertification Code', 'Filler 1', 'DUNS Number',
-                    'Business Name', 'Secondary Name', 'Registered Address Indicator', 'Street Address',
-                    'Street Address 2', 'City Name', 'State/Province Name', 'Country Name', 'City Code',
-                    'County Code', 'State/Province Code', 'State/Province Abbreviation', 'Country Code',
-                    'Postal Code for Street Address', 'Continent Code', 'Mailing Address', 'Mailing City Name',
-                    'Mailing County Name', 'Mailing State/Province Name', 'Mailing Country Name',
-                    'Mailing City Code', 'Mailing County Code', 'Mailing State/Province Code',
-                    'Mailing State/Province Abbreviation', 'Mailing Country Code',
-                    'Postal Code For Mailing Address', 'Mailing Continent Code',
-                    'National Identification Number', 'National Identification System Code',
-                    'Country Telephone Access Code', 'Telephone Number', 'Cable Telex', 'Fax Number',
-                    'Chief Executive Officer Name', 'Chief Executive Officer Title', 'Line of Business',
-                    'US 1987 SIC 1', 'US 1987 SIC 2', 'US 1987 SIC 3', 'US 1987 SIC 4', 'US 1987 SIC 5',
-                    'US 1987 SIC 6', 'Primary Local Activity Code', 'Activity Indicator', 'Year Started',
-                    'Annual Sales Local', 'Annual Sales Indicator', 'Annual Sales in US dollars',
-                    'Currency Code', 'Employees Here', 'Employees Here Indicator', 'Employees Total',
-                    'Employees Total Indicator', 'Include Principles Indicator',
-                    'Import/Export/ Agent Indicator', 'Legal Status', 'Control Indicator', 'Status Code',
-                    'Subsidiary Code', 'Filler 2', 'Previous DUNS Number', 'Report Date', 'Filler 3',
-                    'Headquarter/Parent DUNS Number', 'Headquarter/Parent Business Name',
-                    'Headquarter/Parent Street Address', 'Headquarter/Parents City',
-                    'Headquarter/Parent State/Province', 'Headquarter/Parent Country Name',
-                    'Headquarter/Parents City Code', 'Headquarter/Parent County Code',
-                    'Headquarter/Parent State/Province Abbreviation', 'Headquarter/Parent Country Code',
-                    'Headquarter/Parent Postal Code', 'Headquarter/Parent Continent Code', 'Filler 4',
-                    'Domestic Ultimate DUNS Number', 'Domestic Ultimate Business Name',
-                    'Domestic Ultimate Street Address', 'Domestic Ultimate City Name',
-                    'Domestic Ultimate State/Province Name', 'Domestic Ultimate City Code',
-                    'Domestic Ultimate Country Code', 'Domestic Ultimate State Abbreviation',
-                    'Domestic Ultimate Postal Code', 'Global Ultimate Indicator', 'Filler 5',
-                    'Global Ultimate DUNS Number', 'Global Ultimate Name', 'Global Ultimate Street Address',
-                    'Global Ultimate City Name', 'Global Ultimate State/Province',
-                    'Global Ultimate Country Name', 'Global Ultimate City Code', 'Global Ultimate County Code',
-                    'Ultimate State/Province Abbreviation', 'Global Ultimate Country Code',
-                    'Global Ultimate Postal Code', 'Global Ultimate Continent Code', 'Number of Family Members',
-                    'DIAS Code', 'Hierarchy Code', 'Family Update Date', 'Out of Business indicator',
-                    'Marketable indicator', 'Delist indicator']
-
-WB_FILE_COLUMN_COUNT = len(WB_HEADER_FIELDS)
+WB_HEADER_FIELDS = [
+    '_DUNS_Number', 'DNB_REF_ID', 'DUNS', 'DUNS Recertification Code', 'Filler 1', 'DUNS Number',
+    'Business Name', 'Secondary Name', 'Registered Address Indicator', 'Street Address',
+    'Street Address 2', 'City Name', 'State/Province Name', 'Country Name', 'City Code',
+    'County Code', 'State/Province Code', 'State/Province Abbreviation', 'Country Code',
+    'Postal Code for Street Address', 'Continent Code', 'Mailing Address', 'Mailing City Name',
+    'Mailing County Name', 'Mailing State/Province Name', 'Mailing Country Name',
+    'Mailing City Code', 'Mailing County Code', 'Mailing State/Province Code',
+    'Mailing State/Province Abbreviation', 'Mailing Country Code',
+    'Postal Code For Mailing Address', 'Mailing Continent Code',
+    'National Identification Number', 'National Identification System Code',
+    'Country Telephone Access Code', 'Telephone Number', 'Cable Telex', 'Fax Number',
+    'Chief Executive Officer Name', 'Chief Executive Officer Title', 'Line of Business',
+    'US 1987 SIC 1', 'US 1987 SIC 2', 'US 1987 SIC 3', 'US 1987 SIC 4', 'US 1987 SIC 5',
+    'US 1987 SIC 6', 'Primary Local Activity Code', 'Activity Indicator', 'Year Started',
+    'Annual Sales Local', 'Annual Sales Indicator', 'Annual Sales in US dollars',
+    'Currency Code', 'Employees Here', 'Employees Here Indicator', 'Employees Total',
+    'Employees Total Indicator', 'Include Principles Indicator',
+    'Import/Export/ Agent Indicator', 'Legal Status', 'Control Indicator', 'Status Code',
+    'Subsidiary Code', 'Filler 2', 'Previous DUNS Number', 'Report Date', 'Filler 3',
+    'Headquarter/Parent DUNS Number', 'Headquarter/Parent Business Name',
+    'Headquarter/Parent Street Address', 'Headquarter/Parents City',
+    'Headquarter/Parent State/Province', 'Headquarter/Parent Country Name',
+    'Headquarter/Parents City Code', 'Headquarter/Parent County Code',
+    'Headquarter/Parent State/Province Abbreviation', 'Headquarter/Parent Country Code',
+    'Headquarter/Parent Postal Code', 'Headquarter/Parent Continent Code', 'Filler 4',
+    'Domestic Ultimate DUNS Number', 'Domestic Ultimate Business Name',
+    'Domestic Ultimate Street Address', 'Domestic Ultimate City Name',
+    'Domestic Ultimate State/Province Name', 'Domestic Ultimate City Code',
+    'Domestic Ultimate Country Code', 'Domestic Ultimate State Abbreviation',
+    'Domestic Ultimate Postal Code', 'Global Ultimate Indicator', 'Filler 5',
+    'Global Ultimate DUNS Number', 'Global Ultimate Name', 'Global Ultimate Street Address',
+    'Global Ultimate City Name', 'Global Ultimate State/Province',
+    'Global Ultimate Country Name', 'Global Ultimate City Code', 'Global Ultimate County Code',
+    'Ultimate State/Province Abbreviation', 'Global Ultimate Country Code',
+    'Global Ultimate Postal Code', 'Global Ultimate Continent Code', 'Number of Family Members',
+    'DIAS Code', 'Hierarchy Code', 'Family Update Date', 'Out of Business indicator',
+    'Marketable indicator', 'Delist indicator']
 
 # Worldbase legal status code mapping.
 LEGAL_STATUS_CODE_MAPPING = {
-    '000': LegalStatusChoices.unspecified,
-    '0': LegalStatusChoices.unspecified,
-    '3': LegalStatusChoices.corporation,
-    '8': LegalStatusChoices.joint_venture,
-    '12': LegalStatusChoices.partnership,
-    '13': LegalStatusChoices.proprietorship,
-    '50': LegalStatusChoices.government_body,
-    '100': LegalStatusChoices.cooperative,
-    '101': LegalStatusChoices.non_profit_organisation,
-    '118': LegalStatusChoices.local_government_body,
-    '120': LegalStatusChoices.foreign_company,
+    0: LegalStatusChoices.unspecified,
+    3: LegalStatusChoices.corporation,
+    8: LegalStatusChoices.joint_venture,
+    12: LegalStatusChoices.partnership,
+    13: LegalStatusChoices.proprietorship,
+    50: LegalStatusChoices.government_body,
+    100: LegalStatusChoices.cooperative,
+    101: LegalStatusChoices.non_profit_organisation,
+    118: LegalStatusChoices.local_government_body,
+    120: LegalStatusChoices.foreign_company,
 }
 
 # Worldbase national ID code mapping. As we are currently only ingesting UK data,
 # we only see the Companies House number.
 NATIONAL_ID_CODE_MAPPING = {
-    '12': RegistrationNumberChoices.uk_companies_house_number,
+    12: RegistrationNumberChoices.uk_companies_house_number,
 }
 
 BUSINESS_INDICATOR_MAPPING = {
     'Y': True,
     'N': False,
 }
+
+
+class EmployeesIndicator(Enum):
+    """
+    Indicates if the field Employees Total/Here is an actual value,
+    estimated value or not available.
+    """
+
+    NOT_AVAILABLE = ''
+    ACTUAL = '0'
+    LOW_END_OF_RANGE = '1'
+    ESTIMATED = '2'
+    MODELLED = '3'
+
+
+class TurnoverIndicator(Enum):
+    """
+    Indicates if the field 'Annual Sales in US dollars' is an actual value,
+    estimated value or not available.
+    """
+
+    NOT_AVAILABLE = ''
+    ACTUAL = '0'
+    LOW_END_OF_RANGE = '1'
+    ESTIMATED = '2'
+    MODELLED = '3'
+
+
+class OutOfBusinessIndicator(Enum):
+    """Indicates if a business is out of business."""
+
+    OUT_OF_BUSINESS = 'Y'
+    NOT_OUT_OF_BUSINESS = 'N'

@@ -121,6 +121,12 @@ class Company(models.Model):
 
     source = JSONField(null=True)
 
+    worldbase_source = JSONField(null=True)
+
+    worldbase_source_updated_timestamp = models.DateTimeField(
+        null=True,
+    )
+
     monitoring_status = models.CharField(
         choices=MonitoringStatusChoices.list(),
         default=MonitoringStatusChoices.not_enabled.name,

@@ -2,65 +2,71 @@ import csv
 import logging
 
 from django.db import transaction
+from django.utils import timezone
 
-from company.forms import CompanyValidationForm, RegistrationNumberValidationForm
-from company.models import Company
+from company.models import Company, Country, PrimaryIndustryCode, RegistrationNumber
 
-from .constants import WB_FILE_COLUMN_COUNT, WB_HEADER_FIELDS
+from .constants import WB_HEADER_FIELDS
 from .mapping import extract_company_data
+
 
 logger = logging.getLogger(__name__)
 
 
 @transaction.atomic
-def validate_and_save_company(company_data):
-    """Validate, then create or update the company data
-
-    Returns a tuple (success, created, errors)
-
-    success: boolean; was the transaction successful?
-    created: boolean; True if the company was created, False if it was updated. Only relevant if success=True
-    errors: a list of field errors. Only relevant if success=False
+def update_company(wb_data):
     """
+    Update company with worldbase data
+    """
+    foreign_key_fields = ['registration_numbers', 'primary_industry_codes', 'industry_codes']
 
-    company_data['last_updated_source'] = source.name
+    company_data = extract_company_data(wb_data)
 
     try:
-        company_instance = Company.objects.get(duns_number=company_data['duns_number'])
+        company = Company.objects.get(duns_number=company_data['duns_number'])
     except Company.DoesNotExist:
-        company_instance = None
+        company = Company()
 
-    is_created = not company_instance
+    created = company.pk is None
 
-    registration_numbers = company_data.pop('registration_numbers', [])
+    overwrite_fields = created or not company.source
 
-    registration_number_forms = [RegistrationNumberValidationForm(item) for item in registration_numbers]
+    company.worldbase_source_updated_timestamp = timezone.now()
+    company.worldbase_source = wb_data
 
-    company_form = CompanyValidationForm(company_data, instance=company_instance)
+    if overwrite_fields:
+        company.registration_numbers.all().delete()
+        company.primary_industry_codes.all().delete()
 
-    if company_form.is_valid() and all(form.is_valid() for form in registration_number_forms):
+        for field, value in company_data.items():
+            if field.endswith('country'):
+                setattr(company, field, Country.objects.get(iso_alpha2=value))
+            elif field not in foreign_key_fields:
+                setattr(company, field, value)
 
-        if company_instance:
-            company_instance.registrationnumber_set.all().delete()
+    company.save()
 
-        company = company_form.save()
+    if overwrite_fields:
+        for registration_number in company_data['registration_numbers']:
+            RegistrationNumber.objects.create(
+                company=company,
+                registration_type=registration_number['registration_type'],
+                registration_number=registration_number['registration_number'],
+            )
+        for primary_industry_code in company_data['primary_industry_codes']:
+            PrimaryIndustryCode.objects.create(
+                company=company,
+                code=primary_industry_code['code'],
+                description=primary_industry_code['description'],
+            )
 
-        for form in registration_number_forms:
-            registration_number = form.save(commit=False)
-            registration_number.company = company
-            registration_number.save()
-
-        return True, is_created, None
-    else:
-        form_errors = [form.errors for form in [company_form] + registration_number_forms if not form.is_valid()]
-
-        return False, None, form_errors
+    return created
 
 
 def process_file(wb_file):
     """Parse a Worldbase file and import into the database"""
 
-    csv_reader = csv.reader(wb_file)
+    csv_reader = csv.reader(wb_file, quotechar='"')
 
     stats = {
         'created': 0,
@@ -70,29 +76,21 @@ def process_file(wb_file):
 
     for row_number, row_data in enumerate(csv_reader, 1):
 
-        assert len(row_data) == WB_FILE_COLUMN_COUNT, f'incorrect number of columns on line {row_number}'
-
         if row_number == 1:
-            assert row_data == WB_HEADER_FIELDS, 'CSV column headings do not match expected values'
             continue
 
         wb_data = dict(zip(WB_HEADER_FIELDS, row_data))
 
         try:
-            company_data = extract_company_data(wb_data)
-        except BaseException:
-            logger.exception(f'row {row_number} failed because of mapping errors')
+            created = update_company(wb_data)
+        except BaseException as ex:
+            logger.warning(f'row {row_number} failed {ex}')
+
             stats['failed'] += 1
         else:
-            success, created, errors = validate_and_save_company(company_data, LastUpdatedSource.worldbase)
-
-            if success:
-                if created:
-                    stats['created'] += 1
-                else:
-                    stats['updated'] += 1
+            if created:
+                stats['created'] += 1
             else:
-                logger.error(f'row {row_number} failed because of validation errors {errors}')
-                stats['failed'] += 1
+                stats['updated'] += 1
 
     return stats
