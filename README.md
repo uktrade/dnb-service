@@ -1,5 +1,7 @@
 # A Dunn & Bradstreet caching microservice
 
+[![codecov](https://codecov.io/gh/uktrade/dnb-service/branch/master/graph/badge.svg)](https://codecov.io/gh/uktrade/dnb-service)
+
 ## Dependencies
 
 Python 3.7  
