@@ -63,7 +63,7 @@ class GetPendingChangeRequestAPIVIew(generics.ListAPIView):
     """
 
     queryset = ChangeRequest.objects.all()
-    serializer_class = GetCompanyChangeRequestSerialiser
+    serializer_class = ChangeRequestSerialiser
 
 class InvestigationAPIView(CreateAPIView):
     """
