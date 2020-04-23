@@ -1,0 +1,6 @@
+[run]
+branch = True
+omit = env/*,venv/*
+
+[html]
+directory = coverage_html_report
