@@ -259,6 +259,22 @@ class CompanyDetailsSerialiser(CompanySerialiser):
         }
 
 
+class GetCompanyChangeRequestSerialiser(serializers.ModelSerializer):
+    """
+    Retrieve a change request without creating one.
+    """
+    changes = ChangeRequestChangesSerialiser()
+
+    class Meta:
+        model = ChangeRequest
+        fields = [
+            'id',
+            'duns_number',
+            'changes',
+            'status',
+            'created_on',
+        ]
+
 class InvestigationRequestSerializer(serializers.ModelSerializer):
     """
     Serialised representation of the Investigation object.

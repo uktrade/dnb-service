@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from .serialisers import CompanySearchInputSerialiser
 from company.models import ChangeRequest, Company, InvestigationRequest
-from company.serialisers import ChangeRequestSerialiser, CompanySerialiser, InvestigationRequestSerializer
+from company.serialisers import ChangeRequestSerialiser, CompanySerialiser, GetCompanyChangeRequestSerialiser, InvestigationRequestSerializer
 from dnb_direct_plus.api import company_list_search
 
 
@@ -57,6 +57,13 @@ class ChangeRequestAPIView(CreateAPIView):
     queryset = ChangeRequest.objects.all()
     serializer_class = ChangeRequestSerialiser
 
+class GetPendingChangeRequestAPIVIew(generics.ListAPIView):
+    """
+    Endpoint to get pending change requests for a specific duns number
+    """
+
+    queryset = ChangeRequest.objects.all()
+    serializer_class = GetCompanyChangeRequestSerialiser
 
 class InvestigationAPIView(CreateAPIView):
     """
