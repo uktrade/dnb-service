@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from .serialisers import CompanySearchInputSerialiser
 from company.models import ChangeRequest, Company, InvestigationRequest
-from company.serialisers import ChangeRequestSerialiser, CompanySerialiser, GetCompanyChangeRequestSerialiser, InvestigationRequestSerializer
+from company.serialisers import ChangeRequestSerialiser, CompanySerialiser, InvestigationRequestSerializer
 from dnb_direct_plus.api import company_list_search
 
 
