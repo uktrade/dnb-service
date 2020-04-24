@@ -364,8 +364,9 @@ class TestGetPendingChangeRequestAPIView:
     def test_requires_authentication(self, client):
         response = client.get(reverse('api:get-change-request'))
 
-        assert response.status_code
+        assert response.status_code == 401
 
+    
 
 class TestInvestigationApiView:
     """
