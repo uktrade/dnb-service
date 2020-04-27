@@ -88,8 +88,8 @@ def _get_investigation_request_row(investigation_request):
     company_details = investigation_request.company_details
     return {
         'ID': str(investigation_request.id),
-        'Name': company_details.get('name'),
-        'Address': ','.join(
+        'Name': company_details.get('primary_name'),
+        'Address': ', '.join(
             [
                 company_details.get(f'address_{address_field}', '')
                 for address_field in ADDRESS_FIELDS
@@ -129,6 +129,7 @@ def generate_investigation_request_csv(investigation_requests):
             _get_investigation_request_row(investigation_request)
         )
 
+    csv_file.seek(0)
     return csv_file
 
 
