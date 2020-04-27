@@ -177,24 +177,24 @@ class TestGenerateInvestigationRequestCSV:
                     'address_country': 'GB',
                     'address_postcode': 'ABC DEF',
                 },
-                (
-                    (
+                [
+                    [
                         'ID',
                         'Name',
                         'Address',
                         'Domain',
                         'Telephone Number',
                         'DUNS Number',
-                    ),
-                    (
+                    ],
+                    [
                         mock.ANY,
                         'Foo',
                         'Bar, Buz, London, London, ABC DEF, GB',
                         'foo.com',
                         '(+44) 123 45678',
                         '',
-                    ),
-                ),
+                    ],
+                ],
             ),
         ),
     )
@@ -205,7 +205,7 @@ class TestGenerateInvestigationRequestCSV:
         investigation_request = InvestigationRequest(company_details=company_details)
         content = generate_investigation_request_csv([investigation_request])
         reader = csv.reader(content, dialect='excel', delimiter=',')
-        [row for row in reader] == expected_output
+        assert [row for row in reader] == expected_output
 
 
 class TestSendInvestigationRequestBatch:
