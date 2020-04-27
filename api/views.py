@@ -61,7 +61,6 @@ class GetPendingChangeRequestAPIVIew(generics.ListAPIView):
     """
     Endpoint to get pending change requests for a specific duns number
     """
-
     queryset = ChangeRequest.objects.all()
     serializer_class = ChangeRequestSerialiser
 

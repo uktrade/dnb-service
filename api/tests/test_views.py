@@ -11,7 +11,7 @@ from rest_framework import status
 from company.constants import MonitoringStatusChoices
 from company.models import ChangeRequest, Company
 from company.serialisers import CompanySerialiser
-from company.tests.factories import CompanyFactory
+from company.tests.factories import ChangeRequestFactory, CompanyFactory
 from dnb_direct_plus.mapping import extract_company_data
 
 
@@ -361,12 +361,33 @@ class TestGetPendingChangeRequestAPIView:
     """
     Test the Get Pending Change Request endpoint
     """
+    def _iso_now(self):
+        return datetime.datetime.isoformat(datetime.datetime.now(), sep='T')
+
     def test_requires_authentication(self, client):
         response = client.get(reverse('api:get-change-request'))
 
         assert response.status_code == 401
 
-    
+    @freeze_time('2019-11-25 12:00:01 UTC')
+
+    def test_no_params_returns_all_results(self, auth_client):
+        duns_numbers = [
+            ChangeRequestFactory(duns_number='000000006', changes={'primary_name': 'bar'}), 
+            ChangeRequestFactory(duns_number='000000007', changes={'primary_name': 'baz'})
+        ]
+         
+        response = auth_client.get(
+            reverse('api:get-change-request'),
+            {},
+        )
+        
+        assert response.status_code == 200
+
+        result_data = response.json()
+        assert len(result_data['results']) == 2
+        assert result_data['count'] == 2
+        assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
 
 class TestInvestigationApiView:
     """
