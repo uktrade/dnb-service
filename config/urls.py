@@ -15,6 +15,7 @@ if settings.ENABLE_STAFF_SSO:
 urlpatterns = [
     *auth_urls,
     path('admin/', admin.site.urls),
+    path('api/workspace/', include('workspace.urls', namespace='workspace')),
     path('api/', include('api.urls', namespace='api')),
     path('healthcheck/', include('health_check.urls', namespace='healthcheck')),
     path('', include('django_prometheus.urls')),

@@ -2,11 +2,15 @@ import datetime
 import json
 
 import pytest
+
+from django.contrib.auth import get_user_model
+
 from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
 from requests.exceptions import HTTPError
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 
 from company.constants import MonitoringStatusChoices
 from company.models import ChangeRequest, Company
@@ -72,6 +76,7 @@ class TestCompanySearchView:
 
         assert response.status_code == 400
 
+
         expected_response = {
             'non_field_errors': ["At least one standalone field required: ['duns_number', 'search_term']."]
         }
@@ -83,6 +88,7 @@ class TestCompanySearchView:
         mocker,
         company_list_api_response_json,
     ):
+
         company_input_data = json.loads(company_list_api_response_json)
         company_input_data['searchCandidates'].pop()
         company_input_data['candidatesReturnedQuantity'] = 1
@@ -116,8 +122,9 @@ class TestCompanyUpdateView:
 
     @freeze_time('2019-11-25 12:00:01 UTC')
     def test_last_updated_field(self, auth_client):
-        CompanyFactory(last_updated=timezone.now() - datetime.timedelta(1))
-        company = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(1))
+        CompanyFactory(last_updated=timezone.now() - datetime.timedelta(1), source={'not_empty': True})
+        company = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(1), source={'not_empty': True})
+
         expected_company_data = CompanySerialiser(company).data
 
         response = auth_client.get(
@@ -144,8 +151,12 @@ class TestCompanyUpdateView:
         assert response.status_code == 400
         assert response.json() == {'detail': 'Invalid date: is-not-a-date'}
 
+
     def test_no_params_returns_all_results(self, auth_client):
-        duns_numbers = [CompanyFactory().duns_number, CompanyFactory().duns_number]
+        duns_numbers = [
+            CompanyFactory(source={'not_empty': True}).duns_number,
+            CompanyFactory(source={'not_empty': True}).duns_number
+        ]
 
         response = auth_client.get(
             reverse('api:company-updates'),
@@ -160,9 +171,10 @@ class TestCompanyUpdateView:
         assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
 
     @freeze_time('2019-11-25 12:00:01 UTC')
+
     def test_pagination(self, auth_client):
-        company1 = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(1))
-        company2 = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(2))
+        company1 = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(1), source={'not_empty': True})
+        company2 = CompanyFactory(last_updated=timezone.now() + datetime.timedelta(2), source={'not_empty': True})
 
         response = auth_client.get(
             reverse('api:company-updates'),
@@ -185,6 +197,19 @@ class TestCompanyUpdateView:
         assert response_data['next'] is None
         assert len(response_data['results']) == 1
         assert response_data['results'][0]['duns_number'] == company2.duns_number
+
+    def test_source_field_is_required(self, auth_client):
+
+        CompanyFactory(last_updated=timezone.now() - datetime.timedelta(1), source=None)
+
+        response = auth_client.get(
+            reverse('api:company-updates'),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert len(response_data['results']) == 0
 
 
 class TestChangeRequestApiView:
