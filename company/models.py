@@ -119,9 +119,9 @@ class Company(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
-    source = JSONField(null=True)
+    source = JSONField(null=True, blank=True)
 
-    worldbase_source = JSONField(null=True)
+    worldbase_source = JSONField(null=True, blank=True)
 
     worldbase_source_updated_timestamp = models.DateTimeField(
         null=True,
