@@ -379,12 +379,12 @@ class TestGetPendingChangeRequestAPIView:
             {},
         )
         
-        assert response.status_code# == 200
+        assert response.status_code == 200
 
         result_data = response.json()
-        #assert len(result_data['results']) == 2
-        #assert result_data['count'] == 2
-        #assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
+        assert len(result_data['results']) == 2
+        assert result_data['count'] == 2
+        assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
 
 class TestInvestigationApiView:
     """
