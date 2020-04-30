@@ -131,12 +131,20 @@ class WBUKCsvProcessor:
 
     def __iter__(self):
         for i, row in enumerate(self.csv_reader):
-            if i == 0:
+
+            is_first_row = i == 0
+
+            if is_first_row:
                 # UK data files always have a header row so we skip it
                 continue
 
             if len(row) != self.COLUMN_COUNT:
-                raise IndexError('row {} has {} columns; expected: {}'.format(i, len(row), self.COLUMN_COUNT))
+                message = 'row {} has {} columns; expected: {}'.format(i, len(row), self.COLUMN_COUNT)
+
+                if is_first_row:
+                    raise IndexError(message)
+                else:
+                    logger.warning(message)
 
             yield row[5:]
 
