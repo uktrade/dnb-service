@@ -32,6 +32,9 @@ def update_company(wb_data, creation_date):
 
     created = company.pk is None
 
+    if not created and company.worldbase_source_updated_timestamp and creation_date < company.worldbase_source_updated_timestamp:
+        raise ValueError(f'not updated {company.duns_number} as existing timestamp is newer')
+
     overwrite_fields = created or not company.source
 
     company.worldbase_source_updated_timestamp = creation_date
@@ -80,6 +83,9 @@ def process_csv_data(csv_data, creation_date=None):
     _creation_date = timezone.now() if not creation_date else timezone.make_aware(creation_date)
 
     for row_number, row_data in enumerate(csv_data, 1):
+
+        if row_number % 1000 == 0:
+            logger.info(f'Processing row: {row_number}')
 
         wb_data = dict(zip(WB_HEADER_FIELDS, row_data))
 
@@ -145,6 +151,7 @@ class WBUKCsvProcessor:
                     raise IndexError(message)
                 else:
                     logger.warning(message)
+                    continue
 
             yield row[5:]
 
