@@ -411,6 +411,26 @@ class TestGetPendingChangeRequestAPIView:
         assert result_data['count'] == 2
         assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
 
+    def test_only_returns_pending_requests(self, auth_client):
+        duns_numbers = duns_numbers = [
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending').duns_number, 
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending').duns_number, 
+            ChangeRequestFactory(changes={'primary_name': 'test3'}, status='submitted').duns_number, 
+            ChangeRequestFactory(changes={'primary_name': 'test4'}, status='submitted').duns_number, 
+            ]
+        
+        response = auth_client.get(
+            reverse('api:get-change-request'),
+            {},
+        )
+
+        assert response.status_code == 200
+
+        result_data = response.json()
+        assert len(result_data['results']) == 2
+        assert result_data['count'] == 2
+        assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
+
 class TestInvestigationApiView:
     """
     Test the investigation API endpoint.

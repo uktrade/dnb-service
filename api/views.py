@@ -60,9 +60,11 @@ class GetPendingChangeRequestAPIVIew(ListAPIView):
     """
     Endpoint to get pending change requests for a specific duns number
     """
-    queryset = ChangeRequest.objects.all()
     serializer_class = ChangeRequestSerialiser
     pagination_class = LimitOffsetPagination
+
+    def get_queryset(self):
+        return ChangeRequest.objects.filter(**{'status__contains': 'pending'})
 
 class InvestigationAPIView(CreateAPIView):
     """
