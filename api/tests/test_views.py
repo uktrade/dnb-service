@@ -394,7 +394,7 @@ class TestGetPendingChangeRequestAPIView:
 
         assert response.status_code == 401
 
-    @freeze_time('2019-11-25 12:00:01 UTC')
+    #@freeze_time('2019-11-25 12:00:01 UTC')
 
     def test_no_params_returns_all_results(self, auth_client):
         duns_numbers = [ChangeRequestFactory(changes={'primary_name': 'bar'}).duns_number, ChangeRequestFactory(changes={'primary_name': 'baz'}).duns_number]
@@ -421,7 +421,7 @@ class TestGetPendingChangeRequestAPIView:
         
         response = auth_client.get(
             reverse('api:get-change-request'),
-            {},
+            {'changerequest.status': 'pending'},
         )
 
         assert response.status_code == 200

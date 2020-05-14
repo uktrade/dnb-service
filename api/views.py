@@ -64,7 +64,11 @@ class GetPendingChangeRequestAPIVIew(ListAPIView):
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        return ChangeRequest.objects.filter(**{'status__contains': 'pending'})
+        queryset = ChangeRequest.objects.all()
+        status = self.request.query_params.get('status', None)
+        if status is not None:
+            queryset = queryset.filter(changerequest__status=status)
+        return queryset
 
 class InvestigationAPIView(CreateAPIView):
     """
