@@ -432,7 +432,7 @@ class TestGetPendingChangeRequestAPIView:
         result_data = response.json()
         assert len(result_data['results']) == 2
         assert result_data['count'] == 2
-        assert all(result['duns_number'] in change_requests for result in result_data['results'])
+        assert all(result['duns_number'] in pending_change_requests for result in result_data['results'])
 
     def test_will_not_return_submitted_requests(self, auth_client):
         change_requests = [
