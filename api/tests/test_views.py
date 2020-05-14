@@ -397,7 +397,10 @@ class TestGetPendingChangeRequestAPIView:
     #@freeze_time('2019-11-25 12:00:01 UTC')
 
     def test_no_params_returns_all_results(self, auth_client):
-        duns_numbers = [ChangeRequestFactory(changes={'primary_name': 'bar'}).duns_number, ChangeRequestFactory(changes={'primary_name': 'baz'}).duns_number]
+        duns_numbers = [
+            ChangeRequestFactory(changes={'primary_name': 'bar'}, status='pending').duns_number, 
+            ChangeRequestFactory(changes={'primary_name': 'baz'}, status='submitted').duns_number
+            ]
          
         response = auth_client.get(
             reverse('api:get-change-request'),
@@ -412,16 +415,18 @@ class TestGetPendingChangeRequestAPIView:
         assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
 
     def test_only_returns_pending_requests(self, auth_client):
-        duns_numbers = duns_numbers = [
+        pending_duns_numbers = [
             ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending').duns_number, 
             ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending').duns_number, 
-            ChangeRequestFactory(changes={'primary_name': 'test3'}, status='submitted').duns_number, 
-            ChangeRequestFactory(changes={'primary_name': 'test4'}, status='submitted').duns_number, 
-            ]
+        ]
+        
+        ChangeRequestFactory(changes={'primary_name': 'test3'}, status='submitted').duns_number 
+        ChangeRequestFactory(changes={'primary_name': 'test4'}, status='submitted').duns_number 
+
         
         response = auth_client.get(
             reverse('api:get-change-request'),
-            {'changerequest.status': 'pending'},
+            {'status': 'pending'},
         )
 
         assert response.status_code == 200
@@ -429,7 +434,33 @@ class TestGetPendingChangeRequestAPIView:
         result_data = response.json()
         assert len(result_data['results']) == 2
         assert result_data['count'] == 2
-        assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
+        assert all(result['duns_number'] in pending_duns_numbers for result in result_data['results'])
+    
+    def test_only_returns_pending_requests_with_specific_duns_number(self, auth_client):
+        change_requests = [
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000001'), 
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000002'), 
+            ChangeRequestFactory(changes={'primary_name': 'test3'}, status='pending', duns_number='123056789', id='00000000-0000-0000-0000-000000000003'), 
+            ChangeRequestFactory(changes={'primary_name': 'test4'}, status='pending', duns_number='123406789', id='00000000-0000-0000-0000-000000000004'), 
+        ]
+
+        response = auth_client.get(
+            reverse('api:get-change-request'),
+            {'status': 'pending', 'duns_number': '123456789'},
+        )
+
+        assert response.status_code == 200
+
+        result_data = response.json()
+
+        test_ids = ['00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002']
+
+        assert len(result_data['results']) == 2
+        assert result_data['count'] == 2
+
+        for result in result_data['results']:
+            assert result['id'] in test_ids
+            
 
 class TestInvestigationApiView:
     """

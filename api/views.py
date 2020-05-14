@@ -66,8 +66,14 @@ class GetPendingChangeRequestAPIVIew(ListAPIView):
     def get_queryset(self):
         queryset = ChangeRequest.objects.all()
         status = self.request.query_params.get('status', None)
+        duns_number = self.request.query_params.get('duns_number', None)
+        
         if status is not None:
-            queryset = queryset.filter(changerequest__status=status)
+            queryset = queryset.filter(status=status)
+
+        if duns_number is not None:
+            queryset = queryset.filter(duns_number=duns_number)
+
         return queryset
 
 class InvestigationAPIView(CreateAPIView):
