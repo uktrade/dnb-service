@@ -394,10 +394,8 @@ class TestGetPendingChangeRequestAPIView:
 
         assert response.status_code == 401
 
-    #@freeze_time('2019-11-25 12:00:01 UTC')
-
     def test_no_params_returns_all_results(self, auth_client):
-        duns_numbers = [
+        change_requests = [
             ChangeRequestFactory(changes={'primary_name': 'bar'}, status='pending').duns_number, 
             ChangeRequestFactory(changes={'primary_name': 'baz'}, status='submitted').duns_number
             ]
@@ -412,10 +410,10 @@ class TestGetPendingChangeRequestAPIView:
         result_data = response.json()
         assert len(result_data['results']) == 2
         assert result_data['count'] == 2
-        assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
+        assert all(result['duns_number'] in change_requests for result in result_data['results'])
 
     def test_only_returns_pending_requests(self, auth_client):
-        pending_duns_numbers = [
+        pending_change_requests = [
             ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending').duns_number, 
             ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending').duns_number, 
         ]
@@ -434,10 +432,10 @@ class TestGetPendingChangeRequestAPIView:
         result_data = response.json()
         assert len(result_data['results']) == 2
         assert result_data['count'] == 2
-        assert all(result['duns_number'] in pending_duns_numbers for result in result_data['results'])
+        assert all(result['duns_number'] in change_requests for result in result_data['results'])
 
     def test_will_not_return_submitted_requests(self, auth_client):
-        submitted_duns_numbers = [
+        change_requests = [
             ChangeRequestFactory(changes={'primary_name': 'test1'}, status='submitted', duns_number='123456789'), 
             ChangeRequestFactory(changes={'primary_name': 'test2'}, status='submitted', duns_number='123456789'), 
         ]
