@@ -460,7 +460,37 @@ class TestGetPendingChangeRequestAPIView:
 
         for result in result_data['results']:
             assert result['id'] in test_ids
-            
+    
+    def test_only_duns_param_returns_all_results(self, auth_client):
+        change_requests = [
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000001'), 
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000002'), 
+            ChangeRequestFactory(changes={'primary_name': 'test3'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000003'), 
+            ChangeRequestFactory(changes={'primary_name': 'test4'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000004'), 
+        ]
+
+        response = auth_client.get(
+            reverse('api:get-change-request'),
+            {'duns_number': '123456789'},
+        )
+
+        assert response.status_code == 200
+
+        result_data = response.json()
+
+        test_ids = [
+            '00000000-0000-0000-0000-000000000001', 
+            '00000000-0000-0000-0000-000000000002', 
+            '00000000-0000-0000-0000-000000000003', 
+            '00000000-0000-0000-0000-000000000004'
+            ]
+
+        assert len(result_data['results']) == 4
+        assert result_data['count'] == 4
+
+        for result in result_data['results']:
+            assert result['id'] in test_ids
+
 
 class TestInvestigationApiView:
     """
