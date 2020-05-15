@@ -395,7 +395,7 @@ class TestGetPendingChangeRequestAPIView:
         assert response.status_code == 401
 
     def test_no_params_returns_all_results(self, auth_client):
-        change_requests = [
+        duns_numbers = [
             ChangeRequestFactory(changes={'primary_name': 'bar'}, status='pending').duns_number, 
             ChangeRequestFactory(changes={'primary_name': 'baz'}, status='submitted').duns_number
             ]
@@ -410,16 +410,16 @@ class TestGetPendingChangeRequestAPIView:
         result_data = response.json()
         assert len(result_data['results']) == 2
         assert result_data['count'] == 2
-        assert all(result['duns_number'] in change_requests for result in result_data['results'])
+        assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
 
     def test_only_returns_pending_requests(self, auth_client):
-        pending_change_requests = [
-            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending').duns_number, 
-            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending').duns_number, 
+        pending_duns_numbers = [
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending'), 
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending'), 
         ]
         
-        ChangeRequestFactory(changes={'primary_name': 'test3'}, status='submitted').duns_number 
-        ChangeRequestFactory(changes={'primary_name': 'test4'}, status='submitted').duns_number 
+        ChangeRequestFactory(changes={'primary_name': 'test3'}, status='submitted')
+        ChangeRequestFactory(changes={'primary_name': 'test4'}, status='submitted')
 
         
         response = auth_client.get(
@@ -432,7 +432,6 @@ class TestGetPendingChangeRequestAPIView:
         result_data = response.json()
         assert len(result_data['results']) == 2
         assert result_data['count'] == 2
-        assert all(result['duns_number'] in pending_change_requests for result in result_data['results'])
 
     def test_will_not_return_submitted_requests(self, auth_client):
         change_requests = [
@@ -448,8 +447,6 @@ class TestGetPendingChangeRequestAPIView:
         assert response.status_code == 200
 
         result_data = response.json()
-
-        print(result_data['results'])
 
         assert result_data['results'] == []
         assert result_data['count'] == 0
