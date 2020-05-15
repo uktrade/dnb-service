@@ -386,9 +386,6 @@ class TestGetPendingChangeRequestAPIView:
     """
     Test the Get Pending Change Request endpoint
     """
-    def _iso_now(self):
-        return datetime.datetime.isoformat(datetime.datetime.now(), sep='T')
-
     def test_requires_authentication(self, client):
         response = client.get(reverse('api:get-change-request'))
 
