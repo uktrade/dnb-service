@@ -462,6 +462,12 @@ class TestGetPendingChangeRequestAPIView:
             ChangeRequestFactory(changes={'primary_name': 'test4'}, status='pending', duns_number='123406789', id='00000000-0000-0000-0000-000000000004'), 
         ]
 
+        test_ids = []
+
+        for request in change_requests:
+            if request.duns_number == '123456789':
+                test_ids.append(request.id)
+
         response = auth_client.get(
             reverse('api:get-change-request'),
             {'status': 'pending', 'duns_number': '123456789'},
@@ -470,8 +476,6 @@ class TestGetPendingChangeRequestAPIView:
         assert response.status_code == 200
 
         result_data = response.json()
-
-        test_ids = ['00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002']
 
         assert len(result_data['results']) == 2
         assert result_data['count'] == 2
@@ -487,6 +491,11 @@ class TestGetPendingChangeRequestAPIView:
             ChangeRequestFactory(changes={'primary_name': 'test4'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000004'), 
         ]
 
+        test_ids = []
+
+        for request in change_requests:
+            test_ids.append(request.id)
+
         response = auth_client.get(
             reverse('api:get-change-request'),
             {'duns_number': '123456789'},
@@ -496,19 +505,11 @@ class TestGetPendingChangeRequestAPIView:
 
         result_data = response.json()
 
-        test_ids = [
-            '00000000-0000-0000-0000-000000000001', 
-            '00000000-0000-0000-0000-000000000002', 
-            '00000000-0000-0000-0000-000000000003', 
-            '00000000-0000-0000-0000-000000000004'
-            ]
-
         assert len(result_data['results']) == 4
         assert result_data['count'] == 4
 
         for result in result_data['results']:
             assert result['id'] in test_ids
-
 
 class TestInvestigationApiView:
     """
