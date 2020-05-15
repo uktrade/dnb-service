@@ -433,23 +433,26 @@ class TestGetPendingChangeRequestAPIView:
         assert len(result_data['results']) == 2
         assert result_data['count'] == 2
 
-    def test_will_not_return_submitted_requests(self, auth_client):
-        change_requests = [
-            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='submitted', duns_number='123456789'), 
-            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='submitted', duns_number='123456789'), 
+    def test_only_returns_submitted_requests(self, auth_client):
+        submitted_duns_numbers = [
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='submitted'), 
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='submitted'), 
         ]
-    
+        
+        ChangeRequestFactory(changes={'primary_name': 'test3'}, status='pending')
+        ChangeRequestFactory(changes={'primary_name': 'test4'}, status='pending')
+
+        
         response = auth_client.get(
             reverse('api:get-change-request'),
-            {'status': 'pending', 'duns_number': '123456789'},
+            {'status': 'submitted'},
         )
 
         assert response.status_code == 200
 
         result_data = response.json()
-
-        assert result_data['results'] == []
-        assert result_data['count'] == 0
+        assert len(result_data['results']) == 2
+        assert result_data['count'] == 2
     
     def test_only_returns_pending_requests_with_specific_duns_number(self, auth_client):
         change_requests = [
