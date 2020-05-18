@@ -382,13 +382,14 @@ class TestChangeRequestApiView:
         assert change_request.duns_number == request_data['duns_number']
         assert change_request.changes == request_data['changes']
 
+    @freeze_time('2020-05-18 12:00:01 UTC')
     def test_no_params_returns_all_results(self, auth_client):
         """
         Test that all change requests return if no filter parameters are specified.
         """
         duns_numbers = [
-            ChangeRequestFactory(changes={'primary_name': 'bar'}, status='pending').duns_number, 
-            ChangeRequestFactory(changes={'primary_name': 'baz'}, status='submitted').duns_number
+            ChangeRequestFactory(changes={'primary_name': 'bar'}, status='pending', id='00000000-0000-0000-0000-000000000001').duns_number, 
+            ChangeRequestFactory(changes={'primary_name': 'baz'}, status='submitted', id='00000000-0000-0000-0000-000000000002').duns_number
             ]
          
         response = auth_client.get(
@@ -401,7 +402,32 @@ class TestChangeRequestApiView:
         result_data = response.json()
         assert len(result_data['results']) == 2
         assert result_data['count'] == 2
-        assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
+
+        print(response.json())
+
+        expected_result_data = {
+            'count': 2, 
+            'next': None, 
+            'previous': None, 
+            'results': [
+                {
+                    'id': '00000000-0000-0000-0000-000000000001',
+                    'duns_number': '000000000', 
+                    'changes': {'primary_name': 'bar'}, 
+                    'status': 'pending', 
+                    'created_on': '2020-05-18T12:00:01Z'
+                }, 
+                {
+                    'id': '00000000-0000-0000-0000-000000000002',
+                    'duns_number': '000000001', 
+                    'changes': {'primary_name': 'baz'}, 
+                    'status': 'submitted', 
+                    'created_on': '2020-05-18T12:00:01Z'
+                }
+            ]
+        }
+        
+        assert result_data == expected_result_data
 
     def test_only_returns_pending_requests(self, auth_client):
         """
