@@ -387,7 +387,7 @@ class TestGetPendingChangeRequestAPIView:
     Test the Get Pending Change Request endpoint
     """
     def test_requires_authentication(self, client):
-        response = client.get(reverse('api:get-change-request'))
+        response = client.get(reverse('api:change-request'))
 
         assert response.status_code == 401
 
@@ -398,7 +398,7 @@ class TestGetPendingChangeRequestAPIView:
             ]
          
         response = auth_client.get(
-            reverse('api:get-change-request'),
+            reverse('api:change-request'),
             {},
         )
         
@@ -420,7 +420,7 @@ class TestGetPendingChangeRequestAPIView:
 
         
         response = auth_client.get(
-            reverse('api:get-change-request'),
+            reverse('api:change-request'),
             {'status': 'pending'},
         )
 
@@ -441,7 +441,7 @@ class TestGetPendingChangeRequestAPIView:
 
         
         response = auth_client.get(
-            reverse('api:get-change-request'),
+            reverse('api:change-request'),
             {'status': 'submitted'},
         )
 
@@ -456,7 +456,7 @@ class TestGetPendingChangeRequestAPIView:
             ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000001'), 
             ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000002'), 
             ChangeRequestFactory(changes={'primary_name': 'test3'}, status='pending', duns_number='123056789', id='00000000-0000-0000-0000-000000000003'), 
-            ChangeRequestFactory(changes={'primary_name': 'test4'}, status='pending', duns_number='123406789', id='00000000-0000-0000-0000-000000000004'), 
+            ChangeRequestFactory(changes={'primary_name': 'test4'}, status='pending', duns_number='123406780', id='00000000-0000-0000-0000-000000000004'), 
         ]
 
         test_ids = []
@@ -466,7 +466,7 @@ class TestGetPendingChangeRequestAPIView:
                 test_ids.append(request.id)
 
         response = auth_client.get(
-            reverse('api:get-change-request'),
+            reverse('api:change-request'),
             {'status': 'pending', 'duns_number': '123456789'},
         )
 
@@ -485,16 +485,17 @@ class TestGetPendingChangeRequestAPIView:
             ChangeRequestFactory(changes={'primary_name': 'test1'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000001'), 
             ChangeRequestFactory(changes={'primary_name': 'test2'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000002'), 
             ChangeRequestFactory(changes={'primary_name': 'test3'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000003'), 
-            ChangeRequestFactory(changes={'primary_name': 'test4'}, duns_number='123456780', id='00000000-0000-0000-0000-000000000004'), 
+            ChangeRequestFactory(changes={'primary_name': 'test4'}, duns_number='123456700', id='00000000-0000-0000-0000-000000000004'), 
         ]
 
         test_ids = []
 
         for request in change_requests:
-            test_ids.append(request.id)
+            if request.duns_number == '123456789':
+                test_ids.append(request.id)
 
         response = auth_client.get(
-            reverse('api:get-change-request'),
+            reverse('api:change-request'),
             {'duns_number': '123456789'},
         )
 

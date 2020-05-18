@@ -1,7 +1,7 @@
 import datetime
 
 from requests.exceptions import HTTPError
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -49,16 +49,9 @@ class CompanyUpdatesAPIView(ListAPIView):
         return queryset
 
 
-class ChangeRequestAPIView(CreateAPIView):
+class ChangeRequestAPIView(ListCreateAPIView):
     """
-    Endpoint to save a new ChangeRequest record on POST.
-    """
-    queryset = ChangeRequest.objects.all()
-    serializer_class = ChangeRequestSerialiser
-
-class GetPendingChangeRequestAPIVIew(ListAPIView):
-    """
-    Endpoint to get pending change requests for a specific duns number
+    Endpoint to save a new ChangeRequest record on POST, and also to retrieve lists of change requests based on status and DUNS number on GET.
     """
     serializer_class = ChangeRequestSerialiser
     pagination_class = LimitOffsetPagination
