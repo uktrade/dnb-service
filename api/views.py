@@ -57,6 +57,9 @@ class ChangeRequestAPIView(ListCreateAPIView):
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
+        """
+        Filters ChangeRequest records by status and by DUNS number, individually and together.
+        """
         queryset = ChangeRequest.objects.all()
         status = self.request.query_params.get('status', None)
         duns_number = self.request.query_params.get('duns_number', None)
