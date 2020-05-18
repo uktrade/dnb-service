@@ -382,11 +382,6 @@ class TestChangeRequestApiView:
         assert change_request.duns_number == request_data['duns_number']
         assert change_request.changes == request_data['changes']
 
-    def test_requires_authentication(self, client):
-        response = client.get(reverse('api:change-request'))
-
-        assert response.status_code == 401
-
     def test_no_params_returns_all_results(self, auth_client):
         duns_numbers = [
             ChangeRequestFactory(changes={'primary_name': 'bar'}, status='pending').duns_number, 
