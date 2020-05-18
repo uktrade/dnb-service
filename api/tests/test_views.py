@@ -382,10 +382,6 @@ class TestChangeRequestApiView:
         assert change_request.duns_number == request_data['duns_number']
         assert change_request.changes == request_data['changes']
 
-class TestGetPendingChangeRequestAPIView:
-    """
-    Test the Get Pending Change Request endpoint
-    """
     def test_requires_authentication(self, client):
         response = client.get(reverse('api:change-request'))
 
