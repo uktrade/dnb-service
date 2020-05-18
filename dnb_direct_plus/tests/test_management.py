@@ -113,7 +113,7 @@ class TestProcessMonitoringData:
         if archive_file:
             mocked_archive_file.assert_called_once_with(file_name)
 
-    def test_processed_file_success(self, mocker, cmpelk_api_response_json):
+    def test_processed_file_success(self, mocker, cmpelk_api_response_json, caplog):
         company = CompanyFactory()
 
         update_data = [{
@@ -145,6 +145,7 @@ class TestProcessMonitoringData:
         mocked_list_files.return_value = [file_name]
 
         out = StringIO()
+        caplog.set_level('INFO')
 
         call_command('process_monitoring_data', stdout=out)
 
@@ -154,4 +155,4 @@ class TestProcessMonitoringData:
         assert record.file_name == file_name
         assert record.total == 2
         assert record.failed == 1
-
+        assert caplog.messages[-1] == 'A total of 1 companies were updated.'

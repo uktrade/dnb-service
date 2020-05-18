@@ -136,7 +136,6 @@ class TestCompanyUpdateView:
         assert response.json() == {
             'next': None,
             'previous': None,
-            'count': 1,
             'results': [
                 expected_company_data
             ],
@@ -167,7 +166,6 @@ class TestCompanyUpdateView:
 
         result_data = response.json()
         assert len(result_data['results']) == 2
-        assert result_data['count'] == 2
         assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
 
     @freeze_time('2019-11-25 12:00:01 UTC')
@@ -185,7 +183,6 @@ class TestCompanyUpdateView:
         response_data = response.json()
         assert response_data['next'] is not None
         assert len(response_data['results']) == 1
-        assert response_data['count'] == 2
         assert response_data['results'][0]['duns_number'] == company1.duns_number
 
         response = auth_client.get(

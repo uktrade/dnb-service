@@ -33,6 +33,9 @@ class Command(BaseCommand):
             .copy_from(CopySource=settings.DNB_MONITORING_S3_BUCKET + '/' + file_name)
         self.s3_client.Object(settings.DNB_MONITORING_S3_BUCKET, file_name).delete()
 
+    def _sum_total(self, summary):
+        return sum(line['total'] - line['failed'] for line in summary)
+
     def handle(self, *args, **options):
         files = self._list_files()
 
@@ -78,6 +81,8 @@ class Command(BaseCommand):
 
         summary_text = '\n'.join(
             '{file}\t\tTotal: {total}\tFailed: {failed}'.format(**line) for line in summary)
+
+        logger.info(f'A total of {self._sum_total(summary)} companies were updated.')
 
         if summary_text:
             self.stdout.write(summary_text)
