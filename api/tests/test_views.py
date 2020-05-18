@@ -383,6 +383,9 @@ class TestChangeRequestApiView:
         assert change_request.changes == request_data['changes']
 
     def test_no_params_returns_all_results(self, auth_client):
+        """
+        Test that all change requests return if no filter parameters are specified.
+        """
         duns_numbers = [
             ChangeRequestFactory(changes={'primary_name': 'bar'}, status='pending').duns_number, 
             ChangeRequestFactory(changes={'primary_name': 'baz'}, status='submitted').duns_number
@@ -401,6 +404,9 @@ class TestChangeRequestApiView:
         assert all(result['duns_number'] in duns_numbers for result in result_data['results'])
 
     def test_only_returns_pending_requests(self, auth_client):
+        """
+        Test that all pending change requests can be returned, for any company.
+        """
         pending_duns_numbers = [
             ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending'), 
             ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending'), 
@@ -422,6 +428,9 @@ class TestChangeRequestApiView:
         assert result_data['count'] == 2
 
     def test_only_returns_submitted_requests(self, auth_client):
+        """
+        Test that all submitted change requests can be returned, for any company.
+        """
         submitted_duns_numbers = [
             ChangeRequestFactory(changes={'primary_name': 'test1'}, status='submitted'), 
             ChangeRequestFactory(changes={'primary_name': 'test2'}, status='submitted'), 
@@ -443,6 +452,9 @@ class TestChangeRequestApiView:
         assert result_data['count'] == 2
     
     def test_only_returns_pending_requests_with_specific_duns_number(self, auth_client):
+        """
+        Test that all pending change requests are returned for a specific company.
+        """
         change_requests = [
             ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000001'), 
             ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000002'), 
@@ -472,6 +484,9 @@ class TestChangeRequestApiView:
             assert result['id'] in test_ids
     
     def test_only_duns_param_returns_all_results(self, auth_client):
+        """
+        Test that all change requests for a company can be returned.
+        """
         change_requests = [
             ChangeRequestFactory(changes={'primary_name': 'test1'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000001'), 
             ChangeRequestFactory(changes={'primary_name': 'test2'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000002'), 
