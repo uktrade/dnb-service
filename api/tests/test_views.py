@@ -485,7 +485,7 @@ class TestGetPendingChangeRequestAPIView:
             ChangeRequestFactory(changes={'primary_name': 'test1'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000001'), 
             ChangeRequestFactory(changes={'primary_name': 'test2'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000002'), 
             ChangeRequestFactory(changes={'primary_name': 'test3'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000003'), 
-            ChangeRequestFactory(changes={'primary_name': 'test4'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000004'), 
+            ChangeRequestFactory(changes={'primary_name': 'test4'}, duns_number='123456780', id='00000000-0000-0000-0000-000000000004'), 
         ]
 
         test_ids = []
@@ -502,8 +502,8 @@ class TestGetPendingChangeRequestAPIView:
 
         result_data = response.json()
 
-        assert len(result_data['results']) == 4
-        assert result_data['count'] == 4
+        assert len(result_data['results']) == 3
+        assert result_data['count'] == 3
 
         for result in result_data['results']:
             assert result['id'] in test_ids
