@@ -281,3 +281,4 @@ class InvestigationRequestSerializer(serializers.ModelSerializer):
         investigation_request = InvestigationRequest(**validated_data)
         investigation_request.save()
         return investigation_request
+        

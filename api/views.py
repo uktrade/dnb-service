@@ -51,7 +51,9 @@ class CompanyUpdatesAPIView(ListAPIView):
 
 class ChangeRequestAPIView(ListCreateAPIView):
     """
-    Endpoint to save a new ChangeRequest record on POST, and also to retrieve lists of change requests based on status and DUNS number on GET.
+    Endpoint to save a new ChangeRequest record on POST.
+    
+    It also retrieves filtered lists of ChangeRequests on GET.
     """
     serializer_class = ChangeRequestSerialiser
     pagination_class = LimitOffsetPagination

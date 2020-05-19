@@ -385,8 +385,16 @@ class TestChangeRequestApiView:
         Test that all change requests return if no filter parameters are specified.
         """
         duns_numbers = [
-            ChangeRequestFactory(changes={'primary_name': 'bar'}, status='pending', id='00000000-0000-0000-0000-000000000001').duns_number, 
-            ChangeRequestFactory(changes={'primary_name': 'baz'}, status='submitted', id='00000000-0000-0000-0000-000000000002').duns_number
+            ChangeRequestFactory(
+                changes={'primary_name': 'bar'}, 
+                status='pending', 
+                id='00000000-0000-0000-0000-000000000001'
+                ).duns_number, 
+            ChangeRequestFactory(
+                changes={'primary_name': 'baz'}, 
+                status='submitted', 
+                id='00000000-0000-0000-0000-000000000002'
+                ).duns_number
             ]
          
         response = auth_client.get(
@@ -397,10 +405,7 @@ class TestChangeRequestApiView:
         assert response.status_code == 200
 
         result_data = response.json()
-        assert len(result_data['results']) == 2
         assert result_data['count'] == 2
-
-        print(response.json())
 
         expected_result_data = {
             'count': 2, 
@@ -426,13 +431,14 @@ class TestChangeRequestApiView:
         
         assert result_data == expected_result_data
 
+    @freeze_time('2020-05-18 12:00:01 UTC')
     def test_only_returns_pending_requests(self, auth_client):
         """
         Test that all pending change requests can be returned, for any company.
         """
         pending_duns_numbers = [
-            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending'), 
-            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending'), 
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', id='00000000-0000-0000-0000-000000000001'), 
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', id='00000000-0000-0000-0000-000000000002'), 
         ]
         
         ChangeRequestFactory(changes={'primary_name': 'test3'}, status='submitted')
@@ -447,8 +453,34 @@ class TestChangeRequestApiView:
         assert response.status_code == 200
 
         result_data = response.json()
-        assert len(result_data['results']) == 2
         assert result_data['count'] == 2
+
+        print(result_data)
+
+        expected_result_data = {
+            'count': 2, 
+            'next': None, 
+            'previous': None, 
+            'results': [
+                {
+                    'id': '00000000-0000-0000-0000-000000000002',
+                    'duns_number': '000000003', 
+                    'changes': {'primary_name': 'test2'}, 
+                    'status': 'pending', 
+                    'created_on': '2020-05-18T12:00:01Z'
+                },
+                {
+                    'id': '00000000-0000-0000-0000-000000000001',
+                    'duns_number': '000000002', 
+                    'changes': {'primary_name': 'test1'}, 
+                    'status': 'pending', 
+                    'created_on': '2020-05-18T12:00:01Z'
+                }
+                
+            ]
+        }
+        
+        assert result_data == expected_result_data
 
     def test_only_returns_submitted_requests(self, auth_client):
         """
