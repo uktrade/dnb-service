@@ -1,10 +1,11 @@
 import datetime
 
 from requests.exceptions import HTTPError
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import LimitOffsetPagination
 
 from company.models import ChangeRequest, Company, InvestigationRequest
 from company.serialisers import ChangeRequestSerialiser, CompanySerialiser, InvestigationRequestSerializer
@@ -48,13 +49,30 @@ class CompanyUpdatesAPIView(ListAPIView):
         return queryset
 
 
-class ChangeRequestAPIView(CreateAPIView):
+class ChangeRequestAPIView(ListCreateAPIView):
     """
     Endpoint to save a new ChangeRequest record on POST.
+    
+    It also retrieves filtered lists of ChangeRequests on GET.
     """
-    queryset = ChangeRequest.objects.all()
     serializer_class = ChangeRequestSerialiser
+    pagination_class = LimitOffsetPagination
 
+    def get_queryset(self):
+        """
+        Filters ChangeRequest records by status and by DUNS number, individually and together.
+        """
+        queryset = ChangeRequest.objects.all()
+        status = self.request.query_params.get('status', None)
+        duns_number = self.request.query_params.get('duns_number', None)
+        
+        if status is not None:
+            queryset = queryset.filter(status=status)
+
+        if duns_number is not None:
+            queryset = queryset.filter(duns_number=duns_number)
+
+        return queryset
 
 class InvestigationAPIView(CreateAPIView):
     """
