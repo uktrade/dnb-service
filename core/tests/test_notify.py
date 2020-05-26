@@ -35,7 +35,7 @@ def test_notify_by_email_with_file(monkeypatch):
     }
     expected_personalisation = {
         **context,
-        'file': {'file': 'Zm9vIGJhciBiYXo='},
+        'file': {'file': 'Zm9vIGJhciBiYXo=', 'is_csv': False},
     }
     notify_by_email(email_address, template_id, context)
     notifications_client_mock.send_email_notification.assert_called_with(
