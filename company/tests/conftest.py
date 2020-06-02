@@ -1,3 +1,4 @@
+import codecs
 import io
 
 import pytest
@@ -12,7 +13,7 @@ def get_csv_bytes():
     """
     def _get_csv_bytes(investigation):
         return io.BytesIO(
-            generate_investigation_request_csv(
+            codecs.BOM_UTF8 + generate_investigation_request_csv(
                 investigation,
             ).getvalue().encode('utf-8')
         ).getvalue()

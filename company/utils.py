@@ -1,4 +1,5 @@
 import io
+import codecs
 import csv
 from copy import deepcopy
 
@@ -45,7 +46,7 @@ def _get_change_request_row(change_request):
 
 def _convert_stringio_to_bytesio(stringio_file):
     stringio_file.seek(0)
-    bytesio_file = io.BytesIO(stringio_file.read().encode('utf-8'))
+    bytesio_file = io.BytesIO(codecs.BOM_UTF8 + stringio_file.read().encode('utf-8'))
     return bytesio_file
 
 

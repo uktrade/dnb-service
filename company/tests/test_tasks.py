@@ -1,3 +1,4 @@
+import codecs
 from base64 import b64encode
 from unittest import mock
 
@@ -87,11 +88,11 @@ class TestSendPendingChangeRequests:
         # Simulate the effect of notifications_python_client.utils.prepare_upload to set expected file content
         # See: https://github.com/alphagov/notifications-python-client/blob/master/notifications_python_client/utils.py
         expected_batch_1 = (
-            b"duns_number,changes\r\n000000005,Business Name: foo; Trading Name(s): ['foo ltd']\r\n000000006,"
+            codecs.BOM_UTF8 + b"duns_number,changes\r\n000000005,Business Name: foo; Trading Name(s): ['foo ltd']\r\n000000006,"
             b'Business Name: bar\r\n'
         )
         expected_batch_1_encoded = b64encode(expected_batch_1).decode('ascii')
-        expected_batch_2 = b'duns_number,changes\r\n000000007,Business Name: baz\r\n'
+        expected_batch_2 = codecs.BOM_UTF8 + b'duns_number,changes\r\n000000007,Business Name: baz\r\n'
         expected_batch_2_encoded = b64encode(expected_batch_2).decode('ascii')
 
         mocked_send_email_notification.assert_has_calls(
