@@ -69,7 +69,7 @@ class TestGenerateChangeRequestCSV:
         ]
         csv_file = generate_change_request_csv([partial_change_request, full_change_request])
         # Convert the byte file object in to a string
-        csv_file_contents = csv_file.read().decode('utf-8')
+        csv_file_contents = csv_file.read().decode('utf-8-sig')
         # Put the string CSV content in to a StringIO object so that we can use the csv module to read it
         csv_file_stringio = io.StringIO(csv_file_contents)
         reader = csv.reader(csv_file_stringio, dialect='excel', delimiter=',')
@@ -297,4 +297,4 @@ class TestSendInvestigationRequestBatch:
             )
 
         assert investigation_request.status == InvestigationRequestStatus.pending.name
-        assert investigation_request.submitted_on == None
+        assert investigation_request.submitted_on is None
