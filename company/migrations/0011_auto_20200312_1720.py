@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('company', '0014_auto_20200325_1520'),
+        ('company', '0010_auto_20191202_2140'),
     ]
 
     operations = [
@@ -19,11 +19,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='company',
             name='worldbase_source',
-            field=django.contrib.postgres.fields.jsonb.JSONField(null=True, blank=True),
-        ),
-        migrations.AlterField(
-            model_name='company',
-            name='worldbase_source',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True),
+            field=django.contrib.postgres.fields.jsonb.JSONField(null=True),
         ),
     ]
+
