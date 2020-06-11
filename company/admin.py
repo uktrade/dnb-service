@@ -50,4 +50,6 @@ class ChangeRequestAdmin(admin.ModelAdmin):
 
 @admin.register(InvestigationRequest)
 class InvestigationRequestAdmin(admin.ModelAdmin):
-    list_display = ('id', 'status', 'created_on')
+    list_display = ('id', 'status', 'created_on', 'submitted_on')
+    list_filter = ('status', 'created_on', 'submitted_on')
+    search_fields = ('id', )
