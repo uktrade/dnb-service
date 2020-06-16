@@ -43,9 +43,13 @@ class CountryAdmin(admin.ModelAdmin):
 
 @admin.register(ChangeRequest)
 class ChangeRequestAdmin(admin.ModelAdmin):
-    list_display = ('duns_number', 'status', 'created_on')
+    list_display = ('id', 'duns_number', 'status', 'created_on', 'submitted_on')
+    list_filter = ('status', 'created_on', 'submitted_on', )
+    search_fields = ('id', 'duns_number')
 
 
 @admin.register(InvestigationRequest)
 class InvestigationRequestAdmin(admin.ModelAdmin):
-    list_display = ('id', 'status', 'created_on')
+    list_display = ('id', 'status', 'created_on', 'submitted_on')
+    list_filter = ('status', 'created_on', 'submitted_on')
+    search_fields = ('id', )
