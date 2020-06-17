@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_prometheus',
+    'elasticapm.contrib.django',
     'api',
     'company',
     'core',
@@ -251,3 +252,15 @@ if env.bool('ENABLE_INVESTIGATION_REQUESTS_SUBMISSION', False):
         'task': 'company.tasks.send_pending_investigation_requests',
         'schedule': crontab(minute=0, hour=2,),
     }
+
+
+# Elastic APM settings
+
+ELASTIC_APM_ENVIRONMENT = env('SENTRY_ENVIRONMENT')
+
+ELASTIC_APM = {
+  'SERVICE_NAME': 'dnb-service',
+  'SECRET_TOKEN': env('ELASTIC_APM_SECRET_TOKEN'),
+  'SERVER_URL' : env('ELASTIC_APM_URL'),
+  'ENVIRONMENT': ELASTIC_APM_ENVIRONMENT,
+}

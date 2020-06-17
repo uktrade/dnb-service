@@ -16,6 +16,7 @@ backoff
 django-prometheus
 smart-open
 notifications-python-client==5.6.0
+elastic-apm
 
 whitenoise
 gunicorn
