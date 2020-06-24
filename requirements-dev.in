@@ -22,4 +22,4 @@ factory_boy
 docutils
 django-extensions
 watchdog[watchmedo]
-codecov
+codecov>=2.1.0
