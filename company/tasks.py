@@ -3,6 +3,7 @@ import logging
 from celery import shared_task
 from django.conf import settings
 from django.utils.timezone import now
+from requests.exceptions import HTTPError
 
 from company.constants import ChangeRequestStatus, InvestigationRequestStatus
 from company.models import ChangeRequest, InvestigationRequest
@@ -40,7 +41,11 @@ def send_pending_change_requests():
 
     batches = get_batches(pending_change_requests, settings.CHANGE_REQUESTS_BATCH_SIZE)
     for batch, batch_identifier in batches:
-        send_change_request_batch(batch, batch_identifier)
+        try:
+            send_change_request_batch(batch, batch_identifier)
+            logger.info(f'Successfully processed batch: {batch_identifier}')
+        except HTTPError:
+            logger.exception(f'Failed to process batch: {batch_identifier}')
 
 
 @shared_task
@@ -61,4 +66,8 @@ def send_pending_investigation_requests():
     )
 
     for batch, batch_identifier in batches:
-        send_investigation_request_batch(batch, batch_identifier)
+        try:
+            send_investigation_request_batch(batch, batch_identifier)
+            logger.info(f'Successfully processed batch: {batch_identifier}')
+        except HTTPError:
+            logger.exception(f'Failed to process batch: {batch_identifier}')

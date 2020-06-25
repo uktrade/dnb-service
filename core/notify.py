@@ -29,4 +29,5 @@ def notify_by_email(email_address, template_identifier, context, is_csv=False):
         template_id=template_identifier,
         personalisation=context,
     )
+    response.raise_for_status()
     return response
