@@ -1,10 +1,12 @@
 import codecs
+import logging
 from base64 import b64encode
 from unittest import mock
 
 import pytest
 from django.test import override_settings
 from freezegun import freeze_time
+from requests.exceptions import HTTPError
 
 from company.constants import ChangeRequestStatus, InvestigationRequestStatus
 from company.models import InvestigationRequest
@@ -75,6 +77,7 @@ class TestSendPendingChangeRequests:
         """
         mocked_notifications_client = mock.Mock()
         mocked_send_email_notification = mocked_notifications_client.send_email_notification
+        mocked_send_email_notification.side_effect = mock.Mock(status_code=200)
         monkeypatch.setattr('core.notify.notifications_client', mocked_notifications_client)
 
         ChangeRequestFactory(
@@ -115,6 +118,38 @@ class TestSendPendingChangeRequests:
                 ),
             ],
         )
+
+    @override_settings(CHANGE_REQUESTS_BATCH_SIZE=1)
+    @override_settings(CHANGE_REQUESTS_RECIPIENTS=['foo@example.net'])
+    @mock.patch('core.notify.notifications_client')
+    def test_notify_error(self, mock_notify, caplog):
+        """
+        Test that when D&B service returns an error for a given batch, we log the error and process
+        subsequent batches.
+        """
+        caplog.set_level(logging.INFO)
+        with freeze_time('2019-11-25 12:00:01 UTC') as frozen_datetime:
+            change_request_1 = ChangeRequestFactory(changes={'primary_name': 'foo'})
+            # Ensure consistent ordering
+            frozen_datetime.tick()
+            change_request_2 = ChangeRequestFactory(changes={'primary_name': 'foo'})
+
+            mock_notify.send_email_notification = mock.Mock()
+            mock_notify.send_email_notification.side_effect = (
+                HTTPError(response=mock.Mock(status_code=400)),
+                mock.Mock(status_code=200),
+            )
+
+            send_pending_change_requests.apply()
+
+        assert caplog.messages[0] == 'Failed to process batch: Monday 25 November 2019'
+        assert caplog.messages[1] == 'Successfully processed batch: Monday 25 November 2019 Part 2'
+
+        change_request_1.refresh_from_db()
+        change_request_2.refresh_from_db()
+
+        assert change_request_1.status == 'pending'
+        assert change_request_2.status == 'submitted'
 
 
 class TestSendPendingInvestigationRequests:
@@ -199,3 +234,35 @@ class TestSendPendingInvestigationRequests:
                 'link_to_file': {'file': b64encode(csv_bytes).decode('ascii'), 'is_csv': True},
             },
         )
+
+    @override_settings(INVESTIGATION_REQUESTS_BATCH_SIZE=1)
+    @override_settings(INVESTIGATION_REQUESTS_RECIPIENTS=['foo@example.net'])
+    @mock.patch('core.notify.notifications_client')
+    def test_notify_error(self, mock_notify, company_details, caplog):
+        """
+        Test that when D&B service returns an error for a given batch, we log the error and process
+        subsequent batches.
+        """
+        caplog.set_level(logging.INFO)
+        with freeze_time('2019-11-25 12:00:01 UTC') as frozen_datetime:
+            investigation1 = InvestigationRequest.objects.create(company_details=company_details)
+            # Ensure consistent ordering
+            frozen_datetime.tick()
+            investigation2 = InvestigationRequest.objects.create(company_details=company_details)
+
+            mock_notify.send_email_notification = mock.Mock()
+            mock_notify.send_email_notification.side_effect = (
+                HTTPError(response=mock.Mock(status_code=400)),
+                mock.Mock(status_code=200),
+            )
+
+            send_pending_investigation_requests.apply()
+
+        assert caplog.messages[0] == 'Failed to process batch: Monday 25 November 2019'
+        assert caplog.messages[1] == 'Successfully processed batch: Monday 25 November 2019 Part 2'
+
+        investigation1.refresh_from_db()
+        investigation2.refresh_from_db()
+
+        assert investigation1.status == 'pending'
+        assert investigation2.status == 'submitted'
