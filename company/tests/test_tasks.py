@@ -137,7 +137,7 @@ class TestSendPendingChangeRequests:
             mock_notify.send_email_notification = mock.Mock()
             mock_notify.send_email_notification.side_effect = (
                 HTTPError(response=mock.Mock(status_code=400)),
-                mock.Mock(status_code=200),
+                {},
             )
 
             send_pending_change_requests.apply()
@@ -253,7 +253,7 @@ class TestSendPendingInvestigationRequests:
             mock_notify.send_email_notification = mock.Mock()
             mock_notify.send_email_notification.side_effect = (
                 HTTPError(response=mock.Mock(status_code=400)),
-                mock.Mock(status_code=200),
+                {},
             )
 
             send_pending_investigation_requests.apply()
