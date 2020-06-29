@@ -3,6 +3,7 @@ import io
 from django.conf import settings
 from notifications_python_client import prepare_upload
 from notifications_python_client.notifications import NotificationsAPIClient
+from requests.exceptions import HTTPError
 
 
 notifications_client = NotificationsAPIClient(settings.GOVUK_NOTIFICATIONS_API_KEY)
@@ -29,5 +30,6 @@ def notify_by_email(email_address, template_identifier, context, is_csv=False):
         template_id=template_identifier,
         personalisation=context,
     )
-    response.raise_for_status()
+    if isinstance(response, HTTPError):
+        response.raise_for_status()
     return response
