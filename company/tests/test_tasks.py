@@ -6,7 +6,7 @@ from unittest import mock
 import pytest
 from django.test import override_settings
 from freezegun import freeze_time
-from requests.exceptions import HTTPError
+from notifications_python_client.errors import HTTPError
 
 from company.constants import ChangeRequestStatus, InvestigationRequestStatus
 from company.models import InvestigationRequest
