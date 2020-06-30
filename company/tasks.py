@@ -3,7 +3,7 @@ import logging
 from celery import shared_task
 from django.conf import settings
 from django.utils.timezone import now
-from requests.exceptions import HTTPError
+from notifications_python_client.errors import HTTPError
 
 from company.constants import ChangeRequestStatus, InvestigationRequestStatus
 from company.models import ChangeRequest, InvestigationRequest

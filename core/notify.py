@@ -3,7 +3,7 @@ import io
 from django.conf import settings
 from notifications_python_client import prepare_upload
 from notifications_python_client.notifications import NotificationsAPIClient
-from requests.exceptions import HTTPError
+from notifications_python_client.errors import HTTPError
 
 
 notifications_client = NotificationsAPIClient(settings.GOVUK_NOTIFICATIONS_API_KEY)
