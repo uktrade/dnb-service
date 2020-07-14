@@ -7,12 +7,13 @@ def update_company_details_telephone(apps, schema_editor):
     records = InvestigationRequest.objects.all()
 
     for record in records:
-        if faulty_string in record.company_details['telephone']:
-            details = record.company_details
-            details['telephone'] = details['telephone'].replace(faulty_string, '')
+        if 'telephone' in record.company_details:
+            if faulty_string in record.company_details['telephone']:
+                details = record.company_details
+                details['telephone'] = details['telephone'].replace(faulty_string, '')
 
-            record.company_details = details
-            record.save()
+                record.company_details = details
+                record.save()
 
 class Migration(migrations.Migration):
 
