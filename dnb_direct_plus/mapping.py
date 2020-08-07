@@ -12,14 +12,32 @@ def extract_address(address_data):
     """Extract address fields from API response"""
 
     return {
-        f'address_line_1': address_data.get('streetAddress', {}).get('line1', ''),
-        f'address_line_2': address_data.get('streetAddress', {}).get('line2', ''),
+        **_get_address_line(address_data),
         f'address_town': address_data.get('addressLocality', {}).get('name', ''),
         f'address_county': address_data.get('addressCounty', {}).get('name', ''),
         f'address_postcode': address_data.get('postalCode', ''),
         f'address_country': address_data.get('addressCountry', {}).get('isoAlpha2Code', ''),
     }
 
+
+def _get_address_line(address_data):
+    """Extract address line fields from API response"""
+
+    if address_data.get('streetAddress', {}):
+        return {
+            f'address_line_1': address_data['streetAddress'].get('line1', ''),
+            f'address_line_2': address_data['streetAddress'].get('line2', ''),
+        }
+    elif address_data.get('streetName', ''):
+        return {
+            f'address_line_1': address_data['streetName'].split(',')[0],
+            f'address_line_2': address_data['streetName'].split(',')[1],
+        }
+    else:
+        return {
+            f'address_line_1': '',
+            f'address_line_2': '',
+        }
 
 def extract_registered_address(company_data):
 
