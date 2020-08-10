@@ -23,15 +23,18 @@ def extract_address(address_data):
 def _get_address_line(address_data):
     """Extract address line fields from API response"""
 
+    # For backward compatibility, ensure that we can still consume streetAddress
+    # if provided, otherwise consume streetName if present.
     if address_data.get('streetAddress', {}):
         return {
             f'address_line_1': address_data['streetAddress'].get('line1', ''),
             f'address_line_2': address_data['streetAddress'].get('line2', ''),
         }
     elif address_data.get('streetName', ''):
+        address_line = [a.strip() for a in address_data['streetName'].split(',')]
         return {
-            f'address_line_1': address_data['streetName'].split(',')[0],
-            f'address_line_2': address_data['streetName'].split(',')[1],
+            f'address_line_1': address_line[0],
+            f'address_line_2': address_line[1] if len(address_line) > 1 else '',
         }
     else:
         return {

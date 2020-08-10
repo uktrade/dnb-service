@@ -67,6 +67,112 @@ from ..mapping import (
             'address_country': 'GB'
         }
     ),
+    # with street address and street name
+    (
+        {
+            'addressCountry': {
+                'isoAlpha2Code': 'GB',
+            },
+            'addressLocality': {
+                'name': 'LEEDS'
+            },
+            'addressCounty': {
+                'name': 'West Yorkshire',
+            },
+            'postalCode': 'LS10 2UR',
+            'streetAddress': {
+                'line1': 'Leeds street',
+                'line2': 'Leeds area'
+            },
+            'streetName': 'Peeds street, Peeds area'
+        },
+        {
+            'address_line_1': 'Leeds street',
+            'address_line_2': 'Leeds area',
+            'address_town': 'LEEDS',
+            'address_county': 'West Yorkshire',
+            'address_postcode': 'LS10 2UR',
+            'address_country': 'GB'
+        }
+    ),
+    # with street name only
+    (
+        {
+            'addressCountry': {
+                'isoAlpha2Code': 'GB',
+            },
+            'addressLocality': {
+                'name': 'LEEDS'
+            },
+            'addressCounty': {
+                'name': 'West Yorkshire',
+            },
+            'postalCode': 'LS10 2UR',
+            'streetAddress': {
+            },
+            'streetName': 'Peeds street, Peeds area'
+        },
+        {
+            'address_line_1': 'Peeds street',
+            'address_line_2': 'Peeds area',
+            'address_town': 'LEEDS',
+            'address_county': 'West Yorkshire',
+            'address_postcode': 'LS10 2UR',
+            'address_country': 'GB'
+        }
+    ),
+    # with partial street name only
+    (
+        {
+            'addressCountry': {
+                'isoAlpha2Code': 'GB',
+            },
+            'addressLocality': {
+                'name': 'LEEDS'
+            },
+            'addressCounty': {
+                'name': 'West Yorkshire',
+            },
+            'postalCode': 'LS10 2UR',
+            'streetAddress': {
+            },
+            'streetName': 'Peeds street'
+        },
+        {
+            'address_line_1': 'Peeds street',
+            'address_line_2': '',
+            'address_town': 'LEEDS',
+            'address_county': 'West Yorkshire',
+            'address_postcode': 'LS10 2UR',
+            'address_country': 'GB'
+        }
+    ),
+    # with empty street address and street name
+    (
+        {
+            'addressCountry': {
+                'isoAlpha2Code': 'GB',
+            },
+            'addressLocality': {
+                'name': 'LEEDS'
+            },
+            'addressCounty': {
+                'name': 'West Yorkshire',
+            },
+            'postalCode': 'LS10 2UR',
+            'streetAddress': {
+            },
+            'streetName': ''
+        },
+        {
+            'address_line_1': '',
+            'address_line_2': '',
+            'address_town': 'LEEDS',
+            'address_county': 'West Yorkshire',
+            'address_postcode': 'LS10 2UR',
+            'address_country': 'GB'
+        }
+    ),
     # no fields are required
     (
         {
@@ -747,6 +853,15 @@ def test_company_list_ingest(company_list_api_response_json):
         'year_started': None,
         'legal_status': 'foreign_company'
     }
+
+
+def test_company_list_ingest_street_name(company_list_api_response_json):
+
+    company_data = json.loads(company_list_api_response_json)
+    extracted_data = extract_company_data(company_data['searchCandidates'][1])
+
+    assert extracted_data['address_line_1'] == '492 Koller St'
+    assert extracted_data['address_line_2'] == 'San Francisco'
 
 
 def test_cmpelk_ingest(cmpelk_api_response_json):
