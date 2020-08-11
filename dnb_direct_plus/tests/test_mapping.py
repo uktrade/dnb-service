@@ -67,112 +67,6 @@ from ..mapping import (
             'address_country': 'GB'
         }
     ),
-    # with street address and street name
-    (
-        {
-            'addressCountry': {
-                'isoAlpha2Code': 'GB',
-            },
-            'addressLocality': {
-                'name': 'LEEDS'
-            },
-            'addressCounty': {
-                'name': 'West Yorkshire',
-            },
-            'postalCode': 'LS10 2UR',
-            'streetAddress': {
-                'line1': 'Leeds street',
-                'line2': 'Leeds area'
-            },
-            'streetName': 'Peeds street, Peeds area'
-        },
-        {
-            'address_line_1': 'Leeds street',
-            'address_line_2': 'Leeds area',
-            'address_town': 'LEEDS',
-            'address_county': 'West Yorkshire',
-            'address_postcode': 'LS10 2UR',
-            'address_country': 'GB'
-        }
-    ),
-    # with street name only
-    (
-        {
-            'addressCountry': {
-                'isoAlpha2Code': 'GB',
-            },
-            'addressLocality': {
-                'name': 'LEEDS'
-            },
-            'addressCounty': {
-                'name': 'West Yorkshire',
-            },
-            'postalCode': 'LS10 2UR',
-            'streetAddress': {
-            },
-            'streetName': 'Peeds street, Peeds area'
-        },
-        {
-            'address_line_1': 'Peeds street',
-            'address_line_2': 'Peeds area',
-            'address_town': 'LEEDS',
-            'address_county': 'West Yorkshire',
-            'address_postcode': 'LS10 2UR',
-            'address_country': 'GB'
-        }
-    ),
-    # with partial street name only
-    (
-        {
-            'addressCountry': {
-                'isoAlpha2Code': 'GB',
-            },
-            'addressLocality': {
-                'name': 'LEEDS'
-            },
-            'addressCounty': {
-                'name': 'West Yorkshire',
-            },
-            'postalCode': 'LS10 2UR',
-            'streetAddress': {
-            },
-            'streetName': 'Peeds street'
-        },
-        {
-            'address_line_1': 'Peeds street',
-            'address_line_2': '',
-            'address_town': 'LEEDS',
-            'address_county': 'West Yorkshire',
-            'address_postcode': 'LS10 2UR',
-            'address_country': 'GB'
-        }
-    ),
-    # with empty street address and street name
-    (
-        {
-            'addressCountry': {
-                'isoAlpha2Code': 'GB',
-            },
-            'addressLocality': {
-                'name': 'LEEDS'
-            },
-            'addressCounty': {
-                'name': 'West Yorkshire',
-            },
-            'postalCode': 'LS10 2UR',
-            'streetAddress': {
-            },
-            'streetName': ''
-        },
-        {
-            'address_line_1': '',
-            'address_line_2': '',
-            'address_town': 'LEEDS',
-            'address_county': 'West Yorkshire',
-            'address_postcode': 'LS10 2UR',
-            'address_country': 'GB'
-        }
-    ),
     # no fields are required
     (
         {
@@ -311,7 +205,176 @@ def test_extract_address(input_data, expected):
             'registered_address_postcode': 'M3 1NL',
             'registered_address_country': 'US'
         }
-    )
+    ),
+    # should use streetName to populate address line 1 and 2
+    # if both streetName and streetAddress are present
+    (
+        {
+            'organization': {
+                'primaryAddress': {
+                },
+                'registeredAddress': {
+                    'addressCountry': {
+                        'isoAlpha2Code': 'GB',
+                    },
+                    'addressLocality': {
+                        'name': 'LEEDS'
+                    },
+                    'addressCounty': {
+                        'name': 'West Yorkshire',
+                    },
+                    'postalCode': 'LS10 2UR',
+                    'streetAddress': {
+                        'line1': 'Leeds street',
+                        'line2': 'Leeds area'
+                    },
+                    'streetName': 'Peeds street, Peeds area'
+                }
+            }
+        },
+        {
+            'registered_address_line_1': 'Peeds street',
+            'registered_address_line_2': 'Peeds area',
+            'registered_address_town': 'LEEDS',
+            'registered_address_county': 'West Yorkshire',
+            'registered_address_postcode': 'LS10 2UR',
+            'registered_address_country': 'GB'
+        }
+    ),
+    # should use streetName to populate address line 1 and 2
+    # if only streetName is present
+    (
+        {
+            'organization': {
+                'primaryAddress': {
+                },
+                'registeredAddress': {
+                    'addressCountry': {
+                        'isoAlpha2Code': 'GB',
+                    },
+                    'addressLocality': {
+                        'name': 'LEEDS'
+                    },
+                    'addressCounty': {
+                        'name': 'West Yorkshire',
+                    },
+                    'postalCode': 'LS10 2UR',
+                    'streetAddress': {
+                    },
+                    'streetName': 'Leeds street, Leeds area'
+                }
+            }
+        },
+        {
+            'registered_address_line_1': 'Leeds street',
+            'registered_address_line_2': 'Leeds area',
+            'registered_address_town': 'LEEDS',
+            'registered_address_county': 'West Yorkshire',
+            'registered_address_postcode': 'LS10 2UR',
+            'registered_address_country': 'GB'
+        }
+    ),
+    # should use streetName to populate address line 1
+    # if streetName is partially added
+    (
+        {
+            'organization': {
+                'primaryAddress': {
+                },
+                'registeredAddress': {
+                    'addressCountry': {
+                        'isoAlpha2Code': 'GB',
+                    },
+                    'addressLocality': {
+                        'name': 'LEEDS'
+                    },
+                    'addressCounty': {
+                        'name': 'West Yorkshire',
+                    },
+                    'postalCode': 'LS10 2UR',
+                    'streetAddress': {
+                    },
+                    'streetName': 'Leeds street'
+                }
+            }
+        },
+        {
+            'registered_address_line_1': 'Leeds street',
+            'registered_address_line_2': '',
+            'registered_address_town': 'LEEDS',
+            'registered_address_county': 'West Yorkshire',
+            'registered_address_postcode': 'LS10 2UR',
+            'registered_address_country': 'GB'
+        }
+    ),
+    # should leave address line 1 and 2 blank
+    # if streetName and streetAddress are empty
+    (
+        {
+            'organization': {
+                'primaryAddress': {
+                },
+                'registeredAddress': {
+                    'addressCountry': {
+                        'isoAlpha2Code': 'GB',
+                    },
+                    'addressLocality': {
+                        'name': 'LEEDS'
+                    },
+                    'addressCounty': {
+                        'name': 'West Yorkshire',
+                    },
+                    'postalCode': 'LS10 2UR',
+                    'streetAddress': {
+                    },
+                    'streetName': ''
+                }
+            }
+        },
+        {
+            'registered_address_line_1': '',
+            'registered_address_line_2': '',
+            'registered_address_town': 'LEEDS',
+            'registered_address_county': 'West Yorkshire',
+            'registered_address_postcode': 'LS10 2UR',
+            'registered_address_country': 'GB'
+        }
+    ),
+    # should use streetAddress to populate line 1 and 2
+    # if streetName is empty
+    (
+        {
+            'organization': {
+                'primaryAddress': {
+                },
+                'registeredAddress': {
+                    'addressCountry': {
+                        'isoAlpha2Code': 'GB',
+                    },
+                    'addressLocality': {
+                        'name': 'LEEDS'
+                    },
+                    'addressCounty': {
+                        'name': 'West Yorkshire',
+                    },
+                    'postalCode': 'LS10 2UR',
+                    'streetAddress': {
+                        'line1': 'Leeds street',
+                        'line2': 'Leeds area'
+                    },
+                    'streetName': ''
+                }
+            }
+        },
+        {
+            'registered_address_line_1': 'Leeds street',
+            'registered_address_line_2': 'Leeds area',
+            'registered_address_town': 'LEEDS',
+            'registered_address_county': 'West Yorkshire',
+            'registered_address_postcode': 'LS10 2UR',
+            'registered_address_country': 'GB'
+        }
+    ),
 ])
 def test_extract_registered_address(input_data, expected):
     assert extract_registered_address(input_data) == expected
@@ -860,8 +923,8 @@ def test_company_list_ingest_street_name(company_list_api_response_json):
     company_data = json.loads(company_list_api_response_json)
     extracted_data = extract_company_data(company_data['searchCandidates'][1])
 
-    assert extracted_data['address_line_1'] == '492 Koller St'
-    assert extracted_data['address_line_2'] == 'San Francisco'
+    assert extracted_data['registered_address_line_1'] == '492 Koller St'
+    assert extracted_data['registered_address_line_2'] == 'San Francisco'
 
 
 def test_cmpelk_ingest(cmpelk_api_response_json):

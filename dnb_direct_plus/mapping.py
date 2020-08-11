@@ -12,7 +12,8 @@ def extract_address(address_data):
     """Extract address fields from API response"""
 
     return {
-        **_get_address_line(address_data),
+        f'address_line_1': address_data.get('streetAddress', {}).get('line1', ''),
+        f'address_line_2': address_data.get('streetAddress', {}).get('line2', ''),
         f'address_town': address_data.get('addressLocality', {}).get('name', ''),
         f'address_county': address_data.get('addressCounty', {}).get('name', ''),
         f'address_postcode': address_data.get('postalCode', ''),
@@ -20,21 +21,21 @@ def extract_address(address_data):
     }
 
 
-def _get_address_line(address_data):
+def _get_registered_address_line(address_data):
     """Extract address line fields from API response"""
 
     # For backward compatibility, ensure that we can still consume streetAddress
     # if provided, otherwise consume streetName if present.
-    if address_data.get('streetAddress', {}):
-        return {
-            f'address_line_1': address_data['streetAddress'].get('line1', ''),
-            f'address_line_2': address_data['streetAddress'].get('line2', ''),
-        }
-    elif address_data.get('streetName', ''):
+    if address_data.get('streetName', ''):
         address_line = [a.strip() for a in address_data['streetName'].split(',')]
         return {
             f'address_line_1': address_line[0],
             f'address_line_2': address_line[1] if len(address_line) > 1 else '',
+        }
+    elif address_data.get('streetAddress', {}):
+        return {
+            f'address_line_1': address_data['streetAddress'].get('line1', ''),
+            f'address_line_2': address_data['streetAddress'].get('line2', ''),
         }
     else:
         return {
@@ -49,7 +50,9 @@ def extract_registered_address(company_data):
     elif 'registeredAddress' not in company_data['organization']:
         address = {}
     else:
-        address = extract_address(company_data['organization']['registeredAddress'])
+        address_data = company_data['organization']['registeredAddress']
+        address = extract_address(address_data)
+        address.update(_get_registered_address_line(address_data))
 
     return {
         f'registered_{field}': value for field, value in address.items()
