@@ -129,9 +129,23 @@
                         "abbreviatedName": "CA"
                     },
                     "postalCode": "92123-1234",
-                    "streetAddress": {
-                        "line1": "1 Acme St"
-                    }
+                    "streetAddress": {},
+                    "streetName": "492 Koller St, San Francisco"
+                },
+                "registeredAddress": {
+                    "addressCountry": {
+                        "isoAlpha2Code": "US"
+                    },
+                    "addressLocality": {
+                        "name": "Irvine"
+                    },
+                    "addressRegion": {
+                        "name": "California",
+                        "abbreviatedName": "CA"
+                    },
+                    "postalCode": "92123-1234",
+                    "streetAddress": {},
+                    "streetName": "492 Koller St, San Francisco"
                 },
                 "primaryIndustryCodes": [
                     {
