@@ -67,6 +67,25 @@ from ..mapping import (
             'address_country': 'GB'
         }
     ),
+    # empty address line fields if streetAddress
+    # is not a dict
+    (
+        {
+            'addressCountry': {
+                'isoAlpha2Code': 'GB',
+            },
+            'postalCode': 'LS10 2UR',
+            'streetAddress': 'Address1'
+        },
+        {
+            'address_line_1': '',
+            'address_line_2': '',
+            'address_town': '',
+            'address_county': '',
+            'address_postcode': 'LS10 2UR',
+            'address_country': 'GB'
+        }
+    ),
     # no fields are required
     (
         {
@@ -369,6 +388,74 @@ def test_extract_address(input_data, expected):
         {
             'registered_address_line_1': 'Leeds street',
             'registered_address_line_2': 'Leeds area',
+            'registered_address_town': 'LEEDS',
+            'registered_address_county': 'West Yorkshire',
+            'registered_address_postcode': 'LS10 2UR',
+            'registered_address_country': 'GB'
+        }
+    ),
+    # should use streetAddress to populate line 1 and 2
+    # if streetName is not a string
+    (
+        {
+            'organization': {
+                'primaryAddress': {
+                },
+                'registeredAddress': {
+                    'addressCountry': {
+                        'isoAlpha2Code': 'GB',
+                    },
+                    'addressLocality': {
+                        'name': 'LEEDS'
+                    },
+                    'addressCounty': {
+                        'name': 'West Yorkshire',
+                    },
+                    'postalCode': 'LS10 2UR',
+                    'streetAddress': {
+                        'line1': 'Leeds street',
+                        'line2': 'Leeds area'
+                    },
+                    'streetName': 123
+                }
+            }
+        },
+        {
+            'registered_address_line_1': 'Leeds street',
+            'registered_address_line_2': 'Leeds area',
+            'registered_address_town': 'LEEDS',
+            'registered_address_county': 'West Yorkshire',
+            'registered_address_postcode': 'LS10 2UR',
+            'registered_address_country': 'GB'
+        }
+    ),
+    # should default to empty
+    # if streetName is not a string
+    # and streetAddress is not a dict
+    (
+        {
+            'organization': {
+                'primaryAddress': {
+                },
+                'registeredAddress': {
+                    'addressCountry': {
+                        'isoAlpha2Code': 'GB',
+                    },
+                    'addressLocality': {
+                        'name': 'LEEDS'
+                    },
+                    'addressCounty': {
+                        'name': 'West Yorkshire',
+                    },
+                    'postalCode': 'LS10 2UR',
+                    'streetAddress': 'Address1',
+                    'streetName': 123
+                }
+            }
+        },
+        {
+            'registered_address_line_1': '',
+            'registered_address_line_2': '',
             'registered_address_town': 'LEEDS',
             'registered_address_county': 'West Yorkshire',
             'registered_address_postcode': 'LS10 2UR',

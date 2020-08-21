@@ -12,39 +12,42 @@ def extract_address(address_data):
     """Extract address fields from API response"""
 
     return {
-        f'address_line_1': address_data.get('streetAddress', {}).get('line1', ''),
-        f'address_line_2': address_data.get('streetAddress', {}).get('line2', ''),
-        f'address_town': address_data.get('addressLocality', {}).get('name', ''),
-        f'address_county': address_data.get('addressCounty', {}).get('name', ''),
-        f'address_postcode': address_data.get('postalCode', ''),
-        f'address_country': address_data.get('addressCountry', {}).get('isoAlpha2Code', ''),
+        **_get_address_line(address_data),
+        'address_town': address_data.get('addressLocality', {}).get('name', ''),
+        'address_county': address_data.get('addressCounty', {}).get('name', ''),
+        'address_postcode': address_data.get('postalCode', ''),
+        'address_country': address_data.get('addressCountry', {}).get('isoAlpha2Code', ''),
     }
 
+def _get_address_line(address_data):
+    """Extract address line fields from streetAddress field"""
 
-def _get_registered_address_line(address_data):
-    """Extract address line fields from API response"""
-
-    # For backward compatibility, ensure that we can still consume streetAddress
-    # if provided, otherwise consume streetName if present.
-    if address_data.get('streetName', ''):
-        address_line = [a.strip() for a in address_data['streetName'].split(',')]
+    street_address = address_data.get('streetAddress', {})
+    if isinstance(street_address, dict):
         return {
-            f'address_line_1': address_line[0],
-            f'address_line_2': address_line[1] if len(address_line) > 1 else '',
-        }
-    elif address_data.get('streetAddress', {}):
-        return {
-            f'address_line_1': address_data['streetAddress'].get('line1', ''),
-            f'address_line_2': address_data['streetAddress'].get('line2', ''),
+            'address_line_1': street_address.get('line1', ''),
+            'address_line_2': street_address.get('line2', ''),
         }
     else:
         return {
-            f'address_line_1': '',
-            f'address_line_2': '',
+            'address_line_1': '',
+            'address_line_2': '',
         }
 
-def extract_registered_address(company_data):
+def _get_registered_address_line(address_data):
+    """Extract address line fields from streetName"""
 
+    street_name = address_data.get('streetName', '')
+    if street_name and isinstance(address_data.get('streetName'), str):
+        address_line = [a.strip() for a in address_data['streetName'].split(',')]
+        return {
+            'address_line_1': address_line[0],
+            'address_line_2': address_line[1] if len(address_line) > 1 else '',
+        }
+    else:
+        return {}
+
+def extract_registered_address(company_data):
     if company_data['organization']['primaryAddress'].get('isRegisteredAddress', False):
         address = extract_address(company_data['organization']['primaryAddress'])
     elif 'registeredAddress' not in company_data['organization']:
@@ -52,6 +55,9 @@ def extract_registered_address(company_data):
     else:
         address_data = company_data['organization']['registeredAddress']
         address = extract_address(address_data)
+        # Updated registered address line fields with streetName.
+        # If streetName is empty or not present the address line mapped
+        # from streetAddress will persist
         address.update(_get_registered_address_line(address_data))
 
     return {
