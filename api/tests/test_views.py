@@ -2,22 +2,17 @@ import datetime
 import json
 
 import pytest
-
-from django.contrib.auth import get_user_model
-
 from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
 from requests.exceptions import HTTPError
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 
 from company.constants import MonitoringStatusChoices
 from company.models import ChangeRequest, Company
 from company.serialisers import CompanySerialiser
 from company.tests.factories import ChangeRequestFactory, CompanyFactory
 from dnb_direct_plus.mapping import extract_company_data
-
 
 pytestmark = pytest.mark.django_db
 
@@ -76,9 +71,24 @@ class TestCompanySearchView:
 
         assert response.status_code == 400
 
+        expected_response = {
+            'non_field_errors': [
+                "At least one standalone field required: ['duns_number', 'search_term', 'primary_name', "
+                "'registration_numbers']."
+            ]
+        }
+        assert response.json() == expected_response
+
+    def test_api_with_empty_registration_numbers(self, auth_client):
+        response = auth_client.post(
+            reverse('api:company-search'),
+            {'registration_numbers': []}
+        )
+
+        assert response.status_code == 400
 
         expected_response = {
-            'non_field_errors': ["At least one standalone field required: ['duns_number', 'search_term']."]
+            'registration_numbers': ["Ensure this field has at least 1 elements."]
         }
         assert response.json() == expected_response
 

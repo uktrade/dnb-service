@@ -10,8 +10,13 @@ from api.serialisers import CompanySearchInputSerialiser
     (
         {},
         {},
-        {'non_field_errors': [ErrorDetail(
-            string="At least one standalone field required: ['duns_number', 'search_term'].", code='invalid')]},
+        {'non_field_errors': [
+            ErrorDetail(
+                string="At least one standalone field required: ['duns_number', 'search_term', "
+                       "'primary_name', 'registration_numbers'].",
+                code='invalid'
+            )
+        ]},
     ),
     # valid input
     (
