@@ -9,9 +9,7 @@ from company.tests.factories import CompanyFactory
 from ..models import MonitoringFileRecord
 
 
-pytestmark = [
-    pytest.mark.django_db
-]
+pytestmark = pytest.mark.django_db
 
 
 class TestProcessMonitoringData:

@@ -8,7 +8,9 @@ from company.constants import MonitoringStatusChoices
 from company.models import Company
 
 
-@pytest.mark.django_db
+pytestmark = pytest.mark.django_db
+
+
 def test_company_list_search(mocker, company_list_api_response_json):
 
     company_input_data = json.loads(company_list_api_response_json)
@@ -37,8 +39,13 @@ def test_company_list_search(mocker, company_list_api_response_json):
         assert extract_company_data(input_data) == expected
 
 
-@pytest.mark.django_db
-def test_company_list_search_detail_query_company_data_is_saved(mocker, company_list_api_response_json):
+@pytest.mark.parametrize('enable_monitoring,monitoring_status', [
+    (True, MonitoringStatusChoices.pending.name),
+    (False, MonitoringStatusChoices.not_enabled.name),
+])
+def test_company_list_search_detail_query_company_data_is_saved(mocker,
+                                                                company_list_api_response_json,
+                                                                enable_monitoring, monitoring_status):
 
     company_input_data = json.loads(company_list_api_response_json)
 
@@ -51,11 +58,13 @@ def test_company_list_search_detail_query_company_data_is_saved(mocker, company_
 
     assert Company.objects.count() == 0
 
-    output = company_list_search({'duns_number': 'hello world',}, update_local=True)
+    output = company_list_search(
+        {'duns_number': 'hello world',}, update_local=True, enable_monitoring=enable_monitoring)
 
     assert Company.objects.count() == 1
 
     company = Company.objects.first()
 
     assert company.duns_number == output['results'][0]['duns_number']
-    assert company.monitoring_status == MonitoringStatusChoices.pending.name
+
+    assert company.monitoring_status == monitoring_status
