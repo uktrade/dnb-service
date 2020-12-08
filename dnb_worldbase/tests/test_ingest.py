@@ -221,10 +221,14 @@ class TestUpdateCompany:
             'industry_codes': []
         }
 
+    @freeze_time('2019-11-25 12:00:01 UTC')
     def test_update_company_with_api_data(self, test_input_data):
         assert Company.objects.count() == 0
 
+        wb_timestamp = timezone.now() - datetime.timedelta(hours=1)
+
         original_company = Company.objects.create(
+            last_updated=timezone.now(),
             duns_number='123456789',
             primary_name='test company',
             address_country=Country.objects.get(iso_alpha2='US'),
@@ -236,7 +240,7 @@ class TestUpdateCompany:
 
         original_company_data = CompanySerialiser(original_company)
 
-        created = update_company(test_input_data, timezone.now())
+        created = update_company(test_input_data, wb_timestamp)
 
         assert not created
         assert Company.objects.count() == 1
@@ -244,7 +248,8 @@ class TestUpdateCompany:
         company = Company.objects.first()
 
         serialiser = CompanySerialiser(company)
-
+        assert company.last_updated == timezone.now()
+        assert company.worldbase_source_updated_timestamp == wb_timestamp
         assert serialiser.data == original_company_data.data
 
     @pytest.mark.parametrize(

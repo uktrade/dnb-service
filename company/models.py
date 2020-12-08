@@ -145,6 +145,8 @@ class Company(models.Model):
     )
 
     # this field tracks when a change is made to the models data fields
+    # Currently, worldbase updates do not affect this field as it is used
+    # to track monitoring updates.
     last_updated = models.DateTimeField(
         null=True,
         db_index=True,
