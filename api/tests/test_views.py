@@ -396,49 +396,49 @@ class TestChangeRequestApiView:
         """
         duns_numbers = [
             ChangeRequestFactory(
-                changes={'primary_name': 'bar'}, 
-                status='pending', 
+                changes={'primary_name': 'bar'},
+                status='pending',
                 id='00000000-0000-0000-0000-000000000001'
-                ).duns_number, 
+                ).duns_number,
             ChangeRequestFactory(
-                changes={'primary_name': 'baz'}, 
-                status='submitted', 
+                changes={'primary_name': 'baz'},
+                status='submitted',
                 id='00000000-0000-0000-0000-000000000002'
                 ).duns_number
             ]
-         
+
         response = auth_client.get(
             reverse('api:change-request'),
             {},
         )
-        
+
         assert response.status_code == 200
 
         result_data = response.json()
         assert result_data['count'] == 2
 
         expected_result_data = {
-            'count': 2, 
-            'next': None, 
-            'previous': None, 
+            'count': 2,
+            'next': None,
+            'previous': None,
             'results': [
                 {
                     'id': '00000000-0000-0000-0000-000000000001',
-                    'duns_number': '000000000', 
-                    'changes': {'primary_name': 'bar'}, 
-                    'status': 'pending', 
+                    'duns_number': '000000000',
+                    'changes': {'primary_name': 'bar'},
+                    'status': 'pending',
                     'created_on': '2020-05-18T12:00:01Z'
-                }, 
+                },
                 {
                     'id': '00000000-0000-0000-0000-000000000002',
-                    'duns_number': '000000001', 
-                    'changes': {'primary_name': 'baz'}, 
-                    'status': 'submitted', 
+                    'duns_number': '000000001',
+                    'changes': {'primary_name': 'baz'},
+                    'status': 'submitted',
                     'created_on': '2020-05-18T12:00:01Z'
                 }
             ]
         }
-        
+
         assert result_data == expected_result_data
 
     @freeze_time('2020-05-18 12:00:01 UTC')
@@ -447,14 +447,14 @@ class TestChangeRequestApiView:
         Test that all pending change requests can be returned, for any company.
         """
         pending_duns_numbers = [
-            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', id='00000000-0000-0000-0000-000000000001'), 
-            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', id='00000000-0000-0000-0000-000000000002'), 
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', id='00000000-0000-0000-0000-000000000001'),
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', id='00000000-0000-0000-0000-000000000002'),
         ]
-        
+
         ChangeRequestFactory(changes={'primary_name': 'test3'}, status='submitted')
         ChangeRequestFactory(changes={'primary_name': 'test4'}, status='submitted')
 
-        
+
         response = auth_client.get(
             reverse('api:change-request'),
             {'status': 'pending'},
@@ -468,28 +468,28 @@ class TestChangeRequestApiView:
         print(result_data)
 
         expected_result_data = {
-            'count': 2, 
-            'next': None, 
-            'previous': None, 
+            'count': 2,
+            'next': None,
+            'previous': None,
             'results': [
                 {
                     'id': '00000000-0000-0000-0000-000000000002',
-                    'duns_number': '000000003', 
-                    'changes': {'primary_name': 'test2'}, 
-                    'status': 'pending', 
+                    'duns_number': '000000003',
+                    'changes': {'primary_name': 'test2'},
+                    'status': 'pending',
                     'created_on': '2020-05-18T12:00:01Z'
                 },
                 {
                     'id': '00000000-0000-0000-0000-000000000001',
-                    'duns_number': '000000002', 
-                    'changes': {'primary_name': 'test1'}, 
-                    'status': 'pending', 
+                    'duns_number': '000000002',
+                    'changes': {'primary_name': 'test1'},
+                    'status': 'pending',
                     'created_on': '2020-05-18T12:00:01Z'
                 }
-                
+
             ]
         }
-        
+
         assert result_data == expected_result_data
 
     def test_only_returns_submitted_requests(self, auth_client):
@@ -497,14 +497,14 @@ class TestChangeRequestApiView:
         Test that all submitted change requests can be returned, for any company.
         """
         submitted_duns_numbers = [
-            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='submitted'), 
-            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='submitted'), 
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='submitted'),
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='submitted'),
         ]
-        
+
         ChangeRequestFactory(changes={'primary_name': 'test3'}, status='pending')
         ChangeRequestFactory(changes={'primary_name': 'test4'}, status='pending')
 
-        
+
         response = auth_client.get(
             reverse('api:change-request'),
             {'status': 'submitted'},
@@ -515,16 +515,16 @@ class TestChangeRequestApiView:
         result_data = response.json()
         assert len(result_data['results']) == 2
         assert result_data['count'] == 2
-    
+
     def test_only_returns_pending_requests_with_specific_duns_number(self, auth_client):
         """
         Test that all pending change requests are returned for a specific company.
         """
         change_requests = [
-            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000001'), 
-            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000002'), 
-            ChangeRequestFactory(changes={'primary_name': 'test3'}, status='pending', duns_number='123056789', id='00000000-0000-0000-0000-000000000003'), 
-            ChangeRequestFactory(changes={'primary_name': 'test4'}, status='pending', duns_number='123406780', id='00000000-0000-0000-0000-000000000004'), 
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000001'),
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000002'),
+            ChangeRequestFactory(changes={'primary_name': 'test3'}, status='pending', duns_number='123056789', id='00000000-0000-0000-0000-000000000003'),
+            ChangeRequestFactory(changes={'primary_name': 'test4'}, status='pending', duns_number='123406780', id='00000000-0000-0000-0000-000000000004'),
         ]
 
         test_ids = []
@@ -547,16 +547,16 @@ class TestChangeRequestApiView:
 
         for result in result_data['results']:
             assert result['id'] in test_ids
-    
+
     def test_only_duns_param_returns_all_results(self, auth_client):
         """
         Test that all change requests for a company can be returned.
         """
         change_requests = [
-            ChangeRequestFactory(changes={'primary_name': 'test1'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000001'), 
-            ChangeRequestFactory(changes={'primary_name': 'test2'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000002'), 
-            ChangeRequestFactory(changes={'primary_name': 'test3'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000003'), 
-            ChangeRequestFactory(changes={'primary_name': 'test4'}, duns_number='123456700', id='00000000-0000-0000-0000-000000000004'), 
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000001'),
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000002'),
+            ChangeRequestFactory(changes={'primary_name': 'test3'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000003'),
+            ChangeRequestFactory(changes={'primary_name': 'test4'}, duns_number='123456700', id='00000000-0000-0000-0000-000000000004'),
         ]
 
         test_ids = []

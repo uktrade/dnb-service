@@ -13,10 +13,6 @@ from .constants import (
 )
 
 
-class DataMappingError(Exception):
-    pass
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -83,12 +79,12 @@ def dnb_country_lookup(dnb_country_code):
         return None
 
     if dnb_country_code not in DNB_COUNTRY_CODE_MAPPING:
-        raise DataMappingError(f'{dnb_country_code} is not in mapping')
+        raise IndexError(f'Country code {dnb_country_code} is not in mapping')
 
     iso_alpha2_code = DNB_COUNTRY_CODE_MAPPING[dnb_country_code]
 
     if not iso_alpha2_code:
-        raise DataMappingError(f'{dnb_country_code} does not have an associated iso alpha 2 code')
+        raise IndexError(f'Country code {dnb_country_code} does not have an associated iso alpha 2 code')
 
     return iso_alpha2_code
 
@@ -111,31 +107,24 @@ def extract_registration_number(company_data):
     Return the registration number and code, if present.
     """
 
-    national_id_number = company_data['National Identification Number']
-
     try:
+        national_id_number = company_data['National Identification Number']
         national_id_code = int(company_data['National Identification System Code'])
     except ValueError:
         return []
 
     if national_id_code in NATIONAL_ID_CODE_MAPPING:
         registration_type = NATIONAL_ID_CODE_MAPPING[national_id_code].name
-
-        registration_numbers = [
-            {
-                'registration_type': registration_type,
-                'registration_number': national_id_number,
-            }
-        ]
     else:
-        registration_numbers = [{
-            'registration_type': 'unmapped',
-            'original_registration_type': national_id_code,
-            'original_registration_number': national_id_number,
-            'original_registration_description': '',
-        }]
+        registration_type = 'unmapped'
+        logger.warning(f'Registration code {national_id_code} is unmapped')
 
-    return registration_numbers
+    return [
+        {
+            'registration_type': registration_type,
+            'registration_number': national_id_number,
+        }
+    ]
 
 
 def extract_business_indicator(field_data):
@@ -146,7 +135,7 @@ def extract_business_indicator(field_data):
     try:
         return BUSINESS_INDICATOR_MAPPING[field_data]
     except KeyError:
-        raise DataMappingError(f'no mapping for business indicator: {field_data}')
+        raise IndexError(f'no mapping for business indicator: {field_data}')
 
 
 def extract_company_data(wb_data):
@@ -170,7 +159,7 @@ def extract_company_data(wb_data):
         'address_country': dnb_country_lookup(wb_data['Country Code']),
         'address_postcode': wb_data['Postal Code for Street Address'],
         'line_of_business': wb_data['Line of Business'],
-        'year_started': wb_data['Year Started'],
+        'year_started': wb_data['Year Started'] or None,
         'global_ultimate_duns_number': wb_data['Global Ultimate DUNS Number'],
         'is_out_of_business': extract_business_indicator(wb_data['Out of Business indicator']),
         'legal_status': extract_legal_status(wb_data['Legal Status']),

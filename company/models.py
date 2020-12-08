@@ -117,7 +117,7 @@ class PrimaryIndustryCode(models.Model):
 class Company(models.Model):
     """The main DNB company model"""
 
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
 
     source = JSONField(null=True, blank=True)
 
@@ -145,8 +145,11 @@ class Company(models.Model):
     )
 
     # this field tracks when a change is made to the models data fields
+    # Currently, worldbase updates do not affect this field as it is used
+    # to track monitoring updates.
     last_updated = models.DateTimeField(
         null=True,
+        db_index=True,
     )
 
     duns_number = models.CharField(

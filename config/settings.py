@@ -222,6 +222,28 @@ REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
 
+# logging config
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': env('ROOT_LOG_LEVEL', default='INFO'),
+    },
+}
+
 # GOVUK notify
 
 GOVUK_NOTIFICATIONS_API_KEY = env('GOVUK_NOTIFICATIONS_API_KEY')

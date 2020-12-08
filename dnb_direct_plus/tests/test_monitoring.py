@@ -170,6 +170,32 @@ class TestUpdateCompanyFromSource:
             ]
         }
 
+    def test_last_updated_field_is_modified(self, cmpelk_api_response_json):
+
+        with freeze_time('2019-11-25 12:00:01 UTC') as frozen_time:
+            source_data = json.loads(cmpelk_api_response_json)
+
+            source_data['type'] = 'UPDATE'
+
+            update_company_from_source(Company(), source_data, None, enable_monitoring=False)
+
+            assert Company.objects.count() == 1
+            company = Company.objects.first()
+            original_update_time = timezone.now()
+
+            assert original_update_time == company.last_updated
+
+            frozen_time.move_to('2019-11-28 20:00:01 UTC')
+
+            source_data['organization']['primaryName'] = 'Acme Ltd'
+
+            update_company_from_source(company, source_data, None, enable_monitoring=False)
+
+            company.refresh_from_db()
+
+            assert company.last_updated == timezone.now()
+            assert company.primary_name == 'Acme Ltd'
+
     def test_last_updated_field_not_modified_if_data_unchanged(self, cmpelk_api_response_json):
         """If there are no changes to the model, then the last_updated field should not be changed"""
 

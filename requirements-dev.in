@@ -11,7 +11,7 @@ flake8
 # Testing utilities
 freezegun
 pytest-cov
-pytest-django
+pytest-django>=5.4.0
 pytest-env
 pytest-mock
 pytest
@@ -22,4 +22,4 @@ factory_boy
 docutils
 django-extensions
 watchdog[watchmedo]
-codecov
+codecov>=2.1.0

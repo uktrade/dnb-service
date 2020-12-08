@@ -22,3 +22,4 @@ class Migration(migrations.Migration):
             field=django.contrib.postgres.fields.jsonb.JSONField(null=True),
         ),
     ]
+
