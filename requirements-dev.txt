@@ -79,7 +79,8 @@ django==2.2.18
     #   -r requirements.txt
     #   django-staff-sso-client
     #   django-timezone-field
-djangorestframework==3.9.2
+    #   djangorestframework
+djangorestframework==3.11.2
     # via
     #   -r requirements.txt
     #   django-rest-framework
