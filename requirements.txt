@@ -53,8 +53,7 @@ django==2.2.18
     #   -r requirements.in
     #   django-staff-sso-client
     #   django-timezone-field
-    #   djangorestframework
-djangorestframework==3.11.2
+djangorestframework==3.9.2
     # via django-rest-framework
 docopt==0.6.2
     # via notifications-python-client
