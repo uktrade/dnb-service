@@ -168,7 +168,7 @@ prometheus-client==0.7.1
     #   django-prometheus
 psycopg2==2.8.1
     # via -r requirements.txt
-py==1.8.0
+py==1.10.0
     # via pytest
 pycodestyle==2.5.0
     # via
