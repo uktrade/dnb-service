@@ -4,7 +4,6 @@ import pytest
 
 from ..constants import (
     OPERATING_STATUS_ACTIVE,
-    RELIABILITY_CODE_ACTUAL,
 )
 
 from ..mapping import (
@@ -30,7 +29,6 @@ from ..mapping import (
             'addressLocality': {
                 'name': 'LEEDS'
             },
-            'addressRegion': {},
             'addressCounty': {
                 'name': 'West Yorkshire',
             },
@@ -39,6 +37,10 @@ from ..mapping import (
                 'line1': 'Leeds street',
                 'line2': 'Leeds area'
             },
+            'addressRegion': {
+                'name': 'IWouldBeAStateIfThisWasAmerica',
+                'abbreviatedName': 'IA'
+            }
         },
         {
             'address_line_1': 'Leeds street',
@@ -46,7 +48,9 @@ from ..mapping import (
             'address_town': 'LEEDS',
             'address_county': 'West Yorkshire',
             'address_postcode': 'LS10 2UR',
-            'address_country': 'GB'
+            'address_country': 'GB',
+            'address_area_name': 'IWouldBeAStateIfThisWasAmerica',
+            'address_area_abbrev_name': 'IA'
         }
     ),
     (
@@ -64,7 +68,9 @@ from ..mapping import (
             'address_town': '',
             'address_county': '',
             'address_postcode': 'LS10 2UR',
-            'address_country': 'GB'
+            'address_country': 'GB',
+            'address_area_abbrev_name': '',
+            'address_area_name': '',
         }
     ),
     # empty address line fields if streetAddress
@@ -83,7 +89,9 @@ from ..mapping import (
             'address_town': '',
             'address_county': '',
             'address_postcode': 'LS10 2UR',
-            'address_country': 'GB'
+            'address_country': 'GB',
+            'address_area_abbrev_name': '',
+            'address_area_name': '',
         }
     ),
     # no fields are required
@@ -96,7 +104,9 @@ from ..mapping import (
             'address_town': '',
             'address_county': '',
             'address_postcode': '',
-            'address_country': ''
+            'address_country': '',
+            'address_area_abbrev_name': '',
+            'address_area_name': '',
         }
     ),
 ])
@@ -119,7 +129,9 @@ def test_extract_address(input_data, expected):
             'registered_address_town': '',
             'registered_address_county': '',
             'registered_address_postcode': '',
-            'registered_address_country': ''
+            'registered_address_country': '',
+            'registered_address_area_abbrev_name': '',
+            'registered_address_area_name': '',
         }
     ),
     # isRegisteredAddress is True, use primaryAddress
@@ -141,6 +153,10 @@ def test_extract_address(input_data, expected):
                     },
                     'addressCounty': {
                         'name': 'Greater Manchester'
+                    },
+                    'addressRegion': {
+                        'name': 'IWouldBeAStateIfThisWasAmerica',
+                        'abbreviatedName': 'IA'
                     }
                 }
             }
@@ -151,7 +167,9 @@ def test_extract_address(input_data, expected):
             'registered_address_town': 'Manchester',
             'registered_address_county': 'Greater Manchester',
             'registered_address_postcode': 'LS10 2UR',
-            'registered_address_country': 'GB'
+            'registered_address_country': 'GB',
+            'registered_address_area_name': 'IWouldBeAStateIfThisWasAmerica',
+            'registered_address_area_abbrev_name': 'IA',
         }
     ),
     # isRegisteredAddress not set, use registeredAddress
@@ -172,6 +190,10 @@ def test_extract_address(input_data, expected):
                     },
                     'postalCode': 'M3 1NL',
                     'streetAddress': {
+                    },
+                    'addressRegion': {
+                        'name': 'California',
+                        'abbreviatedName': 'CA'
                     }
                 }
             }
@@ -182,7 +204,9 @@ def test_extract_address(input_data, expected):
             'registered_address_town': '',
             'registered_address_county': '',
             'registered_address_postcode': 'M3 1NL',
-            'registered_address_country': 'US'
+            'registered_address_country': 'US',
+            'registered_address_area_name': 'California',
+            'registered_address_area_abbrev_name': 'CA',
         }
     ),
     # isRegisteredAddress is False, use registeredAddress field
@@ -204,6 +228,10 @@ def test_extract_address(input_data, expected):
                     },
                     'addressCounty': {
                         'name': 'Greater Manchester'
+                    },
+                    'addressRegion': {
+                        'name': 'IWouldBeAStateIfThisWasAmerica',
+                        'abbreviatedName': 'IA'
                     }
                 },
                 'registeredAddress': {
@@ -212,6 +240,10 @@ def test_extract_address(input_data, expected):
                     },
                     'postalCode': 'M3 1NL',
                     'streetAddress': {
+                    },
+                    'addressRegion': {
+                        'name': 'California',
+                        'abbreviatedName': 'CA'
                     }
                 }
             }
@@ -222,7 +254,9 @@ def test_extract_address(input_data, expected):
             'registered_address_town': '',
             'registered_address_county': '',
             'registered_address_postcode': 'M3 1NL',
-            'registered_address_country': 'US'
+            'registered_address_country': 'US',
+            'registered_address_area_name': 'California',
+            'registered_address_area_abbrev_name': 'CA',
         }
     ),
     # should use streetName to populate address line 1 and 2
@@ -247,7 +281,11 @@ def test_extract_address(input_data, expected):
                         'line1': 'Leeds street',
                         'line2': 'Leeds area'
                     },
-                    'streetName': 'Peeds street, Peeds area'
+                    'streetName': 'Peeds street, Peeds area',
+                    'addressRegion': {
+                        'name': 'IWouldBeAStateIfThisWasAmerica',
+                        'abbreviatedName': 'IA'
+                    }
                 }
             }
         },
@@ -257,7 +295,9 @@ def test_extract_address(input_data, expected):
             'registered_address_town': 'LEEDS',
             'registered_address_county': 'West Yorkshire',
             'registered_address_postcode': 'LS10 2UR',
-            'registered_address_country': 'GB'
+            'registered_address_country': 'GB',
+            'registered_address_area_name': 'IWouldBeAStateIfThisWasAmerica',
+            'registered_address_area_abbrev_name': 'IA',
         }
     ),
     # should use streetName to populate address line 1 and 2
@@ -280,7 +320,11 @@ def test_extract_address(input_data, expected):
                     'postalCode': 'LS10 2UR',
                     'streetAddress': {
                     },
-                    'streetName': 'Leeds street, Leeds area'
+                    'streetName': 'Leeds street, Leeds area',
+                    'addressRegion': {
+                        'name': 'IWouldBeAStateIfThisWasAmerica',
+                        'abbreviatedName': 'IA'
+                    }
                 }
             }
         },
@@ -290,7 +334,9 @@ def test_extract_address(input_data, expected):
             'registered_address_town': 'LEEDS',
             'registered_address_county': 'West Yorkshire',
             'registered_address_postcode': 'LS10 2UR',
-            'registered_address_country': 'GB'
+            'registered_address_country': 'GB',
+            'registered_address_area_name': 'IWouldBeAStateIfThisWasAmerica',
+            'registered_address_area_abbrev_name': 'IA',
         }
     ),
     # should use streetName to populate address line 1
@@ -313,7 +359,11 @@ def test_extract_address(input_data, expected):
                     'postalCode': 'LS10 2UR',
                     'streetAddress': {
                     },
-                    'streetName': 'Leeds street'
+                    'streetName': 'Leeds street',
+                    'addressRegion': {
+                        'name': 'IWouldBeAStateIfThisWasAmerica',
+                        'abbreviatedName': 'IA'
+                    }
                 }
             }
         },
@@ -323,7 +373,9 @@ def test_extract_address(input_data, expected):
             'registered_address_town': 'LEEDS',
             'registered_address_county': 'West Yorkshire',
             'registered_address_postcode': 'LS10 2UR',
-            'registered_address_country': 'GB'
+            'registered_address_country': 'GB',
+            'registered_address_area_name': 'IWouldBeAStateIfThisWasAmerica',
+            'registered_address_area_abbrev_name': 'IA',
         }
     ),
     # should leave address line 1 and 2 blank
@@ -346,7 +398,11 @@ def test_extract_address(input_data, expected):
                     'postalCode': 'LS10 2UR',
                     'streetAddress': {
                     },
-                    'streetName': ''
+                    'streetName': '',
+                    'addressRegion': {
+                        'name': 'IWouldBeAStateIfThisWasAmerica',
+                        'abbreviatedName': 'IA'
+                    }
                 }
             }
         },
@@ -356,7 +412,9 @@ def test_extract_address(input_data, expected):
             'registered_address_town': 'LEEDS',
             'registered_address_county': 'West Yorkshire',
             'registered_address_postcode': 'LS10 2UR',
-            'registered_address_country': 'GB'
+            'registered_address_country': 'GB',
+            'registered_address_area_name': 'IWouldBeAStateIfThisWasAmerica',
+            'registered_address_area_abbrev_name': 'IA',
         }
     ),
     # should use streetAddress to populate line 1 and 2
@@ -381,7 +439,11 @@ def test_extract_address(input_data, expected):
                         'line1': 'Leeds street',
                         'line2': 'Leeds area'
                     },
-                    'streetName': ''
+                    'streetName': '',
+                    'addressRegion': {
+                        'name': 'IWouldBeAStateIfThisWasAmerica',
+                        'abbreviatedName': 'IA'
+                    }
                 }
             }
         },
@@ -391,7 +453,9 @@ def test_extract_address(input_data, expected):
             'registered_address_town': 'LEEDS',
             'registered_address_county': 'West Yorkshire',
             'registered_address_postcode': 'LS10 2UR',
-            'registered_address_country': 'GB'
+            'registered_address_country': 'GB',
+            'registered_address_area_name': 'IWouldBeAStateIfThisWasAmerica',
+            'registered_address_area_abbrev_name': 'IA',
         }
     ),
     # should use streetAddress to populate line 1 and 2
@@ -416,7 +480,11 @@ def test_extract_address(input_data, expected):
                         'line1': 'Leeds street',
                         'line2': 'Leeds area'
                     },
-                    'streetName': 123
+                    'streetName': 123,
+                    'addressRegion': {
+                        'name': 'IWouldBeAStateIfThisWasAmerica',
+                        'abbreviatedName': 'IA'
+                    }
                 }
             }
         },
@@ -426,7 +494,9 @@ def test_extract_address(input_data, expected):
             'registered_address_town': 'LEEDS',
             'registered_address_county': 'West Yorkshire',
             'registered_address_postcode': 'LS10 2UR',
-            'registered_address_country': 'GB'
+            'registered_address_country': 'GB',
+            'registered_address_area_name': 'IWouldBeAStateIfThisWasAmerica',
+            'registered_address_area_abbrev_name': 'IA',
         }
     ),
     # should default to empty
@@ -449,7 +519,11 @@ def test_extract_address(input_data, expected):
                     },
                     'postalCode': 'LS10 2UR',
                     'streetAddress': 'Address1',
-                    'streetName': 123
+                    'streetName': 123,
+                    'addressRegion': {
+                        'name': 'IWouldBeAStateIfThisWasAmerica',
+                        'abbreviatedName': 'IA'
+                    }
                 }
             }
         },
@@ -459,7 +533,9 @@ def test_extract_address(input_data, expected):
             'registered_address_town': 'LEEDS',
             'registered_address_county': 'West Yorkshire',
             'registered_address_postcode': 'LS10 2UR',
-            'registered_address_country': 'GB'
+            'registered_address_country': 'GB',
+            'registered_address_area_name': 'IWouldBeAStateIfThisWasAmerica',
+            'registered_address_area_abbrev_name': 'IA',
         }
     ),
 ])
@@ -973,6 +1049,8 @@ def test_company_list_ingest(company_list_api_response_json):
         'address_county': '',
         'address_postcode': '',
         'address_country': 'GB',
+        'address_area_abbrev_name': '',
+        'address_area_name': '',
         'annual_sales': 51806612000,
         'annual_sales_currency': 'USD',
         'is_annual_sales_estimated': None,
@@ -1033,12 +1111,16 @@ def test_cmpelk_ingest(cmpelk_api_response_json):
         'address_county': 'San Francisco',
         'address_postcode': '94110',
         'address_country': 'US',
+        'address_area_name': 'California',
+        'address_area_abbrev_name': 'CA',
         'registered_address_line_1': '',
         'registered_address_line_2': '',
         'registered_address_town': '',
         'registered_address_county': '',
         'registered_address_postcode': '',
         'registered_address_country': '',
+        'registered_address_area_abbrev_name': '',
+        'registered_address_area_name': '',
         'annual_sales': 22589957,
         'annual_sales_currency': 'USD',
         'is_annual_sales_estimated': False,
