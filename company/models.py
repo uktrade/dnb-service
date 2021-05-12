@@ -205,6 +205,18 @@ class Company(models.Model):
     )
 
     address_county = models.CharField(
+        _('County'),
+        blank=True,
+        max_length=255,
+    )
+
+    address_area_abbrev_name = models.CharField(
+        _('State (Abbreviated)'),
+        blank=True,
+        max_length=3,
+    )
+
+    address_area_name = models.CharField(
         _('State'),
         blank=True,
         max_length=255,
@@ -242,6 +254,18 @@ class Company(models.Model):
     )
 
     registered_address_county = models.CharField(
+        _('County'),
+        blank=True,
+        max_length=255,
+    )
+
+    registered_address_area_abbrev_name = models.CharField(
+        _('State (Abbreviated)'),
+        blank=True,
+        max_length=3,
+    )
+
+    registered_address_area_name = models.CharField(
         _('State'),
         blank=True,
         max_length=255,
