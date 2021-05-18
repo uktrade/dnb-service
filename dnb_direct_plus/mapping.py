@@ -17,6 +17,8 @@ def extract_address(address_data):
         'address_county': address_data.get('addressCounty', {}).get('name', ''),
         'address_postcode': address_data.get('postalCode', ''),
         'address_country': address_data.get('addressCountry', {}).get('isoAlpha2Code', ''),
+        'address_area_name': address_data.get('addressRegion', {}).get('name', ''),
+        'address_area_abbrev_name': address_data.get('addressRegion', {}).get('abbreviatedName', ''),
     }
 
 def _get_address_line(address_data):
