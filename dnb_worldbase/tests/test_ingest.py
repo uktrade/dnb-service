@@ -31,7 +31,8 @@ def test_input_data():
         'Street Address': 'address 1',
         'Street Address 2': 'address 2',
         'City Name': 'city',
-        'State/Province Name': 'county',
+        'State/Province Name': 'county / area name',
+        'State/Province Abbreviation': 'abr',
         'Postal Code for Street Address': 'postcode',
         'Country Code': '790',
         'Line of Business': 'agriculture',
@@ -110,6 +111,11 @@ class TestUpdateCompany:
 
         serialiser = CompanySerialiser(company)
 
+        from pprint import pprint
+        pprint('----------COMPANY------------')
+        pprint(serialiser.data)
+        pprint('---------------------------------')
+
         assert serialiser.data == {
             'last_updated': None,
             'duns_number': '123456789',
@@ -121,13 +127,17 @@ class TestUpdateCompany:
             'address_line_1': 'address 1',
             'address_line_2': 'address 2',
             'address_town': 'city',
-            'address_county': 'county',
+            'address_county': 'county / area name',
+            'address_area_name': 'county / area name',
+            'address_area_abbrev_name': 'abr',
             'address_country': 'GB',
             'address_postcode': 'postcode',
             'registered_address_line_1': '',
             'registered_address_line_2': '',
             'registered_address_town': '',
             'registered_address_county': '',
+            'registered_address_area_name': '',
+            'registered_address_area_abbrev_name': '',
             'registered_address_country': None,
             'registered_address_postcode': '',
             'line_of_business': 'agriculture',
@@ -180,13 +190,17 @@ class TestUpdateCompany:
             'address_line_1': 'address 1',
             'address_line_2': 'address 2',
             'address_town': 'city',
-            'address_county': 'county',
+            'address_county': 'county / area name',
+            'address_area_name': 'county / area name',
+            'address_area_abbrev_name': 'abr',
             'address_country': 'GB',
             'address_postcode': 'postcode',
             'registered_address_line_1': '',
             'registered_address_line_2': '',
             'registered_address_town': '',
             'registered_address_county': '',
+            'registered_address_area_name': '',
+            'registered_address_area_abbrev_name': '',
             'registered_address_country': None,
             'registered_address_postcode': '',
             'line_of_business': 'agriculture',
@@ -268,8 +282,9 @@ class TestProcessFile:
             'Street Address': 'address 1',
             'Street Address 2': 'address 2',
             'City Name': 'city',
-            'State/Province Name': 'county',
+            'State/Province Name': 'county / area name',
             'Postal Code for Street Address': 'postcode',
+            'State/Province Abbreviation': 'abr',
             'Country Code': '790',
             'Line of Business': 'agriculture',
             'Year Started': '2000',
