@@ -649,6 +649,22 @@ class TestInvestigationApiView:
                     'address_country': 'GB',
                 },
             },
+            # Company located in USA
+            {
+                'company_details': {
+                    'primary_name': 'Foo Bar',
+                    'domain': 'example.com',
+                    'telephone_number': '12345678',
+                    'address_line_1': '123 Fake Street',
+                    'address_line_2': 'Foo',
+                    'address_town': 'Beverly Hills',
+                    'address_county': 'Los Angeles',
+                    'address_area_abbrev_name': 'CA',
+                    'address_area_name': 'California',
+                    'address_country': 'US',
+                    'address_postcode': '90210',
+                },
+            },
         )
     )
     def test_valid(self, auth_client, request_data):

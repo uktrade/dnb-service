@@ -246,6 +246,8 @@ class CompanyDetailsSerialiser(CompanySerialiser):
             'address_line_2',
             'address_town',
             'address_county',
+            'address_area_name',
+            'address_area_abbrev_name',
             'address_country',
             'address_postcode',
         )
