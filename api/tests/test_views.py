@@ -677,7 +677,7 @@ class TestInvestigationApiView:
                     'address_country': 'GB',
                 },
             },
-            # Company located in USA
+            # US Company
             {
                 'company_details': {
                     'primary_name': 'Foo Bar',

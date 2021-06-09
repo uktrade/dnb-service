@@ -111,11 +111,6 @@ class TestUpdateCompany:
 
         serialiser = CompanySerialiser(company)
 
-        from pprint import pprint
-        pprint('----------COMPANY------------')
-        pprint(serialiser.data)
-        pprint('---------------------------------')
-
         assert serialiser.data == {
             'last_updated': None,
             'duns_number': '123456789',
