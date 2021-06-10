@@ -87,7 +87,7 @@ django-timezone-field==4.1.2
     # via
     #   -r requirements.txt
     #   django-celery-beat
-django==2.2.21
+django==2.2.24
     # via
     #   -r requirements.txt
     #   django-celery-beat
