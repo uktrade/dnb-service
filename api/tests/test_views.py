@@ -359,6 +359,34 @@ class TestChangeRequestApiView:
                     'address_postcode': 'W1 0TN',
                 },
             },
+            # US Company
+            {
+                'duns_number': '123456789',
+                'changes': {
+                    'primary_name': 'Foo Bar',
+                    'trading_names': ['Foo Bar INC'],
+                    'domain': 'example.com',
+                    'address_line_1': '123 Fake Street',
+                    'address_line_2': 'Foo',
+                    'address_town': 'Beverly Hills',
+                    'address_county': 'Los Angeles',
+                    'address_area_abbrev_name': 'CA',
+                    'address_area_name': 'California',
+                    'address_country': 'US',
+                    'address_postcode': '90210',
+                    'registered_address_line_1': '123 Fake Street',
+                    'registered_address_line_2': 'Foo',
+                    'registered_address_town': 'Beverly Hills',
+                    'registered_address_county': 'Los Angeles',
+                    'registered_address_area_abbrev_name': 'CA',
+                    'registered_address_area_name': 'California',
+                    'registered_address_country': 'US',
+                    'registered_address_postcode': '90210',
+                    'employee_number': 673,
+                    'annual_sales': 416807212.0,
+                    'annual_sales_currency': 'USD',
+                },
+            },
         )
     )
     def test_valid_request_responds_200(self, auth_client, request_data):
@@ -647,6 +675,22 @@ class TestInvestigationApiView:
                     'address_line_1': '123 Fake Street',
                     'address_town': 'London',
                     'address_country': 'GB',
+                },
+            },
+            # US Company
+            {
+                'company_details': {
+                    'primary_name': 'Foo Bar',
+                    'domain': 'example.com',
+                    'telephone_number': '12345678',
+                    'address_line_1': '123 Fake Street',
+                    'address_line_2': 'Foo',
+                    'address_town': 'Beverly Hills',
+                    'address_county': 'Los Angeles',
+                    'address_area_abbrev_name': 'CA',
+                    'address_area_name': 'California',
+                    'address_country': 'US',
+                    'address_postcode': '90210',
                 },
             },
         )
