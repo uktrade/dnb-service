@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from ..api import company_list_search
+from ..api import company_list_search, company_list_search_v2
 from ..mapping import extract_company_data
 from company.constants import MonitoringStatusChoices
 from company.models import Company
@@ -29,11 +29,41 @@ def test_company_list_search(mocker, company_list_api_response_json):
     assert len(output['results']) == 2
     assert Company.objects.count() == 0
 
+    assert mock_api_request.call_args[0] == ('POST', '/v1/search/companyList')
     assert mock_api_request.call_args[1]['json'] == {
         'searchTerm': 'hello world'
     }
 
     for input_data, expected in zip(company_input_data['searchCandidates'], output['results']):
+        assert extract_company_data(input_data) == expected
+
+@pytest.mark.django_db
+def test_company_list_search_v2(mocker, company_list_v2_api_response_json):
+    
+    company_input_data = json.loads(company_list_v2_api_response_json)
+
+    mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
+    mock_api_request.return_value.json.return_value = company_input_data
+
+    assert Company.objects.count() == 0
+
+    output = company_list_search_v2({
+        'duns_number': '804735132',
+        'address_country': 'US',
+        'search_term': 'company name'
+    })
+
+    assert len(output['results']) == 1
+    assert Company.objects.count() == 0
+
+    assert mock_api_request.call_args[0] == ('GET', '/v1/match/cleanseMatch')
+    assert mock_api_request.call_args[1]['params'] == {
+        'duns': '804735132',
+        'countryISOAlpha2Code': 'US',
+        'name': 'company name'
+    }
+
+    for input_data, expected in zip(company_input_data['matchCandidates'], output['results']):
         assert extract_company_data(input_data) == expected
 
 

@@ -9,8 +9,8 @@ from rest_framework.pagination import LimitOffsetPagination
 
 from company.models import ChangeRequest, Company, InvestigationRequest
 from company.serialisers import ChangeRequestSerialiser, CompanySerialiser, InvestigationRequestSerializer
-from dnb_direct_plus.api import company_list_search
-from .serialisers import CompanySearchInputSerialiser
+from dnb_direct_plus.api import company_list_search, company_list_search_v2
+from .serialisers import CompanySearchInputSerialiser, CompanySearchV2InputSerialiser
 
 
 class DNBCompanySearchAPIView(APIView):
@@ -24,6 +24,22 @@ class DNBCompanySearchAPIView(APIView):
 
         try:
             data = company_list_search(serialiser.data, update_local=True)
+        except HTTPError as ex:
+            error_detail = ex.response.json()['error']
+            return Response(error_detail, status=ex.response.status_code)
+
+        return Response(data)
+
+class DNBCompanySearchV2APIView(APIView):
+    """
+    An API view that proxies requests to Dun & Bradstreet's cleanseMatch search.
+    """
+    def post(self, request):
+        serialiser = CompanySearchV2InputSerialiser(data=request.data)
+        serialiser.is_valid(raise_exception=True)
+
+        try:
+            data = company_list_search_v2(serialiser.data, update_local=True)
         except HTTPError as ex:
             error_detail = ex.response.json()['error']
             return Response(error_detail, status=ex.response.status_code)
