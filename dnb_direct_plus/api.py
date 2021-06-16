@@ -45,11 +45,11 @@ def company_list_search(query, update_local=False):
         update_company_and_enable_monitoring(response_data['searchCandidates'][0])
 
     return {
-        'total_matches': response_data.get('candidatesMatchedQuantity', 0), #doesn't exist either
-        'total_returned': response_data.get('candidatesReturnedQuantity', 0), #doesn't exist anymore, but should be fine cus it doesn't look like it's being used
-        'page_size': response_data.get('inquiryDetail', {}).get('pageSize', 0), #same here
-        'page_number': response_data.get('inquiryDetail', {}).get('pageNumber', 1), #if we don't have page size i doubt we have this
-        'results': results, #<<< this is the important thing the frontend cares about
+        'total_matches': response_data.get('candidatesMatchedQuantity', 0),
+        'total_returned': response_data.get('candidatesReturnedQuantity', 0),
+        'page_size': response_data.get('inquiryDetail', {}).get('pageSize', 0),
+        'page_number': response_data.get('inquiryDetail', {}).get('pageNumber', 1),
+        'results': results,
     }
 
 def company_list_search_v2(query, update_local=False):
