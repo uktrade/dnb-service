@@ -44,3 +44,24 @@ SEARCH_QUERY_TO_DNB_FIELD_MAPPING = {
     'page_size': 'pageSize',
     'page_number': 'pageNumber',
 }
+
+SEARCH_QUERY_TO_DNB_FIELD_MAPPING_V2 = {
+    'duns_number': 'duns',
+    'search_term': 'name',
+    'address_country': 'countryISOAlpha2Code',
+    'telephone_number': 'telephoneNumber',
+    'domain': 'url',
+    'address_town': 'addressLocality',
+    'address_line_1': 'streetAddressLine1',
+    'address_region': 'addressRegion',
+    'postal_code': 'postalCode',
+}
+
+DEPRECATED_SEARCH_QUERY_PARAMS_V2 = [
+    'is_out_of_business',
+    'registration_numbers',
+    'primary_name',
+    'trading_names',
+    'page_size',
+    'page_number',
+]

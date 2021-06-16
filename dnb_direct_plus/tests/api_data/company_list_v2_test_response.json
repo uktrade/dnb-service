@@ -1,0 +1,170 @@
+{
+  "transactionDetail": {
+    "transactionID": "rrt-77656c6f7665726f7365-a-us-8192-72616e6479-96",
+    "transactionTimestamp": "2021-06-10T10:44:15.970Z",
+    "inLanguage": "en-US",
+    "serviceVersion": "1"
+  },
+  "inquiryDetail": {
+    "inLanguage": "en-GB",
+    "duns": "1415926535",
+    "registrationNumber": "141592653589793",
+    "registrationNumberType": "25565",
+    "name": "string used to search for entities",
+    "address": {
+      "countryISOAlpha2Code": "US",
+      "addressLocality": "Murrieta",
+      "addressRegion": "NJ",
+      "postalCode": "25565",
+      "streetAddressLine": {
+        "line1": "street address",
+        "line2": "street address line 2"
+      }
+    },
+    "telephoneNumber": "141592653",
+    "url": "www.example.com",
+    "email": "example@example.com",
+    "candidateMaximumQuantity": 25,
+    "confidenceLowerLevelThresholdValue": 7,
+    "exclusionCriteria": [
+      "ExcludeNonHeadQuarters",
+      "ExcludeNonMarketable"
+    ],
+    "isCleanseAndStandardizeInformationRequired": true,
+    "customerBillingEndorsement": "request reference text",
+    "customerReference": [
+      "request reference text",
+      "request reference text",
+      "request reference text",
+      "request reference text",
+      "request reference text"
+    ]
+  },
+  "candidatesMatchedQuantity": 1,
+  "matchDataCriteria": "DUNS Number Lookup",
+  "matchCandidates": [
+    {
+      "displaySequence": 1,
+      "organization": {
+        "duns": "141592653",
+        "websiteAddress": [],
+        "dunsControlStatus": {
+          "operatingStatus": {
+            "description": "Active",
+            "dnbCode": 9074
+          },
+          "isMailUndeliverable": false
+        },
+        "primaryName": "EXAMPLE COMPANY, INC.",
+        "tradeStyleNames": [],
+        "telephone": [
+          {
+            "telephoneNumber": "1415926535",
+            "isUnreachable": false
+          }
+        ],
+        "primaryAddress": {
+          "addressCountry": {
+            "isoAlpha2Code": "US",
+            "name": "United States"
+          },
+          "addressLocality": {
+            "name": "Murrieta"
+          },
+          "addressRegion": {
+            "name": null,
+            "abbreviatedName": "CA"
+          },
+          "postalCode": "25565",
+          "postalCodeExtension": null,
+          "streetAddress": {
+            "line1": "109 Stardust Way",
+            "line2": null
+          }
+        },
+        "mailingAddress": {
+          "addressCountry": {
+            "isoAlpha2Code": "US",
+            "name": "United States"
+          },
+          "addressLocality": {},
+          "addressRegion": {},
+          "postalCode": null,
+          "postalCodeExtension": null,
+          "streetAddress": {}
+        },
+        "registrationNumbers": [],
+        "mostSeniorPrincipals": [
+          {
+            "fullName": "John Doe"
+          }
+        ],
+        "isStandalone": false,
+        "corporateLinkage": {
+          "familytreeRolesPlayed": [
+            {
+              "description": "Parent/Headquarters",
+              "dnbCode": 4096
+            }
+          ]
+        }
+      },
+      "matchQualityInformation": {
+        "confidenceCode": 10,
+        "matchGrade": "AAAAAAAAAAA",
+        "matchGradeComponentsCount": 11,
+        "matchGradeComponents": [
+          {
+            "componentType": "Name",
+            "componentRating": "A"
+          },
+          {
+            "componentType": "Street Number",
+            "componentRating": "A"
+          },
+          {
+            "componentType": "Street Name",
+            "componentRating": "A"
+          },
+          {
+            "componentType": "City",
+            "componentRating": "A"
+          },
+          {
+            "componentType": "State",
+            "componentRating": "A"
+          },
+          {
+            "componentType": "PO Box",
+            "componentRating": "A"
+          },
+          {
+            "componentType": "Phone",
+            "componentRating": "A"
+          },
+          {
+            "componentType": "Postal Code",
+            "componentRating": "A"
+          },
+          {
+            "componentType": "Density",
+            "componentRating": "A"
+          },
+          {
+            "componentType": "Uniqueness",
+            "componentRating": "A"
+          },
+          {
+            "componentType": "Sic",
+            "componentRating": "A"
+          }
+        ],
+        "matchDataProfile": null,
+        "matchDataProfileComponentsCount": null,
+        "matchDataProfileComponents": [],
+        "nameMatchScore": 0
+      }
+    }
+  ],
+  "cleanseAndStandardizeInformation": {}
+}
