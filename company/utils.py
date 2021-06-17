@@ -57,7 +57,7 @@ def generate_change_request_csv(change_requests):
 
     The CSV file is in the following example format:
     "duns_number","changes"
-    "123456789","Address: 123 Fake Street, Burgess Hill, RH15 0TN, Sussex, GB; Business Name: BSmitty LTD;"
+    "123456789","Address: 123 Fake Street, Burgess Hill, RH15 0TN, Sussex, GB, Area: New York, NY; Business Name: BSmitty LTD;"
     """
     if not change_requests:
         raise IndexError("Cannot generate a change request CSV for an empty list of change requests.")
