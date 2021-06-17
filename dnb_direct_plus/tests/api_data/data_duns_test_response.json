@@ -1,0 +1,248 @@
+{
+  "transactionDetail": {
+    "transactionID": "rrt-00000000000000000-b-eu-00000-0000000-0_0000",
+    "transactionTimestamp": "2021-06-17T13:01:36.717Z",
+    "inLanguage": "en-US",
+    "productID": "cmpelk",
+    "productVersion": "1"
+  },
+  "inquiryDetail": {
+    "productVersion": "v1",
+    "productID": "cmpelk",
+    "duns": "141592653"
+  },
+  "organization": {
+    "duns": "141592653",
+    "dunsControlStatus": {
+      "operatingStatus": {
+        "description": "Out of business",
+        "dnbCode": 128
+      },
+      "isMarketable": true,
+      "isMailUndeliverable": false,
+      "isTelephoneDisconnected": null,
+      "isDelisted": false,
+      "subjectHandlingDetails": [],
+      "fullReportDate": "1991-08-25",
+      "lastUpdateDate": "2020-08-25"
+    },
+    "primaryName": "EXAMPLE COMPANY, INC.",
+    "tradeStyleNames": [],
+    "websiteAddress": [],
+    "telephone": [],
+    "fax": [],
+    "primaryAddress": {
+      "language": {
+        "description": "English",
+        "dnbCode": 39
+      },
+      "addressCountry": {
+        "name": "United Kingdom",
+        "isoAlpha2Code": "GB",
+        "fipsCode": "UK"
+      },
+      "continentalRegion": {
+        "name": "Europe"
+      },
+      "addressLocality": {
+        "name": "LONDON"
+      },
+      "minorTownName": null,
+      "addressRegion": {},
+      "addressCounty": {},
+      "postalCode": "HA9 6AR",
+      "postalCodePosition": {},
+      "streetNumber": null,
+      "streetName": null,
+      "streetAddress": {
+        "line1": "388 High Rd",
+        "line2": "Wembley"
+      },
+      "postOfficeBox": {},
+      "latitude": 50.14159265,
+      "longitude": -0.14159265,
+      "geographicalPrecision": {
+        "description": "Street Address Centroid",
+        "dnbCode": 14159
+      },
+      "isRegisteredAddress": null,
+      "statisticalArea": {},
+      "locationOwnership": {},
+      "premisesArea": {},
+      "isManufacturingLocation": null
+    },
+    "registeredAddress": {
+      "language": {
+        "description": "English",
+        "dnbCode": 64
+      },
+      "addressCountry": {
+        "name": "United Kingdom",
+        "isoAlpha2Code": "GB"
+      },
+      "addressLocality": {},
+      "minorTownName": null,
+      "addressRegion": {},
+      "addressCounty": {},
+      "postalCode": null,
+      "postalCodePosition": {},
+      "streetNumber": null,
+      "streetName": null,
+      "streetAddress": {
+        "line1": "388 High Rd",
+        "line2": "London",
+        "line3": "HA9 6AR",
+        "line4": null
+      },
+      "postOfficeBox": {}
+    },
+    "mailingAddress": {},
+    "stockExchanges": [],
+    "thirdPartyAssessment": [],
+    "registrationNumbers": [
+      {
+        "registrationNumber": "14159265",
+        "typeDescription": "COMPANIES REGISTRY OFFICE Number (GB)",
+        "typeDnBCode": 4096
+      }
+    ],
+    "industryCodes": [
+      {
+        "code": "141592",
+        "description": "Fine Arts Schools",
+        "typeDescription": "North American Industry Classification System 2017",
+        "typeDnBCode": 14159,
+        "priority": 1
+      },
+      {
+        "code": "14159",
+        "description": "Cultural education",
+        "typeDescription": "UK Standard Industry Code 2007",
+        "typeDnBCode": 14159,
+        "priority": 1
+      },
+      {
+        "code": "1415",
+        "description": "Education & Training Services",
+        "typeDescription": "D&B Hoovers Industry Code",
+        "typeDnBCode": 14159,
+        "priority": 1
+      },
+      {
+        "code": "1415",
+        "description": "School/educational services",
+        "typeDescription": "US Standard Industry Code 1987 - 4 digit",
+        "typeDnBCode": 256,
+        "priority": 1
+      },
+      {
+        "code": "14159265",
+        "description": "Arts and crafts schools",
+        "typeDescription": "D&B Standard Industry Code",
+        "typeDnBCode": 2048,
+        "priority": 1
+      },
+      {
+        "code": "I",
+        "description": "Services",
+        "typeDescription": "D&B Standard Major Industry Code",
+        "typeDnBCode": 25565,
+        "priority": 1
+      },
+      {
+        "code": "1415",
+        "description": "Cultural education",
+        "typeDescription": "NACE Revision 2",
+        "typeDnBCode": 25565,
+        "priority": 1
+      }
+    ],
+    "businessEntityType": {
+      "description": "Corporation",
+      "dnbCode": 128
+    },
+    "controlOwnershipDate": null,
+    "controlOwnershipType": {
+      "description": "Privately owned",
+      "dnbCode": 2048
+    },
+    "isAgent": null,
+    "isImporter": null,
+    "isExporter": null,
+    "numberOfEmployees": [
+      {
+        "value": 8,
+        "informationScopeDescription": "Individual",
+        "informationScopeDnBCode": 2048,
+        "reliabilityDescription": "Estimated",
+        "reliabilityDnBCode": 2048,
+        "employeeCategories": []
+      }
+    ],
+    "financials": [],
+    "mostSeniorPrincipals": [
+      {
+        "givenName": "Malcolm",
+        "familyName": "Lipman",
+        "fullName": "Malcolm Lipman",
+        "namePrefix": "Mr",
+        "nameSuffix": null,
+        "gender": "Male",
+        "jobTitles": [
+          {
+            "title": "Director"
+          }
+        ],
+        "managementResponsibilities": [
+          {
+            "description": "Director",
+            "mrcCode": "X99"
+          }
+        ]
+      }
+    ],
+    "currentPrincipals": [
+      {
+        "givenName": "Cassius",
+        "familyName": "Stevens",
+        "fullName": "Cassius Stevens",
+        "namePrefix": "Mr",
+        "nameSuffix": null,
+        "gender": "Male",
+        "jobTitles": [
+          {
+            "title": "Director"
+          }
+        ],
+        "managementResponsibilities": [
+          {
+            "description": "Director",
+            "mrcCode": "RD03"
+          }
+        ]
+      },
+      {
+        "givenName": "Peter",
+        "familyName": "Tesla",
+        "fullName": "Peter Tesla",
+        "namePrefix": "Mr",
+        "nameSuffix": null,
+        "gender": "Male",
+        "jobTitles": [
+          {
+            "title": "Company Secretary"
+          }
+        ],
+        "managementResponsibilities": [
+          {
+            "description": "Secretary",
+            "mrcCode": "RD04"
+          }
+        ]
+      }
+    ],
+    "socioEconomicInformation": {},
+    "isStandalone": true,
+    "corporateLinkage": {}
+  }
+}

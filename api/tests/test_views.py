@@ -179,11 +179,32 @@ class TestCompanySearchV2View:
         auth_client,
         mocker,
         company_list_v2_api_response_json,
+        data_duns_api_response_json
     ):
 
         company_input_data = json.loads(company_list_v2_api_response_json)
-        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
-        mock_api_request.return_value.json.return_value = company_input_data
+        up_to_date_company_data = json.loads(data_duns_api_response_json)
+        
+        class ApiRequestFake:
+            def __init__(self, *posargs, **kwargs):
+                self.posargs = posargs
+                self.kwargs = kwargs
+                
+                if self.posargs == ('GET', '/v1/match/cleanseMatch'):
+                    assert self.kwargs['params'] == {
+                        'duns': '141592653'
+                    }
+                    
+                    self.json_data = company_input_data
+                elif self.posargs == ('GET', '/v1/data/duns/141592653'):
+                    self.json_data = up_to_date_company_data
+                else:
+                    raise AssertionError(f'Unexpected API request posargs={posargs} kwargs={kwargs}')
+                
+            def json(self):
+                return self.json_data
+        
+        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request', new=ApiRequestFake)
 
         assert Company.objects.count() == 0
         response = auth_client.post(
@@ -195,6 +216,8 @@ class TestCompanySearchV2View:
         assert response.status_code == 200
         company = Company.objects.first()
         result_data = response.json()
+        
+        assert company.address_country.iso_alpha2 == up_to_date_company_data['organization']['primaryAddress']['addressCountry']['isoAlpha2Code']
         assert company.duns_number == result_data['results'][0]['duns_number']
         assert company.monitoring_status == MonitoringStatusChoices.pending.name
 
