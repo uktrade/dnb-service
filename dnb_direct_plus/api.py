@@ -13,6 +13,8 @@ from dnb_direct_plus.tasks import update_company_and_enable_monitoring
 DNB_COMPANY_SEARCH_ENDPOINT = '/v1/search/companyList'
 DNB_COMPANY_SEARCH_ENDPOINT_V2 = '/v1/match/cleanseMatch'
 
+company_endpoint_from_duns = lambda dunsNumber: f'/v1/data/duns/{dunsNumber}'
+
 def company_list_search(query, update_local=False):
     """
     Perform a DNB Direct+ company search list api call
@@ -52,18 +54,9 @@ def company_list_search(query, update_local=False):
         'results': results,
     }
 
-def company_list_search_v2(query, update_local=False):
+def company_list_request_v2(query):
     """
-    Tries to return the best match for the search terms using the DNB Direct+ cleanseMatch endpoint
-
-    query parameters are supplied in a local format see `SEARCH_QUERY_TO_DNB_FIELD_MAPPING_V2` in constants.py
-    
-    some query parameters are accepted but ignored as they are no longer applicable to v2, see `DEPRECATED_SEARCH_QUERY_PARAMS_V2` in constants.py
-
-    only a subset of fields are extracted and mapped to a local format.
-
-    Documentation for the DNB api call is available here:
-    https://directplus.documentation.dnb.com/openAPI.html?apiID=IDRCleanseMatch
+    Request logic for company_list_search_v2()
     """
     query_keys = list(query.keys())
     for parameter in query_keys:
@@ -80,18 +73,53 @@ def company_list_search_v2(query, update_local=False):
     except HTTPError as ex:
         logger.exception("HTTP error occurred")
         if ex.response.status_code == 404:
-            response_data = {}
+            return {}
         else:
             raise
     else:
-        response_data = response.json()
+        return response.json()
+
+def company_by_duns(duns):
+    try:
+        response = api_request(
+            'GET',
+            company_endpoint_from_duns(duns),
+            params={'productId': 'cmpelk', 'versionId': 'v1'}
+        )
+    except HTTPError as ex:
+        logger.exception("HTTP error occurred")
+        if ex.response.status_code == 404:
+            return {}
+        else:
+            raise
+    else:
+        return response.json()
     
+def company_list_search_v2(query, update_local=False):
+    """
+    Tries to return the best match for the search terms using the DNB Direct+ cleanseMatch endpoint
+
+    query parameters are supplied in a local format see `SEARCH_QUERY_TO_DNB_FIELD_MAPPING_V2` in constants.py
+    
+    some query parameters are accepted but ignored as they are no longer applicable to v2, see `DEPRECATED_SEARCH_QUERY_PARAMS_V2` in constants.py
+
+    only a subset of fields are extracted and mapped to a local format.
+
+    Documentation for the DNB api call is available here:
+    https://directplus.documentation.dnb.com/openAPI.html?apiID=IDRCleanseMatch
+    """
+    #this stuff can also probably be safely broken out into another function
+    response_data = company_list_request_v2(query)
     results = [extract_company_data(item) for item in response_data.get('matchCandidates', [])]
 
     # update the local company record and enable monitoring
     if update_local and 'duns_number' in query and len(results) == 1:
+        #we should break this out into another function it's getting crowded
+        #we need to make another api_request() here to https://plus.dnb.com/v1/data/duns/{dunsNumber}
+        company = company_by_duns(query['duns_number'])
+        update_company_and_enable_monitoring(company)
         # note that this data may be up to a week out of date
-        update_company_and_enable_monitoring(response_data['matchCandidates'][0])
+        #update_company_and_enable_monitoring(response_data['matchCandidates'][0])
 
     return {
         'results': results,
