@@ -38,12 +38,14 @@ class TestGenerateChangeRequestCSV:
             'address_line_2': 'Somewhere',
             'address_town': 'Southampton',
             'address_county': 'Hampshire',
+            'address_area': {'name': 'California', 'abbrev_name': 'CA'},
             'address_postcode': 'SO31 9TB',
             'address_country': 'GB',
             'registered_address_line_1': '123 Fake Street',
             'registered_address_line_2': 'Some Place',
             'registered_address_town': 'London',
             'registered_address_county': 'Greater London',
+            'registered_address_area': {'name': 'California', 'abbrev_name': 'CA'},
             'registered_address_postcode': 'W1 9TB',
             'registered_address_country': 'GB',
             'employee_number': 190,
@@ -59,8 +61,8 @@ class TestGenerateChangeRequestCSV:
                     'Business Name: Bar; '
                     "Trading Name(s): ['Bar inc', 'Bar LTD']; "
                     'Website Domain: example.net; '
-                    'Address: 123 Fake Lane, Somewhere, Southampton, Hampshire, SO31 9TB, GB; '
-                    'Registered Address: 123 Fake Street, Some Place, London, Greater London, W1 9TB, GB; '
+                    'Address: 123 Fake Lane, Somewhere, Southampton, Hampshire, SO31 9TB, California, CA, GB; '
+                    'Registered Address: 123 Fake Street, Some Place, London, Greater London, W1 9TB, California, CA, GB; '
                     'Employee Number: 190; '
                     'Annual Sales: 1050.0; '
                     'Annual Sales Currency: GBP'
