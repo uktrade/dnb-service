@@ -38,7 +38,7 @@ class PrimaryIndustryCodeSerialiser(serializers.ModelSerializer):
         exclude = ['id', 'company']
 
 
-class CompanySerialiser(serializers.ModelSerializer):
+class BaseCompanyMixin:
     address_country = serializers.SlugRelatedField(
         many=False,
         read_only=True,
@@ -69,16 +69,12 @@ class CompanySerialiser(serializers.ModelSerializer):
             'address_line_2',
             'address_town',
             'address_county',
-            'address_area_name',
-            'address_area_abbrev_name',
             'address_country',
             'address_postcode',
             'registered_address_line_1',
             'registered_address_line_2',
             'registered_address_town',
             'registered_address_county',
-            'registered_address_area_name',
-            'registered_address_area_abbrev_name',
             'registered_address_country',
             'registered_address_postcode',
             'line_of_business',
@@ -96,6 +92,16 @@ class CompanySerialiser(serializers.ModelSerializer):
             'industry_codes',
         ]
 
+class CompanySerialiser(serializers.ModelSerializer, BaseCompanyMixin):
+
+    class Meta:
+        model = BaseCompanyMixin.Meta.model
+        fields = BaseCompanyMixin.Meta.fields + [
+            'address_area_name',
+            'address_area_abbrev_name',
+            'registered_address_area_name',
+            'registered_address_area_abbrev_name',
+        ]
 
 class ChangeRequestChangesSerialiser(CompanySerialiser):
     """
@@ -208,7 +214,7 @@ class ChangeRequestSerialiser(serializers.ModelSerializer):
         return change_request
 
 
-class CompanyDetailsSerialiser(CompanySerialiser):
+class CompanyDetailsSerialiser(BaseCompanyMixin):
     """
     Serialised representation of `company_details` JSON field
     in the InvestigationRequest model.
@@ -216,6 +222,8 @@ class CompanyDetailsSerialiser(CompanySerialiser):
 
     telephone_number = serializers.CharField(max_length=20, required=False)
     address_country = serializers.CharField(max_length=2, required=True)
+
+    address_area = serializers.DictField(child=serializers.CharField(), required=False)
 
     @cached_property
     def _country_slugs(self):
@@ -254,8 +262,7 @@ class CompanyDetailsSerialiser(CompanySerialiser):
             'address_line_2',
             'address_town',
             'address_county',
-            'address_area_name',
-            'address_area_abbrev_name',
+            'address_area',
             'address_country',
             'address_postcode',
         )
