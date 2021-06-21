@@ -103,6 +103,8 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
     """
     address_country = serializers.CharField(max_length=2, required=False)
     registered_address_country = serializers.CharField(max_length=2, required=False)
+    address_area = serializers.DictField(child=serializers.CharField(), required=False)
+    registered_address_area = serializers.DictField(child=serializers.CharField(), required=False)
 
     class Meta:
         model = Company
@@ -114,16 +116,14 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
             'address_line_2',
             'address_town',
             'address_county',
-            'address_area_name',
-            'address_area_abbrev_name',
+            'address_area',
             'address_country',
             'address_postcode',
             'registered_address_line_1',
             'registered_address_line_2',
             'registered_address_town',
             'registered_address_county',
-            'registered_address_area_name',
-            'registered_address_area_abbrev_name',
+            'registered_address_area',
             'registered_address_country',
             'registered_address_postcode',
             'employee_number',
@@ -291,4 +291,3 @@ class InvestigationRequestSerializer(serializers.ModelSerializer):
         investigation_request = InvestigationRequest(**validated_data)
         investigation_request.save()
         return investigation_request
-        
