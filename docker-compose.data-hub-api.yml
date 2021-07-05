@@ -1,0 +1,52 @@
+version: '2'
+services:
+  api-dnb:
+    build:
+      context: .
+    ports:
+      - "9000:8000"
+    volumes:
+      - .:/app
+    entrypoint: dockerize -wait tcp://postgres-dnb:5432 -wait tcp://redis-dnb:6379 -timeout 120s
+    env_file: .env
+    # We inject some custom environment variables here to retain compatibility with existing .env
+    environment:
+      - DATABASE_URL=postgres://postgres:dnbservice@postgres-dnb/dnb-service
+      - REDIS_URL=redis://redis-dnb:6379
+    depends_on:
+      - postgres-dnb
+      - redis-dnb
+    command: /app/start_docker.sh
+
+  celery-dnb:
+    build:
+      context: .
+    volumes:
+      - .:/app
+    entrypoint: dockerize -wait tcp://postgres-dnb:5432 -wait tcp://redis-dnb:6379 -timeout 180s
+    env_file: .env
+    # We inject some custom environment variables here to retain compatibility with existing .env
+    environment:
+      - DATABASE_URL=postgres://postgres:dnbservice@postgres-dnb/dnb-service
+      - REDIS_URL=redis://redis-dnb:6379
+    command: watchmedo auto-restart -d . -R -p '*.py' -- celery worker -A config -l info -Q celery -B
+
+  postgres-dnb:
+    image: postgres:10
+    restart: always
+    environment:
+      - POSTGRES_DB=dnb-service
+      - POSTGRES_PASSWORD=dnbservice
+
+  redis-dnb:
+    image: redis:3.2
+    restart: always
+
+# Note: The `dh_default` network is created by running `make start-*` within `data-hub-frontend`.
+# `make start-dev` or other start command must be run prior to `docker-compose -f ./docker-compose.data-hub-api.yml up`
+# otherwise the network won't exist
+networks:
+  default:
+    external:
+      name: dh_default
+
