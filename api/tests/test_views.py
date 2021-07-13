@@ -786,8 +786,10 @@ class TestInvestigationApiView:
                     'address_line_2': 'Foo',
                     'address_town': 'Beverly Hills',
                     'address_county': 'Los Angeles',
-                    'address_area_name': 'California',
-                    'address_area_abbrev_name': 'CA',
+                    'address_area': {
+                        'name': 'California',
+                        'abbrev_name': 'CA',
+                    },
                     'address_country': 'US',
                     'address_postcode': '90210',
                 },
