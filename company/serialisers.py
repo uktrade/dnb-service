@@ -55,28 +55,6 @@ class BaseCompanySerializer(serializers.ModelSerializer):
     industry_codes = IndustryCodeSerialiser(many=True)
     primary_industry_codes = PrimaryIndustryCodeSerialiser(many=True)
 
-    @cached_property
-    def _country_slugs(self):
-        return Country.objects.all().values_list('iso_alpha2', flat=True)
-
-    def _validate_country_slug(self, value):
-        if value not in self._country_slugs:
-            raise serializers.ValidationError('This is not a valid ISO Alpha2 country code.')
-
-    def validate_address_country(self, value):
-        """
-        Validate that the address_country field is a valid ISO alpha2 slug.
-        """
-        self._validate_country_slug(value)
-        return value
-
-    def validate_registered_address_country(self, value):
-        """
-        Validate that the registered_address_country field is a valid ISO alpha2 slug.
-        """
-        self._validate_country_slug(value)
-        return value
-
     class Meta:
         model = Company
         fields = [
@@ -174,7 +152,13 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
             },
         }
 
+    @cached_property
+    def _country_slugs(self):
+        return Country.objects.all().values_list('iso_alpha2', flat=True)
 
+    def _validate_country_slug(self, value):
+        if value not in self._country_slugs:
+            raise serializers.ValidationError('This is not a valid ISO Alpha2 country code.')
 
     def _ensure_address_all_or_nothing(self, fields_prefix, data):
         """
@@ -186,7 +170,19 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
             message = f"If any '{fields_prefix}' fields are set, all '{fields_prefix}' fields must be set."
             raise serializers.ValidationError(message)
 
+    def validate_address_country(self, value):
+        """
+        Validate that the address_country field is a valid ISO alpha2 slug.
+        """
+        self._validate_country_slug(value)
+        return value
 
+    def validate_registered_address_country(self, value):
+        """
+        Validate that the registered_address_country field is a valid ISO alpha2 slug.
+        """
+        self._validate_country_slug(value)
+        return value
 
     def validate(self, data):
         """
@@ -231,9 +227,22 @@ class CompanyDetailsSerialiser(BaseCompanySerializer):
 
     telephone_number = serializers.CharField(max_length=20, required=False)
     address_country = serializers.CharField(max_length=2, required=True)
-
     address_area = serializers.DictField(child=serializers.CharField(), required=False)
 
+    @cached_property
+    def _country_slugs(self):
+        return Country.objects.all().values_list('iso_alpha2', flat=True)
+
+    def _validate_country_slug(self, value):
+        if value not in self._country_slugs:
+            raise serializers.ValidationError('This is not a valid ISO Alpha2 country code.')
+
+    def validate_address_country(self, value):
+        """
+        Validate that the address_country field is a valid ISO alpha2 slug.
+        """
+        self._validate_country_slug(value)
+        return value
 
     def validate(self, data):
         """
@@ -269,6 +278,7 @@ class CompanyDetailsSerialiser(BaseCompanySerializer):
                 'required': True,
             },
         }
+
 
 class InvestigationRequestSerializer(serializers.ModelSerializer):
     """
