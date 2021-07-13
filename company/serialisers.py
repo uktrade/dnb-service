@@ -177,6 +177,9 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
 
 
     def _ensure_address_all_or_nothing(self, fields_prefix, data):
+        """
+        We specifically exclude `area` here as it's not a mandatory part of address
+        """
         address_fields = {f'{fields_prefix}_{field}' for field in ADDRESS_FIELDS}
         address_fields_in_data = address_fields.intersection(data.keys())
         if address_fields_in_data and address_fields_in_data != address_fields:
@@ -192,7 +195,7 @@ class ChangeRequestChangesSerialiser(CompanySerialiser):
         """
         self._ensure_address_all_or_nothing('address', data)
         self._ensure_address_all_or_nothing('registered_address', data)
-        return data
+        return super().validate(data)
 
 
 class ChangeRequestSerialiser(serializers.ModelSerializer):
