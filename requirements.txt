@@ -69,8 +69,6 @@ docopt==0.6.2
     # via notifications-python-client
 elastic-apm==6.2.0
     # via -r requirements.in
-future==0.18.2
-    # via notifications-python-client
 gunicorn==20.1.0
     # via -r requirements.in
 idna==2.10
@@ -81,9 +79,7 @@ jmespath==0.10.0
     #   botocore
 kombu==5.1.0
     # via celery
-monotonic==1.6
-    # via notifications-python-client
-notifications-python-client==5.6.0
+notifications-python-client==6.2.1
     # via -r requirements.in
 oauthlib==3.1.1
     # via requests-oauthlib

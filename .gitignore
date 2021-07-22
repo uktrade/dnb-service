@@ -55,6 +55,7 @@ coverage.xml
 *.log
 local_settings.py
 db.sqlite3
+config/custom.py
 
 # Flask stuff:
 instance/
@@ -102,3 +103,12 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# docker things
+docker-compose.override.yml
+
+# Pyright
+pyrightconfig.json
+
+# Ctags
+tags
