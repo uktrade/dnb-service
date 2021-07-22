@@ -130,10 +130,6 @@ flake8==3.7.7
     #   flake8-quotes
 freezegun==0.3.12
     # via -r requirements-dev.in
-future==0.18.2
-    # via
-    #   -r requirements.txt
-    #   notifications-python-client
 gunicorn==20.1.0
     # via -r requirements.txt
 idna==2.10
@@ -155,13 +151,9 @@ kombu==5.1.0
     #   celery
 mccabe==0.6.1
     # via flake8
-monotonic==1.6
-    # via
-    #   -r requirements.txt
-    #   notifications-python-client
 more-itertools==7.0.0
     # via pytest
-notifications-python-client==5.6.0
+notifications-python-client==6.2.1
     # via -r requirements.txt
 oauthlib==3.1.1
     # via
@@ -300,3 +292,6 @@ whitenoise==5.2.0
     # via -r requirements.txt
 zipp==0.5.1
     # via importlib-metadata
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
