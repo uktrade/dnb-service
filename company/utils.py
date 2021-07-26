@@ -22,24 +22,23 @@ FIELD_LABELS = {
 }
 
 
-def _get_address_string(prefix, changes):
-    address_components = [changes.pop(f'{prefix}_{field}') for field in ADDRESS_FIELDS]
+def _get_address_string(prefix, changes, *default_value):
+    address_components = [changes.pop(f'{prefix}_{field}', *default_value) for field in ADDRESS_FIELDS]
 
     if f'{prefix}_area' in changes and 'name' in changes[f'{prefix}_area']:
         address_components.insert(-1, changes[f'{prefix}_area'].pop('name'))
     if f'{prefix}_area' in changes and 'abbrev_name' in changes[f'{prefix}_area']:
         address_components.insert(-1, changes[f'{prefix}_area'].pop('abbrev_name'))
 
-    changes[prefix] = ', '.join(address_components)
-    return changes
+    return ', '.join(address_components)
 
 
 def _get_change_request_row(change_request):
     changes = deepcopy(change_request.changes)
     if 'address_line_1' in changes:
-        changes = _get_address_string('address', changes)
+        changes['address'] = _get_address_string('address', changes)
     if 'registered_address_line_1' in changes:
-        changes = _get_address_string('registered_address', changes)
+        changes['registered_address'] = _get_address_string('registered_address', changes)
     readable_changes = {
         field_label: changes[field_name] for field_name, field_label in FIELD_LABELS.items() if field_name in changes
     }
@@ -92,16 +91,11 @@ def send_change_request_batch(change_requests, batch_identifier):
 
 
 def _get_investigation_request_row(investigation_request):
-    company_details = investigation_request.company_details
+    company_details = deepcopy(investigation_request.company_details)
     return {
         'ID': str(investigation_request.id),
         'Name': company_details.get('primary_name'),
-        'Address': ', '.join(
-            [
-                company_details.get(f'address_{address_field}', '')
-                for address_field in ADDRESS_FIELDS
-            ]
-        ),
+        'Address': _get_address_string('address', company_details, ''),
         'Domain': company_details.get('domain'),
         'Telephone Number': company_details.get('telephone_number'),
         'DUNS Number': '',
