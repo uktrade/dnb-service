@@ -22,7 +22,7 @@ FIELD_LABELS = {
 }
 
 
-def _get_address_string(prefix, changes, *default_value):
+def _pop_address_string(prefix, changes, *default_value):
     address_components = [changes.pop(f'{prefix}_{field}', *default_value) for field in ADDRESS_FIELDS]
 
     if f'{prefix}_area' in changes and 'name' in changes[f'{prefix}_area']:
@@ -36,9 +36,9 @@ def _get_address_string(prefix, changes, *default_value):
 def _get_change_request_row(change_request):
     changes = deepcopy(change_request.changes)
     if 'address_line_1' in changes:
-        changes['address'] = _get_address_string('address', changes)
+        changes['address'] = _pop_address_string('address', changes)
     if 'registered_address_line_1' in changes:
-        changes['registered_address'] = _get_address_string('registered_address', changes)
+        changes['registered_address'] = _pop_address_string('registered_address', changes)
     readable_changes = {
         field_label: changes[field_name] for field_name, field_label in FIELD_LABELS.items() if field_name in changes
     }
@@ -95,7 +95,7 @@ def _get_investigation_request_row(investigation_request):
     return {
         'ID': str(investigation_request.id),
         'Name': company_details.get('primary_name'),
-        'Address': _get_address_string('address', company_details, ''),
+        'Address': _pop_address_string('address', company_details, ''),
         'Domain': company_details.get('domain'),
         'Telephone Number': company_details.get('telephone_number'),
         'DUNS Number': '',
