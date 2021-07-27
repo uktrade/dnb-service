@@ -179,6 +179,7 @@ class TestGenerateInvestigationRequestCSV:
                     'address_town': 'London',
                     'address_county': 'London',
                     'address_country': 'GB',
+                    'address_area': {'name': 'California', 'abbrev_name': 'CA'},
                     'address_postcode': 'ABC DEF',
                 },
                 [
@@ -193,7 +194,7 @@ class TestGenerateInvestigationRequestCSV:
                     [
                         mock.ANY,
                         'Foo',
-                        'Bar, Buz, London, London, ABC DEF, GB',
+                        'Bar, Buz, London, London, ABC DEF, California, CA, GB',
                         'foo.com',
                         '(+44) 123 45678',
                         '',
@@ -239,6 +240,7 @@ class TestSendInvestigationRequestBatch:
                 'address_town': 'London',
                 'address_county': 'London',
                 'address_country': 'GB',
+                'address_area': {'name': 'California', 'abbrev_name': 'CA'},
                 'address_postcode': 'ABC DEF',
             },
         )
@@ -288,6 +290,7 @@ class TestSendInvestigationRequestBatch:
                 'address_town': 'London',
                 'address_county': 'London',
                 'address_country': 'GB',
+                'address_area': {'name': 'California', 'abbrev_name': 'CA'},
                 'address_postcode': 'ABC DEF',
             },
         )
