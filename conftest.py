@@ -30,6 +30,12 @@ def company_list_v2_api_response_json():
         return f.read()
 
 @pytest.fixture(scope='module')
+def company_list_v2_expected_data_json():
+    with open(os.path.join(os.path.dirname(__file__),
+                           'dnb_direct_plus/tests/api_data/company_list_v2_populated_region.json')) as f:
+        return f.read()
+
+@pytest.fixture(scope='module')
 def data_duns_api_response_json():
     with open(os.path.join(os.path.dirname(__file__),
                            'dnb_direct_plus/tests/api_data/data_duns_test_response.json')) as f:

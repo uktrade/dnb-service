@@ -1,0 +1,124 @@
+[
+  {
+    "displaySequence": 1,
+    "organization": {
+      "duns": "141592653",
+      "websiteAddress": [],
+      "dunsControlStatus": {
+        "operatingStatus": {
+          "description": "Active",
+          "dnbCode": 9074
+        },
+        "isMailUndeliverable": false
+      },
+      "primaryName": "EXAMPLE COMPANY, INC.",
+      "tradeStyleNames": [],
+      "telephone": [
+        {
+          "telephoneNumber": "1415926535",
+          "isUnreachable": false
+        }
+      ],
+      "primaryAddress": {
+        "addressCountry": {
+          "isoAlpha2Code": "US",
+          "name": "United States"
+        },
+        "addressLocality": {
+          "name": "Murrieta"
+        },
+        "addressRegion": {
+          "name": "California",
+          "abbreviatedName": "CA"
+        },
+        "postalCode": "25565",
+        "postalCodeExtension": null,
+        "streetAddress": {
+          "line1": "109 Stardust Way",
+          "line2": null
+        }
+      },
+      "mailingAddress": {
+        "addressCountry": {
+          "isoAlpha2Code": "US",
+          "name": "United States"
+        },
+        "addressLocality": {},
+        "addressRegion": {},
+        "postalCode": null,
+        "postalCodeExtension": null,
+        "streetAddress": {}
+      },
+      "registrationNumbers": [],
+      "mostSeniorPrincipals": [
+        {
+          "fullName": "John Doe"
+        }
+      ],
+      "isStandalone": false,
+      "corporateLinkage": {
+        "familytreeRolesPlayed": [
+          {
+            "description": "Parent/Headquarters",
+            "dnbCode": 4096
+          }
+        ]
+      }
+    },
+    "matchQualityInformation": {
+      "confidenceCode": 10,
+      "matchGrade": "AAAAAAAAAAA",
+      "matchGradeComponentsCount": 11,
+      "matchGradeComponents": [
+        {
+          "componentType": "Name",
+          "componentRating": "A"
+        },
+        {
+          "componentType": "Street Number",
+          "componentRating": "A"
+        },
+        {
+          "componentType": "Street Name",
+          "componentRating": "A"
+        },
+        {
+          "componentType": "City",
+          "componentRating": "A"
+        },
+        {
+          "componentType": "State",
+          "componentRating": "A"
+        },
+        {
+          "componentType": "PO Box",
+          "componentRating": "A"
+        },
+        {
+          "componentType": "Phone",
+          "componentRating": "A"
+        },
+        {
+          "componentType": "Postal Code",
+          "componentRating": "A"
+        },
+        {
+          "componentType": "Density",
+          "componentRating": "A"
+        },
+        {
+          "componentType": "Uniqueness",
+          "componentRating": "A"
+        },
+        {
+          "componentType": "Sic",
+          "componentRating": "A"
+        }
+      ],
+      "matchDataProfile": null,
+      "matchDataProfileComponentsCount": null,
+      "matchDataProfileComponents": [],
+      "nameMatchScore": 0
+    }
+  }
+]
