@@ -213,7 +213,7 @@ class Company(models.Model):
     address_area_abbrev_name = models.CharField(
         _('State (Abbreviated)'),
         blank=True,
-        max_length=3,
+        max_length=255,
     )
 
     address_area_name = models.CharField(
@@ -262,7 +262,7 @@ class Company(models.Model):
     registered_address_area_abbrev_name = models.CharField(
         _('State (Abbreviated)'),
         blank=True,
-        max_length=3,
+        max_length=255,
     )
 
     registered_address_area_name = models.CharField(
