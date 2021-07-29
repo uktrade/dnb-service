@@ -5,7 +5,19 @@ from .constants import (
     OPERATING_STATUS_ACTIVE,
     REGISTRATION_NUMBER_TYPE_MAPPING,
     RELIABILITY_CODE_ACTUAL,
+    ABBREVIATED_AREA_MAPPING
 )
+
+def _extract_address_area(address_data):
+    address_area_name = address_data.get('addressRegion', {}).get('name', '')
+    country_code = None
+    if address_area_name is None:
+        country_code = address_data.get('addressCountry', {}).get('isoAlpha2Code', '')
+        #For US and Canada these conform to ISO 3166-2:US & ISO 3166-2:CA respectively as stated in https://docs.dnb.com/direct/2.0/en-US/company/latest/getcleansematch/soap-API
+        address_area_abbrev_name = address_data.get('addressRegion', {}).get('abbreviatedName', '')
+        return ABBREVIATED_AREA_MAPPING.get(country_code, {}).get(address_area_abbrev_name, None)
+
+    return address_area_name
 
 
 def extract_address(address_data):
@@ -17,7 +29,7 @@ def extract_address(address_data):
         'address_county': address_data.get('addressCounty', {}).get('name', ''),
         'address_postcode': address_data.get('postalCode', ''),
         'address_country': address_data.get('addressCountry', {}).get('isoAlpha2Code', ''),
-        'address_area_name': address_data.get('addressRegion', {}).get('name', ''),
+        'address_area_name': _extract_address_area(address_data),
         'address_area_abbrev_name': address_data.get('addressRegion', {}).get('abbreviatedName', ''),
     }
 

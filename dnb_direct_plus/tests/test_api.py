@@ -38,8 +38,9 @@ def test_company_list_search(mocker, company_list_api_response_json):
         assert extract_company_data(input_data) == expected
 
 @pytest.mark.django_db
-def test_company_list_search_v2(mocker, company_list_v2_api_response_json):
+def test_company_list_search_v2(mocker, company_list_v2_api_response_json, company_list_v2_expected_data_json):
     company_input_data = json.loads(company_list_v2_api_response_json)
+    expected_company_data = json.loads(company_list_v2_expected_data_json)
 
     mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
     mock_api_request.return_value.json.return_value = company_input_data
@@ -55,8 +56,8 @@ def test_company_list_search_v2(mocker, company_list_v2_api_response_json):
     assert len(output['results']) == 1
     assert Company.objects.count() == 0
 
-    for input_data, expected in zip(company_input_data['matchCandidates'], output['results']):
-        assert extract_company_data(input_data) == expected
+    for expected_data, result_data in zip(expected_company_data, output['results']):
+        assert extract_company_data(expected_data) == result_data
 
 
 @pytest.mark.django_db
@@ -96,22 +97,22 @@ def test_company_list_search_v2_detail_query_company_data_is_saved(mocker, compa
         def __init__(self, *posargs, **kwargs):
             self.posargs = posargs
             self.kwargs = kwargs
-            
+
             if self.posargs == ('GET', '/v1/match/cleanseMatch'):
                 assert self.kwargs['params'] == {
                     'duns': '804735132',
                     'countryISOAlpha2Code': 'US'
                 }
-                
+
                 self.json_data = company_input_data
             elif self.posargs == ('GET', '/v1/data/duns/804735132'):
                 self.json_data = up_to_date_company_data
             else:
                 raise AssertionError(f'Unexpected API request posargs={posargs} kwargs={kwargs}')
-            
+
         def json(self):
             return self.json_data
-    
+
     mock_api_request = mocker.patch('dnb_direct_plus.api.api_request', new=ApiRequestFake)
 
     assert Company.objects.count() == 0
