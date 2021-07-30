@@ -141,8 +141,9 @@ class TestCompanySearchV2View:
             'results': []
         }
 
-    def test_api_call_with_data(self, auth_client, mocker, company_list_v2_api_response_json):
+    def test_api_call_with_data(self, auth_client, mocker, company_list_v2_api_response_json, company_list_v2_expected_data_json):
         company_input_data = json.loads(company_list_v2_api_response_json)
+        expected_company_data = json.loads(company_list_v2_expected_data_json)
 
         mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
         mock_api_request.return_value.json.return_value = company_input_data
@@ -156,8 +157,8 @@ class TestCompanySearchV2View:
 
         response_data = response.json()
 
-        for input_data, expected in zip(company_input_data['matchCandidates'], response_data['results']):
-            assert extract_company_data(input_data) == expected
+        for expected_data, result_data in zip(expected_company_data, response_data['results']):
+            assert extract_company_data(expected_data) == result_data
 
     def test_api_with_bad_query(self, auth_client):
         response = auth_client.post(
@@ -184,26 +185,26 @@ class TestCompanySearchV2View:
 
         company_input_data = json.loads(company_list_v2_api_response_json)
         up_to_date_company_data = json.loads(data_duns_api_response_json)
-        
+
         class ApiRequestFake:
             def __init__(self, *posargs, **kwargs):
                 self.posargs = posargs
                 self.kwargs = kwargs
-                
+
                 if self.posargs == ('GET', '/v1/match/cleanseMatch'):
                     assert self.kwargs['params'] == {
                         'duns': '141592653'
                     }
-                    
+
                     self.json_data = company_input_data
                 elif self.posargs == ('GET', '/v1/data/duns/141592653'):
                     self.json_data = up_to_date_company_data
                 else:
                     raise AssertionError(f'Unexpected API request posargs={posargs} kwargs={kwargs}')
-                
+
             def json(self):
                 return self.json_data
-        
+
         mock_api_request = mocker.patch('dnb_direct_plus.api.api_request', new=ApiRequestFake)
 
         assert Company.objects.count() == 0
@@ -216,7 +217,7 @@ class TestCompanySearchV2View:
         assert response.status_code == 200
         company = Company.objects.first()
         result_data = response.json()
-        
+
         assert company.address_country.iso_alpha2 == up_to_date_company_data['organization']['primaryAddress']['addressCountry']['isoAlpha2Code']
         assert company.duns_number == result_data['results'][0]['duns_number']
         assert company.monitoring_status == MonitoringStatusChoices.pending.name
@@ -523,49 +524,49 @@ class TestChangeRequestApiView:
         """
         duns_numbers = [
             ChangeRequestFactory(
-                changes={'primary_name': 'bar'}, 
-                status='pending', 
+                changes={'primary_name': 'bar'},
+                status='pending',
                 id='00000000-0000-0000-0000-000000000001'
-                ).duns_number, 
+                ).duns_number,
             ChangeRequestFactory(
-                changes={'primary_name': 'baz'}, 
-                status='submitted', 
+                changes={'primary_name': 'baz'},
+                status='submitted',
                 id='00000000-0000-0000-0000-000000000002'
                 ).duns_number
             ]
-         
+
         response = auth_client.get(
             reverse('api:change-request'),
             {},
         )
-        
+
         assert response.status_code == 200
 
         result_data = response.json()
         assert result_data['count'] == 2
 
         expected_result_data = {
-            'count': 2, 
-            'next': None, 
-            'previous': None, 
+            'count': 2,
+            'next': None,
+            'previous': None,
             'results': [
                 {
                     'id': '00000000-0000-0000-0000-000000000001',
-                    'duns_number': '000000000', 
-                    'changes': {'primary_name': 'bar'}, 
-                    'status': 'pending', 
+                    'duns_number': '000000000',
+                    'changes': {'primary_name': 'bar'},
+                    'status': 'pending',
                     'created_on': '2020-05-18T12:00:01Z'
-                }, 
+                },
                 {
                     'id': '00000000-0000-0000-0000-000000000002',
-                    'duns_number': '000000001', 
-                    'changes': {'primary_name': 'baz'}, 
-                    'status': 'submitted', 
+                    'duns_number': '000000001',
+                    'changes': {'primary_name': 'baz'},
+                    'status': 'submitted',
                     'created_on': '2020-05-18T12:00:01Z'
                 }
             ]
         }
-        
+
         assert result_data == expected_result_data
 
     @freeze_time('2020-05-18 12:00:01 UTC')
@@ -574,14 +575,14 @@ class TestChangeRequestApiView:
         Test that all pending change requests can be returned, for any company.
         """
         pending_duns_numbers = [
-            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', id='00000000-0000-0000-0000-000000000001'), 
-            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', id='00000000-0000-0000-0000-000000000002'), 
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', id='00000000-0000-0000-0000-000000000001'),
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', id='00000000-0000-0000-0000-000000000002'),
         ]
-        
+
         ChangeRequestFactory(changes={'primary_name': 'test3'}, status='submitted')
         ChangeRequestFactory(changes={'primary_name': 'test4'}, status='submitted')
 
-        
+
         response = auth_client.get(
             reverse('api:change-request'),
             {'status': 'pending'},
@@ -595,28 +596,28 @@ class TestChangeRequestApiView:
         print(result_data)
 
         expected_result_data = {
-            'count': 2, 
-            'next': None, 
-            'previous': None, 
+            'count': 2,
+            'next': None,
+            'previous': None,
             'results': [
                 {
                     'id': '00000000-0000-0000-0000-000000000002',
-                    'duns_number': '000000003', 
-                    'changes': {'primary_name': 'test2'}, 
-                    'status': 'pending', 
+                    'duns_number': '000000003',
+                    'changes': {'primary_name': 'test2'},
+                    'status': 'pending',
                     'created_on': '2020-05-18T12:00:01Z'
                 },
                 {
                     'id': '00000000-0000-0000-0000-000000000001',
-                    'duns_number': '000000002', 
-                    'changes': {'primary_name': 'test1'}, 
-                    'status': 'pending', 
+                    'duns_number': '000000002',
+                    'changes': {'primary_name': 'test1'},
+                    'status': 'pending',
                     'created_on': '2020-05-18T12:00:01Z'
                 }
-                
+
             ]
         }
-        
+
         assert result_data == expected_result_data
 
     def test_only_returns_submitted_requests(self, auth_client):
@@ -624,14 +625,14 @@ class TestChangeRequestApiView:
         Test that all submitted change requests can be returned, for any company.
         """
         submitted_duns_numbers = [
-            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='submitted'), 
-            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='submitted'), 
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='submitted'),
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='submitted'),
         ]
-        
+
         ChangeRequestFactory(changes={'primary_name': 'test3'}, status='pending')
         ChangeRequestFactory(changes={'primary_name': 'test4'}, status='pending')
 
-        
+
         response = auth_client.get(
             reverse('api:change-request'),
             {'status': 'submitted'},
@@ -642,16 +643,16 @@ class TestChangeRequestApiView:
         result_data = response.json()
         assert len(result_data['results']) == 2
         assert result_data['count'] == 2
-    
+
     def test_only_returns_pending_requests_with_specific_duns_number(self, auth_client):
         """
         Test that all pending change requests are returned for a specific company.
         """
         change_requests = [
-            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000001'), 
-            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000002'), 
-            ChangeRequestFactory(changes={'primary_name': 'test3'}, status='pending', duns_number='123056789', id='00000000-0000-0000-0000-000000000003'), 
-            ChangeRequestFactory(changes={'primary_name': 'test4'}, status='pending', duns_number='123406780', id='00000000-0000-0000-0000-000000000004'), 
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000001'),
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, status='pending', duns_number='123456789', id='00000000-0000-0000-0000-000000000002'),
+            ChangeRequestFactory(changes={'primary_name': 'test3'}, status='pending', duns_number='123056789', id='00000000-0000-0000-0000-000000000003'),
+            ChangeRequestFactory(changes={'primary_name': 'test4'}, status='pending', duns_number='123406780', id='00000000-0000-0000-0000-000000000004'),
         ]
 
         test_ids = []
@@ -674,16 +675,16 @@ class TestChangeRequestApiView:
 
         for result in result_data['results']:
             assert result['id'] in test_ids
-    
+
     def test_only_duns_param_returns_all_results(self, auth_client):
         """
         Test that all change requests for a company can be returned.
         """
         change_requests = [
-            ChangeRequestFactory(changes={'primary_name': 'test1'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000001'), 
-            ChangeRequestFactory(changes={'primary_name': 'test2'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000002'), 
-            ChangeRequestFactory(changes={'primary_name': 'test3'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000003'), 
-            ChangeRequestFactory(changes={'primary_name': 'test4'}, duns_number='123456700', id='00000000-0000-0000-0000-000000000004'), 
+            ChangeRequestFactory(changes={'primary_name': 'test1'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000001'),
+            ChangeRequestFactory(changes={'primary_name': 'test2'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000002'),
+            ChangeRequestFactory(changes={'primary_name': 'test3'}, duns_number='123456789', id='00000000-0000-0000-0000-000000000003'),
+            ChangeRequestFactory(changes={'primary_name': 'test4'}, duns_number='123456700', id='00000000-0000-0000-0000-000000000004'),
         ]
 
         test_ids = []
