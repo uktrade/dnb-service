@@ -47,3 +47,7 @@ Run `py.test` from the project's root directory
 The admin section is protected by the DIT's internal SSO application.  To run a local development environment with admin
 access you can either request a set of UAT SSO credentials from the webops team, or check out the staff-sso github
 repository and run the application locally. See https://www.github.com/uktrade/staff-sso for more details.
+
+## Swagger Documentation
+
+Once the app is running using docker compose up, you will be able to visit http://localhost:9000/api/swagger/ to see a documentation for the endpoints.

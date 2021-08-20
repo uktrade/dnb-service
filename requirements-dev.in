@@ -23,3 +23,4 @@ docutils
 django-extensions
 watchdog[watchmedo]
 codecov
+drf_yasg
