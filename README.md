@@ -8,7 +8,7 @@ Python 3.7
 Django 2+  
 Postgres 10  
 
-## Prerequisites 
+## Prerequisites
 
 1. Clone this repository
 
@@ -27,16 +27,16 @@ Postgres 10
 
 4. Load country fixtures (optional): `./manage.py loaddata company/fixtures/countries.yaml`
 
-4. Run migrations and start a web server: `./manage.py migrate` and then `./manage.py runserver`
+5. Run migrations and start a web server: `./manage.py migrate` and then `./manage.py runserver`
 
 ## Running with docker
 
 1. Create a .env file: `cp sample_env.docker .env`
 
-1. Get some SSO credentials and add them to your .env file. See the section below on staff-sso integration.
+2. Get some SSO credentials and add them to your .env file. See the section below on staff-sso integration.
    NOTE: only required if you want to access the admin section.
 
-1. Run the app under docker-compose: `docker-compose up -d`
+3. Run the app under docker-compose: `docker-compose up -d`
 
 ## Run tests
 
@@ -46,8 +46,8 @@ Run `py.test` from the project's root directory
 
 The admin section is protected by the DIT's internal SSO application.  To run a local development environment with admin
 access you can either request a set of UAT SSO credentials from the webops team, or check out the staff-sso github
-repository and run the application locally. See https://www.github.com/uktrade/staff-sso for more details.
+repository and run the application locally. See <https://www.github.com/uktrade/staff-sso> for more details.
 
 ## Swagger Documentation
 
-Once the app is running using docker compose up, you will be able to visit http://localhost:9000/api/swagger/ to see a documentation for the endpoints.
+Once the app is running, you will be able to visit <http://localhost:9000/api/swagger/> to see documentation for the endpoints.
