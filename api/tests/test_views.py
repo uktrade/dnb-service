@@ -16,6 +16,18 @@ from dnb_direct_plus.mapping import extract_company_data
 
 pytestmark = pytest.mark.django_db
 
+from rest_framework.test import APITestCase
+
+
+class TestSwagger(APITestCase):
+
+    def test_get(self):
+        response = self.client.get(
+            '/api/swagger/?format=openapi',
+            follow=True
+        )
+        self.assertEquals(response.status_code, 200)
+
 
 class TestCompanySearchView:
     def test_requires_authentication(self, client):
