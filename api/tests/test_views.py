@@ -7,6 +7,7 @@ from django.utils import timezone
 from freezegun import freeze_time
 from requests.exceptions import HTTPError
 from rest_framework import status
+from rest_framework.test import APITestCase
 
 from company.constants import MonitoringStatusChoices
 from company.models import ChangeRequest, Company
@@ -15,9 +16,6 @@ from company.tests.factories import ChangeRequestFactory, CompanyFactory
 from dnb_direct_plus.mapping import extract_company_data
 
 pytestmark = pytest.mark.django_db
-
-from rest_framework.test import APITestCase
-
 
 class TestSwagger(APITestCase):
 
