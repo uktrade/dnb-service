@@ -7,6 +7,7 @@ from django.utils import timezone
 from freezegun import freeze_time
 from requests.exceptions import HTTPError
 from rest_framework import status
+from rest_framework.test import APITestCase
 
 from company.constants import MonitoringStatusChoices
 from company.models import ChangeRequest, Company
@@ -15,6 +16,15 @@ from company.tests.factories import ChangeRequestFactory, CompanyFactory
 from dnb_direct_plus.mapping import extract_company_data
 
 pytestmark = pytest.mark.django_db
+
+class TestSwagger(APITestCase):
+
+    def test_get(self):
+        response = self.client.get(
+            '/api/swagger/?format=openapi',
+            follow=True
+        )
+        self.assertEquals(response.status_code, 200)
 
 
 class TestCompanySearchView:

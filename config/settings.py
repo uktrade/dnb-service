@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'health_check',
     'user',
     'workspace',
+    'drf_yasg',
 ]
 
 if DEBUG:
