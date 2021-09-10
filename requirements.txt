@@ -151,7 +151,7 @@ six==1.16.0
     #   python-dateutil
 smart-open==5.1.0
     # via -r requirements.in
-sqlparse==0.4.1
+sqlparse==0.4.2
     # via django
 uritemplate==3.0.1
     # via
