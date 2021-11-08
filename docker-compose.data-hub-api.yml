@@ -42,11 +42,11 @@ services:
     image: redis:3.2
     restart: always
 
-# Note: The `dh_default` network is created by running `make start-*` within `data-hub-frontend`.
+# Note: The `data-infrastructure-shared-network` network is created by running `make start-*` within `data-hub-frontend`.
 # `make start-dev` or other start command must be run prior to `docker-compose -f ./docker-compose.data-hub-api.yml up`
 # otherwise the network won't exist
 networks:
   default:
     external:
-      name: dh_default
+      name: data-infrastructure-shared-network
 
