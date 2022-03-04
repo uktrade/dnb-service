@@ -20,7 +20,12 @@ def update_company_and_enable_monitoring(api_data):
 
     try:
         company = Company.objects.get(duns_number=duns_number)
+        from pprint import pprint
+        pprint("COMPANY try update_company_and_enable_monitoring")
+        pprint(company)
     except Company.DoesNotExist:
         company = Company()
-
+        from pprint import pprint
+        pprint("COMPANY except update_company_and_enable_monitoring")
+        pprint(company)
     update_company_from_source(company, api_data, timezone.now(), enable_monitoring=True)

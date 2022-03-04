@@ -86,6 +86,10 @@ def company_by_duns(duns):
             company_endpoint_from_duns(duns),
             params={'productId': 'cmpelk', 'versionId': 'v1'}
         )
+        from pprint import pprint
+        pprint("RESPONSE FROM v1/data/duns >>>>")
+        pprint(response.json())
+
     except HTTPError as ex:
         logger.exception("HTTP error occurred")
         if ex.response.status_code == 404:
@@ -111,12 +115,27 @@ def company_list_search_v2(query, update_local=False):
     response_data = company_list_request_v2(query)
     results = [extract_company_data(item) for item in response_data.get('matchCandidates', [])]
 
-    # update the local company record with up to date information and enable monitoring
+    from pprint import pprint
+    pprint("BEFORE IF >>>>>>>>>>>>>>")
+    pprint("query ______________")
+    pprint(query)
+    pprint("______________")
+
     if update_local and 'duns_number' in query and len(results) == 1:
+        from pprint import pprint
+        pprint("INSIDE IF >>>>>>>>>>>")
         duns_number = query['duns_number']
         company = company_by_duns(duns_number)
+        from pprint import pprint
+        pprint("RESULTS FROM company_by_duns")
+        pprint(company)
         update_company_and_enable_monitoring(company)
+
+        from pprint import pprint
+        pprint("RESULTS FROM update_company_and_enable_monitoring")
+        pprint({'results': results})
 
     return {
         'results': results,
     }
+
