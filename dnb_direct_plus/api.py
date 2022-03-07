@@ -115,24 +115,15 @@ def company_list_search_v2(query, update_local=False):
     response_data = company_list_request_v2(query)
     results = [extract_company_data(item) for item in response_data.get('matchCandidates', [])]
 
-    from pprint import pprint
-    pprint("BEFORE IF >>>>>>>>>>>>>>")
-    pprint("query ______________")
-    pprint(query)
-    pprint("______________")
-
     if update_local and 'duns_number' in query and len(results) == 1:
-        from pprint import pprint
-        pprint("INSIDE IF >>>>>>>>>>>")
         duns_number = query['duns_number']
         company = company_by_duns(duns_number)
         update_company_and_enable_monitoring(company)
-
-        from pprint import pprint
-        pprint("RESULTS FROM update_company_and_enable_monitoring")
-        pprint({'results': results})
-
-    return {
-        'results': results,
-    }
-
+        results = [extract_company_data(company)]
+        return {
+            'results': results,
+        }
+    else:
+        return {
+            'results': results,
+        }
