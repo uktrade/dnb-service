@@ -126,9 +126,6 @@ def company_list_search_v2(query, update_local=False):
         pprint("INSIDE IF >>>>>>>>>>>")
         duns_number = query['duns_number']
         company = company_by_duns(duns_number)
-        from pprint import pprint
-        pprint("RESULTS FROM company_by_duns")
-        pprint(company)
         update_company_and_enable_monitoring(company)
 
         from pprint import pprint

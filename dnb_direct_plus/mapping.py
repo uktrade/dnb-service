@@ -160,6 +160,17 @@ def extract_employee_numbers(company_data):
     return is_estimated, employee_data['value']
 
 
+def extract_domain(company_data):
+    try:
+        domain_data = company_data['organization']['websiteAddress'][0]
+        domain_url = domain_data.get('url')
+
+        return domain_url
+
+    except (KeyError, IndexError):
+        return None
+
+
 def extract_annual_sales(company_data):
 
     try:
@@ -192,7 +203,7 @@ def extract_company_data(company_data):
             company_data['organization']['corporateLinkage'].get('globalUltimate', {}).get('duns', ''),
         'global_ultimate_primary_name':
             company_data['organization']['corporateLinkage'].get('globalUltimate', {}).get('primaryName', ''),
-        'domain': company_data['organization'].get('domain', None),
+        'domain': extract_domain(company_data),
         'is_out_of_business': extract_is_out_of_business(company_data),
         **extract_address(company_data['organization']['primaryAddress']),
         **extract_registered_address(company_data),
@@ -206,5 +217,9 @@ def extract_company_data(company_data):
         'legal_status': extract_legal_status(company_data),
         'year_started': None,
     }
+    
+    from pprint import pprint
+    pprint("COMPANY IN EXTRACT COMPANY DATA")
+    pprint(company)
 
     return company
