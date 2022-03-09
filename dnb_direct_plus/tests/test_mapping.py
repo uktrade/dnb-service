@@ -8,6 +8,7 @@ from ..constants import (
 
 from ..mapping import (
     extract_address,
+    extract_domain,
     extract_annual_sales,
     extract_company_data,
     extract_employee_numbers,
@@ -1020,6 +1021,14 @@ def test_extract_employee_numbers(input_data, expected):
 ])
 def test_extract_annual_sales(input_data, expected):
     assert extract_annual_sales(input_data) == expected
+
+
+def test_extract_domain_ingest(company_by_duns_v1_api_response_json):
+
+    company_data = json.loads(company_by_duns_v1_api_response_json)
+    extracted_data = extract_domain(company_data)
+
+    assert extracted_data == 'www.oracle.com'
 
 
 def test_company_list_ingest(company_list_api_response_json):

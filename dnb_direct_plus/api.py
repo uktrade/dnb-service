@@ -116,7 +116,14 @@ def company_list_search_v2(query, update_local=False):
         duns_number = query['duns_number']
         company = company_by_duns(duns_number)
         update_company_and_enable_monitoring(company)
+        results = [extract_company_data(company)]
 
-    return {
-        'results': results,
-    }
+        return {
+            'results': results,
+        }
+
+    else:
+
+        return {
+            'results': results,
+        }
