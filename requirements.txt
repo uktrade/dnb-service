@@ -110,7 +110,7 @@ prompt-toolkit==3.0.18
     # via click-repl
 psycopg2==2.8.6
     # via -r requirements.in
-pyjwt==2.1.0
+pyjwt==2.4.0
     # via notifications-python-client
 pyparsing==2.4.7
     # via packaging
