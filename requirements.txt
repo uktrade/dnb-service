@@ -16,7 +16,7 @@ botocore==1.20.85
     # via
     #   boto3
     #   s3transfer
-celery==5.2.2
+celery==5.2.7
     # via
     #   -r requirements.in
     #   django-celery-beat
@@ -58,7 +58,7 @@ django==2.2.28
     #   drf-yasg
 django-celery-beat==2.2.0
     # via -r requirements.in
-django-celery-results==2.0.1
+django-celery-results==2.4.0
     # via -r requirements.in
 django-environ==0.4.5
     # via -r requirements.in
@@ -120,7 +120,7 @@ python-dateutil==2.8.1
     # via
     #   botocore
     #   python-crontab
-pytz==2021.1
+pytz==2022.1
     # via
     #   celery
     #   django
