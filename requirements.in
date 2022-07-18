@@ -10,7 +10,7 @@ requests
 redis
 celery
 django_celery_beat
-django-celery-results
+django-celery-results==2.4.0
 sentry-sdk
 backoff
 django-prometheus
