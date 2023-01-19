@@ -14,7 +14,7 @@ FIELD_LABELS = {
     'primary_name': 'Business Name',
     'trading_names': 'Trading Name(s)',
     'domain': 'Website Domain',
-    'address': 'Address',
+    'trading_address': 'Trading Address',
     'registered_address': 'Registered Address',
     'employee_number': 'Employee Number',
     'annual_sales': 'Annual Sales',
