@@ -14,7 +14,7 @@ FIELD_LABELS = {
     'primary_name': 'Business Name',
     'trading_names': 'Trading Name(s)',
     'domain': 'Website Domain',
-    'address': 'Address',
+    'trading_address': 'Trading Address',
     'registered_address': 'Registered Address',
     'employee_number': 'Employee Number',
     'annual_sales': 'Annual Sales',
@@ -36,7 +36,7 @@ def _pop_address_string(prefix, changes, *default_value):
 def _get_change_request_row(change_request):
     changes = deepcopy(change_request.changes)
     if 'address_line_1' in changes:
-        changes['address'] = _pop_address_string('address', changes)
+        changes['trading_address'] = _pop_address_string('address', changes)
     if 'registered_address_line_1' in changes:
         changes['registered_address'] = _pop_address_string('registered_address', changes)
     readable_changes = {
