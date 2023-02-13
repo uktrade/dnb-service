@@ -1,4 +1,4 @@
-# A Dunn & Bradstreet caching microservice
+# A Dun & Bradstreet caching microservice
 
 [![codecov](https://codecov.io/gh/uktrade/dnb-service/branch/master/graph/badge.svg)](https://codecov.io/gh/uktrade/dnb-service)
 
