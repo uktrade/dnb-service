@@ -186,7 +186,7 @@ more-itertools==7.0.0
     # via pytest
 notifications-python-client==6.2.1
     # via -r requirements.txt
-oauthlib==3.2.1
+oauthlib==3.2.2
     # via
     #   -r requirements.txt
     #   requests-oauthlib
