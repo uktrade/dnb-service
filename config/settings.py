@@ -145,7 +145,7 @@ AUTHBROKER_CLIENT_SECRET = env('AUTHBROKER_CLIENT_SECRET')
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'authbroker_client.backends.AuthbrokerBackend',
+    'core.backends.CustomAuthbrokerBackend',
 ]
 
 LOGIN_REDIRECT_URL = 'admin:index'
