@@ -287,7 +287,7 @@ s3transfer==0.4.2
     # via
     #   -r requirements.txt
     #   boto3
-sentry-sdk==1.1.0
+sentry-sdk==1.14.0
     # via -r requirements.txt
 six==1.16.0
     # via
@@ -313,7 +313,7 @@ uritemplate==3.0.1
     #   -r requirements.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.5
+urllib3==1.26.15
     # via
     #   -r requirements.txt
     #   botocore
