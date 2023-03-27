@@ -127,7 +127,7 @@ pytz==2022.1
     #   django-timezone-field
 pyyaml==5.4.1
     # via -r requirements.in
-redis==3.5.3
+redis==4.5.3
     # via -r requirements.in
 requests==2.25.1
     # via
