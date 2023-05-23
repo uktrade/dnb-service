@@ -12,6 +12,7 @@ from dnb_direct_plus.tasks import update_company_and_enable_monitoring
 
 DNB_COMPANY_SEARCH_ENDPOINT = '/v1/search/companyList'
 DNB_COMPANY_SEARCH_ENDPOINT_V2 = '/v1/match/cleanseMatch'
+DNB_COMPANY_HIERARCHY_ENDPOINT = 'v1/familyTree'
 
 company_endpoint_from_duns = lambda dunsNumber: f'/v1/data/duns/{dunsNumber}'
 
@@ -94,7 +95,8 @@ def company_by_duns(duns):
             raise
     else:
         return response.json()
-    
+
+
 def company_list_search_v2(query, update_local=False):
     """
     Tries to return the best match for the search terms using the DNB Direct+ cleanseMatch endpoint
@@ -127,3 +129,43 @@ def company_list_search_v2(query, update_local=False):
         return {
             'results': results,
         }
+    
+
+def company_hierarchy_list_request(query):
+    """
+    Request logic for company_hierarchy_list_search()
+    """
+    query_keys = list(query.keys())
+    print('qqqqqqqqqqqqqqqqqqqq', query_keys)
+    for parameter in query_keys:
+        if parameter in DEPRECATED_SEARCH_QUERY_PARAMS_V2:
+            logger.warning(f"parameter '{parameter}' is deprecated in v2 of company list search and has been ignored")
+            query.pop(parameter, None)
+
+    mapped_query = {
+        SEARCH_QUERY_TO_DNB_FIELD_MAPPING_V2[k]: v for k, v in query.items()
+    }
+
+    try:
+        response = api_request('GET', f"{DNB_COMPANY_HIERARCHY_ENDPOINT}/{mapped_query['duns']}")
+    except HTTPError as ex:
+        logger.exception("HTTP error occurred")
+        if ex.response.status_code == 404:
+            return {}
+        else:
+            raise
+    else:
+        return response.json()
+
+def company_hierarchy_list_search(query, update_local=False):
+    """
+    Returns the full hierarchy for a specific duns number.
+
+    Documentation for the DNB api call is available here:
+    https://directplus.documentation.dnb.com/html/resources/JSONSample_FamTree.html
+    """
+    results = company_hierarchy_list_request(query)
+
+    return {
+        'results': results,
+    }

@@ -42,9 +42,10 @@ def get_access_token():
         time.sleep(RENEW_ACCESS_TOKEN_RETRY_DELAY_SECONDS)
     else:
         raise DNBApiError('Failed to retrieve an access token')
+    
+    print("redis_client.get(ACCESS_TOKEN_KEY): ", redis_client.get(ACCESS_TOKEN_KEY))
 
     return redis_client.get(ACCESS_TOKEN_KEY)
-
 
 def is_token_valid():
     """Check if there is a valid access token"""
@@ -115,7 +116,7 @@ def api_request(method, url, **kwargs):
     headers = {
         'Authorization': f'Bearer {token}'
     }
-
+    print('urlurlyurlurlurl', url)
     return _api_request(method, url, **kwargs, headers=headers)
 
 

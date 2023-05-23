@@ -41,3 +41,17 @@ class CompanySearchV2InputSerialiser(serializers.Serializer):
             raise serializers.ValidationError(f'At least one standalone field required: {self.STANDALONE_FIELDS}.')
 
         return data
+    
+class CompanyHierarchySearchInputSerialiser(serializers.Serializer):
+    STANDALONE_FIELDS = ['duns_number']
+
+    duns_number = serializers.RegexField(regex=r'\d{9}', required=False)
+
+    def validate(self, data):
+        """
+        Check that at least one standalone field has been provided.
+        """
+        if not any(field in data for field in self.STANDALONE_FIELDS):
+            raise serializers.ValidationError(f'At least one standalone field required: {self.STANDALONE_FIELDS}.')
+
+        return data

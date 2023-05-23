@@ -9,8 +9,8 @@ from rest_framework.pagination import LimitOffsetPagination
 
 from company.models import ChangeRequest, Company, InvestigationRequest
 from company.serialisers import ChangeRequestSerialiser, CompanySerialiser, InvestigationRequestSerializer
-from dnb_direct_plus.api import company_list_search, company_list_search_v2
-from .serialisers import CompanySearchInputSerialiser, CompanySearchV2InputSerialiser
+from dnb_direct_plus.api import company_list_search, company_list_search_v2, company_hierarchy_list_search
+from .serialisers import CompanySearchInputSerialiser, CompanySearchV2InputSerialiser, CompanyHierarchySearchInputSerialiser
 
 
 class DNBCompanySearchAPIView(APIView):
@@ -45,7 +45,23 @@ class DNBCompanySearchV2APIView(APIView):
             return Response(error_detail, status=ex.response.status_code)
 
         return Response(data)
+    
+class DNBCompanyHierarchySearchAPIView(APIView):
+    """
+    An API view that proxies requests to Dun & Bradstreet's hierarchy search.
+    """
+    print('OOOOOOOOOOOOO')
+    def get(self, request):
+        serialiser = CompanyHierarchySearchInputSerialiser(data=request.data)
+        serialiser.is_valid(raise_exception=True)
 
+        try:
+            data = company_hierarchy_list_search(serialiser.data, update_local=True)
+        except HTTPError as ex:
+            error_detail = ex.response.json()['error']
+            return Response(error_detail, status=ex.response.status_code)
+        print('ggggggggggggg', data)
+        return Response(data)
 
 class CompanyUpdatesAPIView(ListAPIView):
     serializer_class = CompanySerialiser
