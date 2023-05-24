@@ -1,0 +1,69 @@
+{
+  "transactionDetail": {
+      "transactionID": "rrt-0f09452d61ee66c81-b-eu-18483-804471-21",
+      "transactionTimestamp": "2023-05-24T14:52:26.896Z",
+      "inLanguage": "en-US",
+      "serviceVersion": "1"
+  },
+  "inquiryDetail": {
+      "page[number]": 2,
+      "duns": "444444444",
+      "page[size]": 1
+  },
+  "globalUltimateDuns": "444444444",
+  "globalUltimateFamilyTreeMembersCount": 2,
+  "branchesExcludedMembersCount": 1,
+  "familyTreeMembers": [
+      {
+          "duns": "555555555",
+          "primaryName": "Second Placed LIMITED",
+          "primaryAddress": {
+              "addressCountry": {
+                  "name": "United Kingdom",
+                  "isoAlpha2Code": "GB"
+              },
+              "addressLocality": {
+                  "name": "HEREFORD"
+              },
+              "addressCounty": {
+                  "name": "Herefordshire"
+              },
+              "postalCode": "BB2 2BB",
+              "streetAddress": {
+                  "line1": "Two Trading Estate"
+              }
+          },
+          "primaryIndustryCode": {
+              "usSicV4": "8299",
+              "usSicV4Description": "School/educational services"
+          },
+          "tradeStyleNames": [
+              {
+                  "name": "Two Galvanizers",
+                  "priority": 1
+              }
+          ],
+          "corporateLinkage": {
+              "familytreeRolesPlayed": [
+                  {
+                      "description": "Branch/Division",
+                      "dnbCode": 9140
+                  }
+              ],
+              "hierarchyLevel": 2,
+              "parent": {
+                  "duns": "444444444"
+              }
+          },
+          "dunsControlStatus": {
+              "isMarketable": true
+          }
+      }
+  ],
+  "links": {
+      "last": "https://plus.dnb.com/v1/familyTree/221564623?page%5Bnumber%5D=4&page%5Bsize%5D=1",
+      "prev": "https://plus.dnb.com/v1/familyTree/221564623?page%5Bnumber%5D=3&page%5Bsize%5D=1",
+      "self": "https://plus.dnb.com/v1/familyTree/221564623?page%5Bnumber%5D=4&page%5Bsize%5D=1",
+      "first": "https://plus.dnb.com/v1/familyTree/221564623?page%5Bnumber%5D=1&page%5Bsize%5D=1"
+  }
+}

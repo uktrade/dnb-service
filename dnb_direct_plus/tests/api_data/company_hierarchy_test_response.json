@@ -1,0 +1,182 @@
+{
+    "transactionDetail": {
+        "transactionID": "rrt-00701ada947862836-c-eu-18479-533503-14",
+        "transactionTimestamp": "2023-05-24T09:45:07.420Z",
+        "inLanguage": "en-US",
+        "serviceVersion": "1"
+    },
+    "inquiryDetail": {
+        "duns": "221564623"
+    },
+    "globalUltimateDuns": "111111111",
+    "globalUltimateFamilyTreeMembersCount": 3,
+    "branchesExcludedMembersCount": 2,
+    "familyTreeMembers": [
+        {
+            "duns": "111111111",
+            "primaryName": "Number One LIMITED",
+            "startDate": "1964-08-28",
+            "primaryAddress": {
+                "addressCountry": {
+                    "name": "United Kingdom",
+                    "isoAlpha2Code": "GB"
+                },
+                "addressLocality": {
+                    "name": "HEREFORD"
+                },
+                "addressCounty": {
+                    "name": "Herefordshire"
+                },
+                "postalCode": "AA1 1AA",
+                "streetAddress": {
+                    "line1": "One Street"
+                }
+            },
+            "primaryIndustryCode": {
+                "usSicV4": "1111",
+                "usSicV4Description": "Plumbing/heating/air cond contractor"
+            },
+            "corporateLinkage": {
+                "familytreeRolesPlayed": [
+                    {
+                        "description": "Global Ultimate",
+                        "dnbCode": 12775
+                    },
+                    {
+                        "description": "Domestic Ultimate",
+                        "dnbCode": 12774
+                    },
+                    {
+                        "description": "Parent/Headquarters",
+                        "dnbCode": 9141
+                    }
+                ],
+                "hierarchyLevel": 1,
+                "children": [
+                    {
+                        "duns": "222222222"
+                    },
+                    {
+                        "duns": "333333333"
+                    }
+                ]
+            },
+            "dunsControlStatus": {
+                "isMarketable": true
+            },
+            "financials": [
+                {
+                    "yearlyRevenues": [
+                        {
+                            "value": 1.4496246E7
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "duns": "222222222",
+            "primaryName": "Two Un LIMITED",
+            "startDate": "2001-03-08",
+            "primaryAddress": {
+                "addressCountry": {
+                    "name": "United Kingdom",
+                    "isoAlpha2Code": "GB"
+                },
+                "addressLocality": {
+                    "name": "HEREFORD"
+                },
+                "addressCounty": {
+                    "name": "Herefordshire"
+                },
+                "postalCode": "BB2 2BB",
+                "streetAddress": {
+                    "line1": "Westfields Trading Estate"
+                }
+            },
+            "primaryIndustryCode": {
+                "usSicV4": "2222",
+                "usSicV4Description": "Coating/engraving service"
+            },
+            "corporateLinkage": {
+                "familytreeRolesPlayed": [
+                    {
+                        "description": "Subsidiary",
+                        "dnbCode": 9159
+                    }
+                ],
+                "hierarchyLevel": 2,
+                "parent": {
+                    "duns": "111111111"
+                }
+            },
+            "dunsControlStatus": {
+                "isMarketable": true
+            },
+            "financials": [
+                {
+                    "yearlyRevenues": [
+                        {
+                            "value": 1000080.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "duns": "333333333",
+            "primaryName": "Three is a crowd LIMITED",
+            "startDate": "1982-02-25",
+            "primaryAddress": {
+                "addressCountry": {
+                    "name": "United Kingdom",
+                    "isoAlpha2Code": "GB"
+                },
+                "addressLocality": {
+                    "name": "OSWESTRY"
+                },
+                "addressCounty": {
+                    "name": "Shropshire"
+                },
+                "postalCode": "CC33 3CC",
+                "streetAddress": {
+                    "line1": "Unit 3 Clawdd Industrial Estate",
+                    "line2": "Maesbury Road"
+                }
+            },
+            "primaryIndustryCode": {
+                "usSicV4": "3333",
+                "usSicV4Description": "Coating/engraving service"
+            },
+            "corporateLinkage": {
+                "familytreeRolesPlayed": [
+                    {
+                        "description": "Subsidiary",
+                        "dnbCode": 9159
+                    }
+                ],
+                "hierarchyLevel": 2,
+                "parent": {
+                    "duns": "111111111"
+                }
+            },
+            "dunsControlStatus": {
+                "isMarketable": false
+            },
+            "financials": [
+                {
+                    "yearlyRevenues": [
+                        {
+                            "value": 157365.0
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "links": {
+        "last": "https://plus.dnb.com/v1/familyTree/221564623?page%5Bnumber%5D=1&page%5Bsize%5D=1000",
+        "self": "https://plus.dnb.com/v1/familyTree/221564623?page%5Bnumber%5D=1&page%5Bsize%5D=1000",
+        "first": "https://plus.dnb.com/v1/familyTree/221564623?page%5Bnumber%5D=1&page%5Bsize%5D=1000"
+    }
+}

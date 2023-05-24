@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from ..api import company_list_search, company_list_search_v2
+from ..api import company_list_search, company_list_search_v2, company_hierarchy_list_search, company_hierarchy_list_next_request
 from ..mapping import extract_company_data
 from company.constants import MonitoringStatusChoices
 from company.models import Company
@@ -129,3 +129,59 @@ def test_company_list_search_v2_detail_query_company_data_is_saved(mocker, compa
     assert company.address_country.iso_alpha2 == up_to_date_company_data['organization']['primaryAddress']['addressCountry']['isoAlpha2Code']
     assert company.duns_number == output['results'][0]['duns_number']
     assert company.monitoring_status == MonitoringStatusChoices.pending.name
+
+@pytest.mark.django_db
+def test_company_hierarchy_single_list_search(mocker, company_hierarchy_api_response_json):
+
+    company_hierarchy_data = json.loads(company_hierarchy_api_response_json)
+    mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
+
+    print(mock_api_request)
+
+    mock_api_request.return_value.json.return_value = company_hierarchy_data
+
+    print(mock_api_request.return_value)
+    print(mock_api_request.return_value.json)
+    print(mock_api_request.return_value.json.return_value)
+
+    output = company_hierarchy_list_search({
+        'duns_number': '111111111'
+    })
+
+    assert output['results']['global_ultimate_duns'] == '111111111'
+    assert output['results']['global_ultimate_family_tree_members_count'] == 3
+    assert output['results']['branches_excluded_members_count'] == 2
+    assert output['results']['family_tree_members'][0]['duns'] == '111111111'
+    assert output['results']['family_tree_members'][1]['duns'] == '222222222'
+    assert output['results']['family_tree_members'][2]['duns'] == '333333333'
+
+@pytest.mark.django_db
+def test_company_hierarchy_paginated_list_search(mocker, company_hierarchy_first_page_api_response_json, company_hierarchy_last_page_api_response_json):
+
+
+    class ApiHierarchyRequestFake:
+        def __init__(self, json_data):
+            self.json_data = json_data
+
+        def json(self):
+            return self.json_data
+
+    company_hierarchy_first_page_data = json.loads(company_hierarchy_first_page_api_response_json)
+    company_hierarchy_last_page_data = json.loads(company_hierarchy_last_page_api_response_json)
+
+    mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
+    mock_api_request.side_effect = [ApiHierarchyRequestFake(json_data=company_hierarchy_first_page_data), ApiHierarchyRequestFake(json_data=company_hierarchy_last_page_data)]
+
+    output = company_hierarchy_list_search({
+        'duns_number': '111111111'
+    })
+
+
+    print('oooooooooooooooooo', output)
+    
+    assert output['results']['global_ultimate_duns'] == '444444444'
+    assert output['results']['global_ultimate_family_tree_members_count'] == 2
+    assert output['results']['branches_excluded_members_count'] == 1
+    assert output['results']['family_tree_members'][0]['duns'] == '444444444'
+    assert output['results']['family_tree_members'][1]['duns'] == '555555555'
+    
