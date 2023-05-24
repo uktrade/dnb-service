@@ -131,12 +131,11 @@ def company_list_search_v2(query, update_local=False):
         }
     
 
-def company_hierarchy_list_request(query):
+def company_hierarchy_list_initial_request(query):
     """
     Request logic for company_hierarchy_list_search()
     """
     query_keys = list(query.keys())
-    print('qqqqqqqqqqqqqqqqqqqq', query_keys)
     for parameter in query_keys:
         if parameter in DEPRECATED_SEARCH_QUERY_PARAMS_V2:
             logger.warning(f"parameter '{parameter}' is deprecated in v2 of company list search and has been ignored")
@@ -147,7 +146,22 @@ def company_hierarchy_list_request(query):
     }
 
     try:
-        response = api_request('GET', f"{DNB_COMPANY_HIERARCHY_ENDPOINT}/{mapped_query['duns']}")
+        response = api_request('GET', f"{DNB_COMPANY_HIERARCHY_ENDPOINT}/{mapped_query['duns']}", )
+    except HTTPError as ex:
+        logger.exception("HTTP error occurred")
+        if ex.response.status_code == 404:
+            return {}
+        else:
+            raise
+    else:
+        return response.json()
+    
+def company_hierarchy_list_next_request(url):
+    """
+    Request logic for company_hierarchy_list_search()
+    """
+    try:
+        response = api_request('GET', url)
     except HTTPError as ex:
         logger.exception("HTTP error occurred")
         if ex.response.status_code == 404:
@@ -157,14 +171,31 @@ def company_hierarchy_list_request(query):
     else:
         return response.json()
 
-def company_hierarchy_list_search(query, update_local=False):
+def company_hierarchy_list_search(query):
     """
     Returns the full hierarchy for a specific duns number.
 
     Documentation for the DNB api call is available here:
     https://directplus.documentation.dnb.com/html/resources/JSONSample_FamTree.html
     """
-    results = company_hierarchy_list_request(query)
+    response_data = company_hierarchy_list_initial_request(query)
+
+    company_hierarchy = {
+        "global_ultimate_duns": response_data['globalUltimateDuns'],
+        "global_ultimate_family_tree_members_count": response_data['globalUltimateFamilyTreeMembersCount'],
+        "branches_excluded_members_count": response_data['branchesExcludedMembersCount'],
+        "family_tree_members": response_data['familyTreeMembers']
+    }
+
+    is_next =  "next" in response_data['links']
+
+    while is_next:
+        response_data = company_hierarchy_list_next_request(response_data['links']['next'])
+        for familyTreeMember in response_data['familyTreeMembers']:
+            company_hierarchy['family_tree_members'].append(familyTreeMember)
+        is_next =  "next" in response_data['links']
+
+    results = company_hierarchy
 
     return {
         'results': results,

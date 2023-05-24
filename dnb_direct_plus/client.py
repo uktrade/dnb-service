@@ -116,7 +116,6 @@ def api_request(method, url, **kwargs):
     headers = {
         'Authorization': f'Bearer {token}'
     }
-    print('urlurlyurlurlurl', url)
     return _api_request(method, url, **kwargs, headers=headers)
 
 
