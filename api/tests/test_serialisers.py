@@ -2,7 +2,7 @@ import pytest
 
 from rest_framework.exceptions import ErrorDetail
 
-from api.serialisers import CompanySearchInputSerialiser, CompanySearchV2InputSerialiser
+from api.serialisers import CompanySearchInputSerialiser, CompanySearchV2InputSerialiser, CompanyHierarchySearchInputSerialiser
 
 
 @pytest.mark.parametrize('input, data, errors', [
@@ -61,6 +61,38 @@ def test_company_search_input_serialiser(input, data, errors):
 ])
 def test_company_search_v2_input_serialiser(input, data, errors):
     serialiser = CompanySearchV2InputSerialiser(data=input)
+
+    is_valid = not errors
+
+    assert serialiser.is_valid() == is_valid
+    assert serialiser.data == data
+    assert serialiser.errors == errors
+
+@pytest.mark.parametrize('input, data, errors', [
+    # at least one standalone argument is required - duns_number
+    (
+        {},
+        {},
+        {'non_field_errors': [
+            ErrorDetail(
+                string="At least one standalone field required: ['duns_number'].",
+                code='invalid'
+            )
+        ]},
+    ),
+    # valid input
+    (
+        {
+            'duns_number': '111111111'
+        },
+        {
+            'duns_number': '111111111'
+        },
+        {}
+    )
+])
+def test_company_hierarchy_input_serialiser(input, data, errors):
+    serialiser = CompanyHierarchySearchInputSerialiser(data=input)
 
     is_valid = not errors
 
