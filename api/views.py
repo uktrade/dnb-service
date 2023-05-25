@@ -50,13 +50,16 @@ class DNBCompanyHierarchySearchAPIView(APIView):
     """
     An API view that proxies requests to Dun & Bradstreet's hierarchy search.
     """
+    print('I RAN I RAN I RAN I RAN I RAN I RAN I RAN I RAN I RAN I RAN I RAN I RAN I RAN ')
     def post(self, request):
         serialiser = CompanyHierarchySearchInputSerialiser(data=request.data)
         serialiser.is_valid(raise_exception=True)
 
         try:
+            print('TRY TRY TRY TRY TRY TRY TRY TRY TRY TRY ')
             data = company_hierarchy_list_search(serialiser.data)
         except HTTPError as ex:
+            print('EXCEPT EXCEPT EXCEPT EXCEPT EXCEPT EXCEPT EXCEPT ')
             error_detail = ex.response.json()['error']
             return Response(error_detail, status=ex.response.status_code)
         return Response(data)

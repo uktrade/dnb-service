@@ -180,6 +180,9 @@ def company_hierarchy_list_search(query):
     """
     response_data = company_hierarchy_list_initial_request(query)
 
+    if not response_data:
+        return {"family_tree_members": []}
+
     company_hierarchy = {
         "global_ultimate_duns": response_data['globalUltimateDuns'],
         "global_ultimate_family_tree_members_count": response_data['globalUltimateFamilyTreeMembersCount'],
@@ -195,8 +198,4 @@ def company_hierarchy_list_search(query):
             company_hierarchy['family_tree_members'].append(familyTreeMember)
         is_next =  "next" in response_data['links']
 
-    results = company_hierarchy
-
-    return {
-        'results': results,
-    }
+    return company_hierarchy
