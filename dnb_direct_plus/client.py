@@ -5,15 +5,14 @@ from urllib.parse import urljoin
 import backoff
 import redis
 import requests
-
 from django.conf import settings
 from prometheus_client import Counter
 
-DNB_API_BASE_URL = 'https://plus.dnb.com'
-DNB_AUTH_ENDPOINT = '/v2/token'
+DNB_API_BASE_URL = "https://plus.dnb.com"
+DNB_AUTH_ENDPOINT = "/v2/token"
 
-ACCESS_TOKEN_KEY = '_access_token'
-ACCESS_TOKEN_LOCK_KEY = '_access_token_write_lock'
+ACCESS_TOKEN_KEY = "_access_token"
+ACCESS_TOKEN_LOCK_KEY = "_access_token_write_lock"
 ACCESS_TOKEN_LOCK_EXPIRY_SECONDS = 5
 RENEW_ACCESS_TOKEN_MAX_ATTEMPTS = 5
 RENEW_ACCESS_TOKEN_RETRY_DELAY_SECONDS = 1
@@ -22,7 +21,9 @@ logger = logging.getLogger(__name__)
 
 redis_client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
 
-api_usage_counter = Counter('api_counter', 'Track DNB API calls', ['endpoint', 'method', 'status'])
+api_usage_counter = Counter(
+    "api_counter", "Track DNB API calls", ["endpoint", "method", "status"]
+)
 
 
 class DNBApiError(Exception):
@@ -41,11 +42,12 @@ def get_access_token():
 
         time.sleep(RENEW_ACCESS_TOKEN_RETRY_DELAY_SECONDS)
     else:
-        raise DNBApiError('Failed to retrieve an access token')
-    
+        raise DNBApiError("Failed to retrieve an access token")
+
     print("redis_client.get(ACCESS_TOKEN_KEY): ", redis_client.get(ACCESS_TOKEN_KEY))
 
     return redis_client.get(ACCESS_TOKEN_KEY)
+
 
 def is_token_valid():
     """Check if there is a valid access token"""
@@ -65,7 +67,7 @@ def renew_token_if_close_to_expiring():
     ttl = redis_client.ttl(ACCESS_TOKEN_KEY)
 
     if ttl < settings.DNB_API_RENEW_ACCESS_TOKEN_SECONDS_REMAINING:
-        logger.debug('token is due to expire; attempting to renew')
+        logger.debug("token is due to expire; attempting to renew")
         _renew_token()
 
 
@@ -73,10 +75,10 @@ def _authenticate():
     """Get a new Direct+ access token."""
 
     response = _api_request(
-        'post',
+        "post",
         DNB_AUTH_ENDPOINT,
         auth=(settings.DNB_API_USERNAME, settings.DNB_API_PASSWORD),
-        json={'grant_type': 'client_credentials'},
+        json={"grant_type": "client_credentials"},
     )
 
     response_body = response.json()
@@ -85,20 +87,22 @@ def _authenticate():
 
 
 def _renew_token():
-    """ Attempt to renew the access token.
+    """Attempt to renew the access token.
 
     :returns: boolean indicating whether the operation was successful
 
     NOTE: this function won't retry if it is unable to acquire a lock.
     Retrying is done upstream in `get_access_token`."""
 
-    logger.debug('attempting to renew token')
+    logger.debug("attempting to renew token")
 
     lock = redis_client.lock(ACCESS_TOKEN_LOCK_KEY)
     if lock.acquire(blocking=False):
         try:
             token = _authenticate()
-            redis_client.set(ACCESS_TOKEN_KEY, token['access_token'], ex=token['expiresIn'])
+            redis_client.set(
+                ACCESS_TOKEN_KEY, token["access_token"], ex=token["expiresIn"]
+            )
 
             return True
         finally:
@@ -113,27 +117,29 @@ def api_request(method, url, **kwargs):
     """
     token = get_access_token()
 
-    headers = {
-        'Authorization': f'Bearer {token}'
-    }
+    headers = {"Authorization": f"Bearer {token}"}
     return _api_request(method, url, **kwargs, headers=headers)
 
 
 def _fatal_code(e):
-    """Return True if an exception/status should not be retried. """
-    retryable = not hasattr(e, 'response') or \
-        e.response.status_code in [429] or \
-        500 <= e.response.status_code <= 599
+    """Return True if an exception/status should not be retried."""
+    retryable = (
+        not hasattr(e, "response")
+        or e.response.status_code in [429]
+        or 500 <= e.response.status_code <= 599
+    )
 
     return not retryable
 
 
-@backoff.on_exception(backoff.expo,
-                      requests.exceptions.Timeout,
-                      requests.exceptions.ConnectionError,
-                      requests.exceptions.HTTPError,
-                      giveup=_fatal_code,
-                      logger=logger)
+@backoff.on_exception(
+    backoff.expo,
+    requests.exceptions.Timeout,
+    requests.exceptions.ConnectionError,
+    requests.exceptions.HTTPError,
+    giveup=_fatal_code,
+    logger=logger,
+)
 def _api_request(method, path, **kwargs):
     """
     Make an API request
@@ -142,16 +148,18 @@ def _api_request(method, path, **kwargs):
     url = urljoin(DNB_API_BASE_URL, path)
 
     headers = {
-        'accept': 'application/json',
+        "accept": "application/json",
     }
 
-    if 'files' not in kwargs:
-        headers['content-type'] = 'application/json'
+    if "files" not in kwargs:
+        headers["content-type"] = "application/json"
 
-    headers.update(kwargs.pop('headers', {}))
+    headers.update(kwargs.pop("headers", {}))
     response = requests.request(method, url, headers=headers, **kwargs)
 
-    api_usage_counter.labels(endpoint=path, method=method, status=response.status_code).inc()
+    api_usage_counter.labels(
+        endpoint=path, method=method, status=response.status_code
+    ).inc()
 
     response.raise_for_status()
 
