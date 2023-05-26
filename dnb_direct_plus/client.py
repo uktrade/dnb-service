@@ -44,8 +44,6 @@ def get_access_token():
     else:
         raise DNBApiError("Failed to retrieve an access token")
 
-    print("redis_client.get(ACCESS_TOKEN_KEY): ", redis_client.get(ACCESS_TOKEN_KEY))
-
     return redis_client.get(ACCESS_TOKEN_KEY)
 
 
