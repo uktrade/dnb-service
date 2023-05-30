@@ -160,8 +160,6 @@ def company_hierarchy_list_initial_request(query):
 
     url = f"{DNB_COMPANY_HIERARCHY_ENDPOINT}/{mapped_query['duns']}"
 
-    print("ccccccccccc", url)
-
     response = company_hierarchy_api_request(url)
 
     return response
