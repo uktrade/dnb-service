@@ -6,7 +6,6 @@ from company.constants import MonitoringStatusChoices
 from company.models import Company
 
 from ..api import (
-    company_hierarchy_list_next_request,
     company_hierarchy_list_search,
     company_list_search,
     company_list_search_v2,

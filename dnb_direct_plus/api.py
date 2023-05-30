@@ -158,22 +158,16 @@ def company_hierarchy_list_initial_request(query):
         SEARCH_QUERY_TO_DNB_FIELD_MAPPING_V2[k]: v for k, v in query.items()
     }
 
-    try:
-        response = api_request(
-            "GET",
-            f"{DNB_COMPANY_HIERARCHY_ENDPOINT}/{mapped_query['duns']}",
-        )
-    except HTTPError as ex:
-        logger.exception("HTTP error occurred")
-        if ex.response.status_code == 404:
-            return {}
-        else:
-            raise
-    else:
-        return response.json()
+    url = f"{DNB_COMPANY_HIERARCHY_ENDPOINT}/{mapped_query['duns']}"
+
+    print("ccccccccccc", url)
+
+    response = company_hierarchy_api_request(url)
+
+    return response
 
 
-def company_hierarchy_list_next_request(url):
+def company_hierarchy_api_request(url):
     """
     Request logic for company_hierarchy_list_search()
     """
@@ -215,9 +209,7 @@ def company_hierarchy_list_search(query):
     is_next = "next" in response_data["links"]
 
     while is_next:
-        response_data = company_hierarchy_list_next_request(
-            response_data["links"]["next"]
-        )
+        response_data = company_hierarchy_api_request(response_data["links"]["next"])
         for familyTreeMember in response_data["familyTreeMembers"]:
             company_hierarchy["family_tree_members"].append(familyTreeMember)
         is_next = "next" in response_data["links"]
