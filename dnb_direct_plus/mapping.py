@@ -219,3 +219,4 @@ def extract_company_data(company_data):
     }
 
     return company
+

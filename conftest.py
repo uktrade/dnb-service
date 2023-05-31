@@ -50,3 +50,22 @@ def company_by_duns_v1_api_response_json():
     with open(os.path.join(os.path.dirname(__file__),
                            'dnb_direct_plus/tests/api_data/company_by_duns_v1_test_response.json')) as f:
         return f.read()
+
+
+@pytest.fixture(scope='module')
+def company_hierarchy_api_response_json():
+    with open(os.path.join(os.path.dirname(__file__),
+                           'dnb_direct_plus/tests/api_data/company_hierarchy_test_response.json')) as f:
+        return f.read()
+    
+@pytest.fixture(scope='module')
+def company_hierarchy_first_page_api_response_json():
+    with open(os.path.join(os.path.dirname(__file__),
+                           'dnb_direct_plus/tests/api_data/company_hierarchy_first_page_test_response.json')) as f:
+        return f.read()
+    
+@pytest.fixture(scope='module')
+def company_hierarchy_last_page_api_response_json():
+    with open(os.path.join(os.path.dirname(__file__),
+                           'dnb_direct_plus/tests/api_data/company_hierarchy_last_page_test_response.json')) as f:
+        return f.read()

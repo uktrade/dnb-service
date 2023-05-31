@@ -30,7 +30,6 @@ class TestSwagger(APITestCase):
 class TestCompanySearchView:
     def test_requires_authentication(self, client):
         response = client.get(reverse('api:company-search'))
-
         assert response.status_code == 401
 
     def test_404_returns_empty_data(self, auth_client, mocker):
@@ -331,6 +330,75 @@ class TestCompanyUpdateView:
         assert len(response_data['results']) == 0
 
 
+class TestCompanyHierarchySearchView:
+    
+    def test_hierachy_requires_authentication(self, client):
+        response = client.get(reverse('api:company-hierarchy-search'))
+        assert response.status_code == 401
+
+
+    def test_404_returns_empty_data(self, auth_client, mocker):
+        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
+        mock_api_request.side_effect = HTTPError(response=mocker.Mock(status_code=404))
+
+        response = auth_client.post(
+            reverse('api:company-hierarchy-search'),
+            {'duns_number': '000000000'},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {"family_tree_members": []}
+
+    def test_api_call_with_data(self, auth_client, mocker, company_hierarchy_api_response_json):
+        company_hierarchy_data = json.loads(company_hierarchy_api_response_json)
+
+        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
+        mock_api_request.return_value.json.return_value = company_hierarchy_data
+
+        response = auth_client.post(
+            reverse('api:company-hierarchy-search'),
+            {'duns_number': '111111111'},
+        )
+        
+        assert response.status_code == 200
+
+        response_data = response.json()
+
+        assert response_data['global_ultimate_duns'] == '111111111'
+        assert response_data['global_ultimate_family_tree_members_count'] == 3
+        assert response_data['branches_excluded_members_count'] == 2
+        assert response_data['family_tree_members'][0]['duns'] == '111111111'
+        assert response_data['family_tree_members'][1]['duns'] == '222222222'
+        assert response_data['family_tree_members'][2]['duns'] == '333333333'
+
+    def test_api_with_bad_query(self, auth_client):
+        response = auth_client.post(
+            reverse('api:company-hierarchy-search'),
+            {},
+        )
+
+        assert response.status_code == 400
+
+        expected_response = {
+            'non_field_errors': [
+                "At least one standalone field required: ['duns_number']."
+            ]
+        }
+        assert response.json() == expected_response
+
+    def test_api_with_invalid_duns_number(self, auth_client):
+        response = auth_client.post(
+            reverse('api:company-hierarchy-search'),
+            {'duns_number': '12345678'}
+        )
+
+        assert response.status_code == 400
+
+        expected_response = {
+            "duns_number": ["This value does not match the required pattern."]
+        }
+        assert response.json() == expected_response
+
 class TestChangeRequestApiView:
     """
     Test the change-request API endpoint.
@@ -602,8 +670,6 @@ class TestChangeRequestApiView:
 
         result_data = response.json()
         assert result_data['count'] == 2
-
-        print(result_data)
 
         expected_result_data = {
             'count': 2,
