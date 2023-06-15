@@ -32,5 +32,5 @@ services:
       - POSTGRES_PASSWORD=dnbservice
 
   redis:
-    image: redis:3.2
+    image: redis:3.2.10
     restart: always

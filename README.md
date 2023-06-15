@@ -12,7 +12,11 @@ Postgres 10
 
 1. Clone this repository
 
-2. Set up and activate a virtual env
+2. Set up and activate a virtual env  
+   ````
+   python3.10 -m venv env
+   source env/bin/activate
+   ````
 
 3. Install pip-tools: `pip install pip-tools`
 
@@ -37,6 +41,8 @@ Postgres 10
    NOTE: only required if you want to access the admin section.
 
 3. Run the app under docker-compose: `docker-compose up -d`
+
+4. When using Apple M1 chipset you may have to run `docker-compose up --build` to force the load of the latest release of Dockerize.
 
 ## Run tests
 
