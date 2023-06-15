@@ -11,7 +11,7 @@ jobs:
         environment:
           POSTGRES_DB: dnb-service
           POSTGRES_PASSWORD: dnb-service
-      - image: cimg/redis:6.2.6
+      - image: cimg/redis:6.2.12
 
     working_directory: ~/repo
 
