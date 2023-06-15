@@ -12,7 +12,9 @@ Postgres 10
 
 1. Clone this repository
 
-2. Set up and activate a virtual env
+2. Set up and activate a virtual env  
+   `python3.10 -m venv env` 
+   `source env/bin/activate`
 
 3. Install pip-tools: `pip install pip-tools`
 
