@@ -14,8 +14,7 @@ pytest-cov
 pytest-django
 pytest-env
 pytest-mock
-pytest==4.6.6
-pluggy==0.13.1
+pytest
 requests-mock
 factory_boy
 
