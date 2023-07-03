@@ -213,3 +213,47 @@ def company_hierarchy_list_search(query):
         is_next = "next" in response_data["links"]
 
     return company_hierarchy
+
+
+def company_hierarchy_count(query):
+    """
+    Returns the count of companies for the duns number in the hierarchy
+    """
+    response_data = company_hierarchy_count_request(query)
+
+    if not response_data:
+        return 0
+    
+    return response_data.get('globalUltimateFamilyTreeMembersCount', 0)
+
+
+def company_hierarchy_count_request(query):
+    """
+    Request logic for company_hierarchy_count_request
+    """
+    query_keys = list(query.keys())
+    for parameter in query_keys:
+        if parameter in DEPRECATED_SEARCH_QUERY_PARAMS_V2:
+            logger.warning(
+                f"parameter '{parameter}' is deprecated in v2 of company list search and has been ignored"
+            )
+            query.pop(parameter, None)
+
+    mapped_query = {
+        SEARCH_QUERY_TO_DNB_FIELD_MAPPING_V2[k]: v for k, v in query.items()
+    }
+    
+    url = f"{DNB_COMPANY_HIERARCHY_ENDPOINT}/{mapped_query['duns']}?page[size]=1"
+    
+    try:
+        response = api_request(
+            "GET", url
+        )
+    except HTTPError as ex:
+        logger.exception("HTTP error occurred")
+        if ex.response.status_code == 404:
+            return 0
+        else:
+            raise
+    else:
+        return response.json()

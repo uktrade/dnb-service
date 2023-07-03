@@ -201,7 +201,7 @@ packaging==21.0
     #   pytest
 pathtools==0.1.2
     # via watchdog
-pluggy==0.12.0
+pluggy==0.13.1
     # via pytest
 prometheus-client==0.11.0
     # via

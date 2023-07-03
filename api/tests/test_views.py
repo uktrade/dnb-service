@@ -1034,3 +1034,24 @@ class TestInvestigationApiView:
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == expected_response
+
+
+class TestDNBCompanyHierarchySearchCountAPIView:
+    
+    def test_hierachy_requires_authentication(self, client):
+        response = client.get(reverse('api:company-hierarchy-search-count'))
+        assert response.status_code == 401
+        
+    def test_404_returns_empty_data(self, auth_client, mocker):
+        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
+        mock_api_request.side_effect = HTTPError(response=mocker.Mock(status_code=404))
+
+        response = auth_client.post(
+            reverse('api:company-hierarchy-search-count'),
+            {'duns_number': '000000000'},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == 0
+        
+    

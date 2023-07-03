@@ -2,10 +2,13 @@ import json
 
 import pytest
 
+from requests.exceptions import HTTPError
+
 from company.constants import MonitoringStatusChoices
 from company.models import Company
 
 from ..api import (
+    company_hierarchy_count,
     company_hierarchy_list_search,
     company_list_search,
     company_list_search_v2,
@@ -211,3 +214,32 @@ def test_company_hierarchy_paginated_list_search(
     assert output["branches_excluded_members_count"] == 1
     assert output["family_tree_members"][0]["duns"] == "444444444"
     assert output["family_tree_members"][1]["duns"] == "555555555"
+
+
+@pytest.mark.django_db
+def test_company_hierarchy_count_404_returns_0(
+    mocker
+):
+    mock_api_request = mocker.patch("dnb_direct_plus.api.api_request")
+    mock_api_request.side_effect = HTTPError(),
+    count = company_hierarchy_count({"duns_number": "111111111"})
+    assert count == 0
+    
+    
+def test_company_hierarchy_count_no_response_returns_0(
+    mocker
+):
+    mock_api_request = mocker.patch("dnb_direct_plus.api.api_request")
+    mock_api_request.side_effect = None,
+    count = company_hierarchy_count({"duns_number": "111111111"})
+    assert count == 0
+    
+    
+def test_company_hierarchy_count_returns_value(
+    mocker
+):
+    mock_api_request = mocker.patch("dnb_direct_plus.api.api_request")
+    mock_api_request.side_effect = {'globalUltimateFamilyTreeMembersCount' : 15},
+    count = company_hierarchy_count({"duns_number": "111111111"})
+    assert count == 15
+        
