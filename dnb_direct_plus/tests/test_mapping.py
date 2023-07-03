@@ -1038,6 +1038,7 @@ def test_company_list_ingest(company_list_api_response_json):
 
     assert extracted_data == {
         'duns_number': '123456789',
+        'parent_duns_number': '',
         'primary_name': 'Test Company 1',
         'trading_names': [],
         'registration_numbers': [
@@ -1107,6 +1108,7 @@ def test_cmpelk_ingest(cmpelk_api_response_json):
 
     assert extracted_data == {
         'duns_number': '987654321',
+        'parent_duns_number': '987654321',
         'primary_name': 'Test Company, Inc.',
         'trading_names': [],
         'registration_numbers': [],

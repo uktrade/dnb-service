@@ -194,8 +194,11 @@ def extract_company_data(company_data):
     is_employees_number_estimated, employee_number = extract_employee_numbers(company_data)
     is_annual_sales_estimated, annual_sales_currency, annual_sales = extract_annual_sales(company_data)
 
+    print("***", company_data['organization']['corporateLinkage'].get('globalUltimate', {}))
+
     company = {
         'duns_number': company_data['organization']['duns'],
+        'parent_duns_number': company_data['organization']['corporateLinkage'].get('parent', {}).get('duns', ''),
         'primary_name': company_data['organization']['primaryName'],
         'trading_names': extract_trading_names(company_data),
         'registration_numbers': extract_registration_numbers(company_data),
