@@ -307,7 +307,10 @@
                     }
                 }
             },
-            "parent": {},
+            "parent": {
+              "duns": "987654321",
+              "primaryName": "Acme parent company Ltd."
+            },
             "headQuarter": {}
         },
         "dnbAssessment": {

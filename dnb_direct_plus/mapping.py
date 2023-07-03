@@ -196,6 +196,7 @@ def extract_company_data(company_data):
 
     company = {
         'duns_number': company_data['organization']['duns'],
+        'parent_duns_number': company_data['organization']['corporateLinkage'].get('parent', {}).get('duns', ''),
         'primary_name': company_data['organization']['primaryName'],
         'trading_names': extract_trading_names(company_data),
         'registration_numbers': extract_registration_numbers(company_data),
