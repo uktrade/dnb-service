@@ -1054,4 +1054,16 @@ class TestDNBCompanyHierarchySearchCountAPIView:
         assert response.status_code == 200
         assert response.json() == 0
         
+    def test_success_call_returns_count_of_companies(self, auth_client, mocker):
+        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
+        mock_api_request.return_value.json.return_value = {'globalUltimateFamilyTreeMembersCount': 11}
+
+        response = auth_client.post(
+            reverse('api:company-hierarchy-search-count'),
+            {'duns_number': '000000000'},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == 11
+        
     

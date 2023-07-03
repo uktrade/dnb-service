@@ -161,6 +161,12 @@ def test_company_list_search_v2_detail_query_company_data_is_saved(
     assert company.duns_number == output["results"][0]["duns_number"]
     assert company.monitoring_status == MonitoringStatusChoices.pending.name
 
+class ApiHierarchyRequestJsonFake:
+    def __init__(self, json_data):
+        self.json_data = json_data
+
+    def json(self):
+        return self.json_data
 
 @pytest.mark.django_db
 def test_company_hierarchy_single_list_search(
@@ -187,12 +193,7 @@ def test_company_hierarchy_paginated_list_search(
     company_hierarchy_first_page_api_response_json,
     company_hierarchy_last_page_api_response_json,
 ):
-    class ApiHierarchyRequestFake:
-        def __init__(self, json_data):
-            self.json_data = json_data
-
-        def json(self):
-            return self.json_data
+    
 
     company_hierarchy_first_page_data = json.loads(
         company_hierarchy_first_page_api_response_json
@@ -203,8 +204,8 @@ def test_company_hierarchy_paginated_list_search(
 
     mock_api_request = mocker.patch("dnb_direct_plus.api.api_request")
     mock_api_request.side_effect = [
-        ApiHierarchyRequestFake(json_data=company_hierarchy_first_page_data),
-        ApiHierarchyRequestFake(json_data=company_hierarchy_last_page_data),
+        ApiHierarchyRequestJsonFake(json_data=company_hierarchy_first_page_data),
+        ApiHierarchyRequestJsonFake(json_data=company_hierarchy_last_page_data),
     ]
 
     output = company_hierarchy_list_search({"duns_number": "111111111"})
@@ -214,32 +215,12 @@ def test_company_hierarchy_paginated_list_search(
     assert output["branches_excluded_members_count"] == 1
     assert output["family_tree_members"][0]["duns"] == "444444444"
     assert output["family_tree_members"][1]["duns"] == "555555555"
-
-
-@pytest.mark.django_db
-def test_company_hierarchy_count_404_returns_0(
-    mocker
-):
-    mock_api_request = mocker.patch("dnb_direct_plus.api.api_request")
-    mock_api_request.side_effect = HTTPError(),
-    count = company_hierarchy_count({"duns_number": "111111111"})
-    assert count == 0
-    
-    
-def test_company_hierarchy_count_no_response_returns_0(
-    mocker
-):
-    mock_api_request = mocker.patch("dnb_direct_plus.api.api_request")
-    mock_api_request.side_effect = None,
-    count = company_hierarchy_count({"duns_number": "111111111"})
-    assert count == 0
-    
+   
     
 def test_company_hierarchy_count_returns_value(
     mocker
 ):
     mock_api_request = mocker.patch("dnb_direct_plus.api.api_request")
-    mock_api_request.side_effect = {'globalUltimateFamilyTreeMembersCount' : 15},
+    mock_api_request.side_effect = ApiHierarchyRequestJsonFake(json_data={'globalUltimateFamilyTreeMembersCount' : 15}),
     count = company_hierarchy_count({"duns_number": "111111111"})
     assert count == 15
-        
