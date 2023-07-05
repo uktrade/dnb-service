@@ -1034,3 +1034,61 @@ class TestInvestigationApiView:
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == expected_response
+
+
+class TestDNBCompanyHierarchySearchCountAPIView:
+    
+    def test_hierachy_requires_authentication(self, client):
+        response = client.get(reverse('api:company-hierarchy-search-count'))
+        assert response.status_code == 401
+        
+    def test_404_returns_empty_data(self, auth_client, mocker):
+        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
+        mock_api_request.side_effect = HTTPError(response=mocker.Mock(status_code=404))
+
+        response = auth_client.post(
+            reverse('api:company-hierarchy-search-count'),
+            {'duns_number': '000000000'},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == 0
+        
+    def test_api_with_invalid_duns_number(self, auth_client):
+        response = auth_client.post(
+            reverse('api:company-hierarchy-search-count'),
+            {'duns_number': '12345678'}
+        )
+
+        assert response.status_code == 400
+
+        expected_response = {
+            "duns_number": ["This value does not match the required pattern."]
+        }
+        assert response.json() == expected_response
+        
+    def test_success_call_without_expected_response_returns_0(self, auth_client, mocker):
+        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
+        mock_api_request.return_value.json.return_value = {'notReal': 8}
+
+        response = auth_client.post(
+            reverse('api:company-hierarchy-search-count'),
+            {'duns_number': '000000000'},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == 0
+        
+    def test_success_call_returns_count_of_companies(self, auth_client, mocker):
+        mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
+        mock_api_request.return_value.json.return_value = {'globalUltimateFamilyTreeMembersCount': 11}
+
+        response = auth_client.post(
+            reverse('api:company-hierarchy-search-count'),
+            {'duns_number': '000000000'},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == 11
+        
+    

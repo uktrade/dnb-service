@@ -14,6 +14,7 @@ from company.serialisers import (
     InvestigationRequestSerializer,
 )
 from dnb_direct_plus.api import (
+    company_hierarchy_count,
     company_hierarchy_list_search,
     company_list_search,
     company_list_search_v2,
@@ -132,3 +133,20 @@ class InvestigationAPIView(CreateAPIView):
 
     queryset = InvestigationRequest.objects.all()
     serializer_class = InvestigationRequestSerializer
+
+
+class DNBCompanyHierarchySearchCountAPIView(APIView):
+    """
+    An API view that proxies requests to Dun & Bradstreet's hierarchy search to get the total number
+    of companies in the hierarchy.
+    """
+    def post(self, request):
+        serialiser = CompanyHierarchySearchInputSerialiser(data=request.data)
+        serialiser.is_valid(raise_exception=True)
+
+        try:
+            data = company_hierarchy_count(serialiser.data)
+        except HTTPError as ex:
+            error_detail = ex.response.json()["error"]
+            return Response(error_detail, status=ex.response.status_code)
+        return Response(data)
