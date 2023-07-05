@@ -156,6 +156,15 @@ class Company(models.Model):
         validators=[duns_number_validator],
     )
 
+    parent_duns_number = models.CharField(
+        _('Parent Duns number'),
+        null=True,
+        blank=True,
+        max_length=9,
+        unique=False,
+        validators=[duns_number_validator],
+    )
+
     global_ultimate_duns_number = models.CharField(
         _('Global ultimate Duns number'),
         max_length=9,

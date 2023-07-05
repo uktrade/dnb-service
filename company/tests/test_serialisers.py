@@ -76,6 +76,7 @@ def test_company_serialiser():
     assert CompanySerialiser(company).data == {
         'last_updated': None,
         'duns_number': '123456789',
+        'parent_duns_number': None,
         'primary_name': 'Test Company 1',
         'trading_names': ['ACME trading corp'],
         'registration_numbers': [
