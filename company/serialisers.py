@@ -60,6 +60,7 @@ class BaseCompanySerializer(serializers.ModelSerializer):
         fields = [
             'last_updated',
             'duns_number',
+            'parent_duns_number',
             'global_ultimate_duns_number',
             'primary_name',
             'global_ultimate_primary_name',

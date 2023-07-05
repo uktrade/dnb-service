@@ -76,6 +76,7 @@ class TestUpdateCompanyFromSource:
         assert CompanySerialiser(company).data == {
             'last_updated': None,
             'duns_number': '987654321',
+            'parent_duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
             'global_ultimate_primary_name': 'Test Company, Inc.',
@@ -135,6 +136,7 @@ class TestUpdateCompanyFromSource:
         assert CompanySerialiser(company).data == {
             'last_updated': None,
             'duns_number': '987654321',
+            'parent_duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
             'global_ultimate_primary_name': 'Test Company, Inc.',
@@ -302,6 +304,7 @@ class TestApplyUpdateToCompany:
         assert CompanySerialiser(company).data == {
             'last_updated': None,
             'duns_number': '987654321',
+            'parent_duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Test Company, Inc.',
             'global_ultimate_primary_name': 'Test Company, Inc.',
@@ -390,6 +393,7 @@ class TestApplyUpdateToCompany:
         assert CompanySerialiser(company).data == {
             'last_updated': '2019-11-25T12:00:01Z',
             'duns_number': '987654321',
+            'parent_duns_number': '987654321',
             'global_ultimate_duns_number': '12345679',
             'primary_name': 'Acme Corp',
             'global_ultimate_primary_name': 'Acme Corp HQ',

@@ -38,6 +38,7 @@ class TestCompanyListView:
         assert result_data['results'][0] == {
             'last_updated': None,
             'duns_number': '000000020',
+            'parent_duns_number': None,
             'global_ultimate_duns_number': '',
             'primary_name': 'acme limited',
             'global_ultimate_primary_name': '',

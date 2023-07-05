@@ -114,6 +114,7 @@ class TestUpdateCompany:
         assert serialiser.data == {
             'last_updated': None,
             'duns_number': '123456789',
+            'parent_duns_number': None,
             'global_ultimate_duns_number': '',
             'primary_name': 'Widgets Pty',
             'global_ultimate_primary_name': '',
@@ -177,6 +178,7 @@ class TestUpdateCompany:
         assert serialiser.data == {
             'last_updated': None,
             'duns_number': '123456789',
+            'parent_duns_number': None,
             'global_ultimate_duns_number': '',
             'primary_name': 'Widgets Pty',
             'global_ultimate_primary_name': '',
