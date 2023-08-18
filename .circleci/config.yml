@@ -6,7 +6,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:3.9.7
       - image: circleci/postgres:9.5
         environment:
           POSTGRES_DB: dnb-service
