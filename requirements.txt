@@ -67,7 +67,7 @@ django-environ==0.4.5
     # via -r requirements.in
 django-prometheus==2.1.0
     # via -r requirements.in
-django-rest-framework==0.1.0
+django-rest-framework==3.10.3
     # via -r requirements.in
 django-staff-sso-client==3.1.0
     # via -r requirements.in
