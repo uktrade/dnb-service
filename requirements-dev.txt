@@ -88,7 +88,6 @@ django==2.2.28
     #   django-celery-beat
     #   django-staff-sso-client
     #   django-timezone-field
-    #   djangorestframework
     #   drf-yasg
 django-celery-beat==2.2.0
     # via -r requirements.txt
@@ -100,18 +99,16 @@ django-extensions==2.2.8
     # via -r requirements-dev.in
 django-prometheus==2.1.0
     # via -r requirements.txt
-django-rest-framework==0.1.0
-    # via -r requirements.txt
 django-staff-sso-client==3.1.0
     # via -r requirements.txt
 django-timezone-field==4.1.2
     # via
     #   -r requirements.txt
     #   django-celery-beat
-djangorestframework==3.12.4
+djangorestframework==3.10.3
     # via
+    #   -r requirements-dev.in
     #   -r requirements.txt
-    #   django-rest-framework
     #   drf-yasg
 docopt==0.6.2
     # via
