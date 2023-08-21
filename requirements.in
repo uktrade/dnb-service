@@ -1,5 +1,5 @@
 django==2.2.28
-django-rest-framework==3.10.3
+djangorestframework==3.10.3
 boto3
 dj-database-url
 django-environ
