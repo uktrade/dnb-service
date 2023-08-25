@@ -21,7 +21,7 @@ factory_boy
 # Miscellaneous
 docutils
 django-extensions
-djangorestframework==3.10.3
+djangorestframework==3.11.2
 watchdog[watchmedo]
 codecov
 drf_yasg
