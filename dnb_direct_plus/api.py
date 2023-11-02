@@ -250,8 +250,8 @@ def company_hierarchy_count_request(query):
             "GET", url
         )
     except HTTPError as ex:
-        logger.exception("HTTP error occurred")
         if ex.response.status_code == 404:
+            logger.info("404 error occurred, returning 0")
             return 0
         else:
             raise
