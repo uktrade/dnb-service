@@ -1,4 +1,4 @@
-django==2.2.28
+django==3.2.24
 djangorestframework==3.11.2
 boto3
 dj-database-url
