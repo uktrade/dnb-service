@@ -82,7 +82,7 @@ coverage==4.5.1
     #   pytest-cov
 dj-database-url==0.5.0
     # via -r requirements.txt
-django==2.2.28
+django==4.2.10
     # via
     #   -r requirements.txt
     #   django-celery-beat
@@ -90,7 +90,7 @@ django==2.2.28
     #   django-timezone-field
     #   djangorestframework
     #   drf-yasg
-django-celery-beat==2.2.0
+django-celery-beat==2.6.0
     # via -r requirements.txt
 django-celery-results==2.4.0
     # via -r requirements.txt
@@ -100,9 +100,9 @@ django-extensions==2.2.8
     # via -r requirements-dev.in
 django-prometheus==2.1.0
     # via -r requirements.txt
-django-staff-sso-client==3.1.0
+django-staff-sso-client==4.2.2
     # via -r requirements.txt
-django-timezone-field==4.1.2
+django-timezone-field==5.0
     # via
     #   -r requirements.txt
     #   django-celery-beat
