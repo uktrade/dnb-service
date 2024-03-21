@@ -20,7 +20,7 @@ factory_boy
 
 # Miscellaneous
 docutils
-django-extensions
+django-extensions>=3.0.0
 djangorestframework==3.11.2
 watchdog[watchmedo]
 codecov
