@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'health_check',
     'user',
     'workspace',
-    'drf_yasg',
+    'drf_spectacular',
 ]
 
 if DEBUG:
@@ -221,6 +221,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomCursorPagination',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # GOVUK notify

@@ -25,3 +25,4 @@ djangorestframework==3.14.0
 watchdog[watchmedo]
 codecov
 drf_yasg==1.21.4
+drf-spectacular==0.27.1
