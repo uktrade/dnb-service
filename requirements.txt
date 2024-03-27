@@ -77,7 +77,7 @@ djangorestframework==3.11.2
     #   drf-yasg
 docopt==0.6.2
     # via notifications-python-client
-drf-yasg==1.20.0
+drf-yasg==1.21.4
     # via -r requirements.in
 elastic-apm==6.2.0
     # via -r requirements.in

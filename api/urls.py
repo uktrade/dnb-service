@@ -1,5 +1,4 @@
-from django.conf.urls import url
-from django.urls import path
+from django.urls import path, re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
@@ -46,12 +45,12 @@ urlpatterns = [
     path("companies/", CompanyUpdatesAPIView.as_view(), name="company-updates"),
     path("change-request/", ChangeRequestAPIView.as_view(), name="change-request"),
     path("investigation/", InvestigationAPIView.as_view(), name="investigation"),
-    url(
+    re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
         schema_view.without_ui(cache_timeout=0),
         name="schema-json",
     ),
-    url(
+    re_path(
         r"^swagger/$",
         schema_view.with_ui("swagger", cache_timeout=0),
         name="schema-swagger-ui",
