@@ -1,4 +1,3 @@
-import django.contrib.postgres.fields.jsonb
 from django.db import migrations
 
 def update_company_details_telephone(apps, schema_editor):

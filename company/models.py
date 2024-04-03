@@ -1,6 +1,7 @@
 import uuid
 
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
+from django.db.models import JSONField
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone

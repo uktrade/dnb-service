@@ -98,7 +98,7 @@ django-environ==0.4.5
     # via -r requirements.txt
 django-extensions>=3.O.O
     # via -r requirements-dev.in
-django-prometheus==2.1.0
+django-prometheus==2.3.1
     # via -r requirements.txt
 django-staff-sso-client==4.2.2
     # via -r requirements.txt

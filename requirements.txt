@@ -65,7 +65,7 @@ django-celery-results==2.4.0
     # via -r requirements.in
 django-environ==0.4.5
     # via -r requirements.in
-django-prometheus==2.1.0
+django-prometheus==2.3.1
     # via -r requirements.in
 django-staff-sso-client==4.2.2
     # via -r requirements.in

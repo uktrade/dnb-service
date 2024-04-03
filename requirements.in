@@ -13,7 +13,7 @@ django_celery_beat==2.6.0
 django-celery-results
 sentry-sdk
 backoff
-django-prometheus
+django-prometheus==2.3.1
 smart-open
 notifications-python-client==6.2.1
 elastic-apm
