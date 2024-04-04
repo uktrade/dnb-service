@@ -284,8 +284,7 @@ class Company(models.Model):
 
     registered_address_country = models.ForeignKey(
         Country,
-        verbose_name=_('Country'),
-        on_delete=models.CASCADE,
+        _('Country'),
         blank=True,
         null=True,
         related_name='+',
