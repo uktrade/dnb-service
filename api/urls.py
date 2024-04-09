@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from api.views import (
@@ -33,6 +33,6 @@ urlpatterns = [
     path("companies/", CompanyUpdatesAPIView.as_view(), name="company-updates"),
     path("change-request/", ChangeRequestAPIView.as_view(), name="change-request"),
     path("investigation/", InvestigationAPIView.as_view(), name="investigation"),
-    path("schema/", SpectacularAPIView.as_view(), name="schema-json"),
-    path("swagger/", SpectacularSwaggerView.as_view(url_name='api:schema'), name="schema-swagger-ui"),
+    re_path(r"^swagger\.(?P<format>json|yaml)$", SpectacularAPIView.as_view(), name="schema-json"),
+    re_path(r"^swagger/$", SpectacularSwaggerView.as_view(url_name='api:schema-json'), name="schema-swagger-ui"),
 ]

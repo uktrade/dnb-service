@@ -19,11 +19,12 @@ pytestmark = pytest.mark.django_db
 
 class TestSwagger(APITestCase):
 
-    def test_get(self):
-        response = self.client.get(
-            '/api/swagger/?format=openapi',
-            follow=True
-        )
+    def test_get_json_format(self):
+        response = self.client.get('/api/swagger.json', follow=True)
+        self.assertEquals(response.status_code, 200)
+
+    def test_get_yaml_format(self):
+        response = self.client.get('/api/swagger.yaml', follow=True)
         self.assertEquals(response.status_code, 200)
 
 
@@ -677,20 +678,19 @@ class TestChangeRequestApiView:
             'previous': None,
             'results': [
                 {
-                    'id': '00000000-0000-0000-0000-000000000002',
-                    'duns_number': '000000003',
-                    'changes': {'primary_name': 'test2'},
-                    'status': 'pending',
-                    'created_on': '2020-05-18T12:00:01Z'
-                },
-                {
                     'id': '00000000-0000-0000-0000-000000000001',
                     'duns_number': '000000002',
                     'changes': {'primary_name': 'test1'},
                     'status': 'pending',
                     'created_on': '2020-05-18T12:00:01Z'
+                },
+                {
+                    'id': '00000000-0000-0000-0000-000000000002',
+                    'duns_number': '000000003',
+                    'changes': {'primary_name': 'test2'},
+                    'status': 'pending',
+                    'created_on': '2020-05-18T12:00:01Z'
                 }
-
             ]
         }
 
