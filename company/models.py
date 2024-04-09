@@ -235,7 +235,7 @@ class Company(models.Model):
     address_country = models.ForeignKey(
         Country,
         verbose_name=_('Country'),
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         null=False,
         related_name='+',
     )
@@ -284,7 +284,8 @@ class Company(models.Model):
 
     registered_address_country = models.ForeignKey(
         Country,
-        _('Country'),
+        verbose_name=_('Country'),
+        on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
         related_name='+',
