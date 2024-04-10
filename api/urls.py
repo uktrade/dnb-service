@@ -1,18 +1,5 @@
-from django.conf.urls import url
-from django.urls import path
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
-from rest_framework import permissions
-
-schema_view = get_schema_view(
-    openapi.Info(
-        title="dnb service API",
-        default_version="v1",
-        description="API documentation for the dnb service endpoints",
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
+from django.urls import path, re_path
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from api.views import (
     ChangeRequestAPIView,
@@ -46,14 +33,6 @@ urlpatterns = [
     path("companies/", CompanyUpdatesAPIView.as_view(), name="company-updates"),
     path("change-request/", ChangeRequestAPIView.as_view(), name="change-request"),
     path("investigation/", InvestigationAPIView.as_view(), name="investigation"),
-    url(
-        r"^swagger(?P<format>\.json|\.yaml)$",
-        schema_view.without_ui(cache_timeout=0),
-        name="schema-json",
-    ),
-    url(
-        r"^swagger/$",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
+    re_path(r"^swagger\.(?P<format>json|yaml)$", SpectacularAPIView.as_view(), name="schema-json"),
+    re_path(r"^swagger/$", SpectacularSwaggerView.as_view(url_name='api:schema-json'), name="schema-swagger-ui"),
 ]

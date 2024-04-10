@@ -121,18 +121,18 @@ def test_company_serialiser():
         'industry_codes': [
             OrderedDict(
                 [
-                    ('code', '423690'),
-                    ('description', 'Other Electronic Parts and Equipment Merchant Wholesalers'),
-                    ('priority', 1),
+                    ('code', '517919'),
+                    ('description', 'All Other Telecommunications'),
+                    ('priority', 2),
                     ('typeDescription', 'North American Industry Classification System 2017'),
                     ('typeDnBCode', '30832'),
                 ]
             ),
             OrderedDict(
                 [
-                    ('code', '517919'),
-                    ('description', 'All Other Telecommunications'),
-                    ('priority', 2),
+                    ('code', '423690'),
+                    ('description', 'Other Electronic Parts and Equipment Merchant Wholesalers'),
+                    ('priority', 1),
                     ('typeDescription', 'North American Industry Classification System 2017'),
                     ('typeDnBCode', '30832'),
                 ]

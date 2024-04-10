@@ -82,7 +82,7 @@ coverage==4.5.1
     #   pytest-cov
 dj-database-url==0.5.0
     # via -r requirements.txt
-django==2.2.28
+django==4.2.10
     # via
     #   -r requirements.txt
     #   django-celery-beat
@@ -90,23 +90,23 @@ django==2.2.28
     #   django-timezone-field
     #   djangorestframework
     #   drf-yasg
-django-celery-beat==2.2.0
+django-celery-beat==2.6.0
     # via -r requirements.txt
 django-celery-results==2.4.0
     # via -r requirements.txt
 django-environ==0.4.5
     # via -r requirements.txt
-django-extensions==2.2.8
+django-extensions>=3.O.O
     # via -r requirements-dev.in
-django-prometheus==2.1.0
+django-prometheus==2.3.1
     # via -r requirements.txt
-django-staff-sso-client==3.1.0
+django-staff-sso-client==4.2.2
     # via -r requirements.txt
-django-timezone-field==4.1.2
+django-timezone-field==5.0
     # via
     #   -r requirements.txt
     #   django-celery-beat
-djangorestframework==3.11.2
+djangorestframework==3.14.0
     # via
     #   -r requirements-dev.in
     #   -r requirements.txt
@@ -117,10 +117,7 @@ docopt==0.6.2
     #   notifications-python-client
 docutils==0.14
     # via -r requirements-dev.in
-drf-yasg==1.20.0
-    # via
-    #   -r requirements-dev.in
-    #   -r requirements.txt
+drf-spectacular==0.27.1
 elastic-apm==6.2.0
     # via -r requirements.txt
 entrypoints==0.3

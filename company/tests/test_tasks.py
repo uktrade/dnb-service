@@ -207,10 +207,7 @@ class TestSendPendingInvestigationRequests:
 
         send_pending_investigation_requests.apply()
         mock_send.call_count == 2
-        mock_send.assert_called_with(
-            investigation_requests[:-1],
-            'Monday 25 November 2019 Part 2',
-        )
+        mock_send.assert_called_with([investigation_requests[1]], 'Monday 25 November 2019 Part 2')
 
     @freeze_time('2019-11-25 12:00:01 UTC')
     @mock.patch('core.notify.notifications_client')

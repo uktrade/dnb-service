@@ -74,11 +74,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='company',
             name='address_country',
-            field=models.ForeignKey(on_delete='Country', related_name='+', to='company.Country'),
+            field=models.ForeignKey(on_delete=models.DO_NOTHING, related_name='+', to='company.Country'),
         ),
         migrations.AddField(
             model_name='company',
             name='registered_address_country',
-            field=models.ForeignKey(blank=True, null=True, on_delete='Country', related_name='+', to='company.Country'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=models.DO_NOTHING, related_name='+', to='company.Country'),
         ),
     ]

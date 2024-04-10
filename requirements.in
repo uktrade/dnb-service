@@ -1,19 +1,19 @@
-django==2.2.28
+django==4.2.10
 djangorestframework==3.11.2
 boto3
 dj-database-url
 django-environ
 psycopg2
-django-staff-sso-client
+django-staff-sso-client==4.2.2
 pyyaml==6.0.1
 requests
 redis
 celery
-django_celery_beat
+django_celery_beat==2.6.0
 django-celery-results
 sentry-sdk
 backoff
-django-prometheus
+django-prometheus==2.3.1
 smart-open
 notifications-python-client==6.2.1
 elastic-apm
@@ -22,7 +22,7 @@ whitenoise
 gunicorn
 
 urllib3>=1.26.5
-drf_yasg
+drf-spectacular==0.27.1
 
 sqlparse==0.4.4
 certifi==2023.07.22
