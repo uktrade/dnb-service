@@ -35,14 +35,18 @@ def update_company(wb_data):
     company.worldbase_source = wb_data
 
     if overwrite_fields:
-        company.registration_numbers.all().delete()
-        company.primary_industry_codes.all().delete()
-
         for field, value in company_data.items():
             if field.endswith('country'):
                 setattr(company, field, Country.objects.get(iso_alpha2=value))
             elif field not in foreign_key_fields:
                 setattr(company, field, value)
+
+    company.save()
+
+    if overwrite_fields:
+        # Can't delete records before company is saved.
+        company.registration_numbers.all().delete()
+        company.primary_industry_codes.all().delete()
 
     company.save()
 

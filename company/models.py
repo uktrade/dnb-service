@@ -1,10 +1,11 @@
 import uuid
 
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
+from django.db.models import JSONField
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
 
 from company.constants import (
@@ -233,7 +234,8 @@ class Company(models.Model):
 
     address_country = models.ForeignKey(
         Country,
-        _('Country'),
+        verbose_name=_('Country'),
+        on_delete=models.DO_NOTHING,
         null=False,
         related_name='+',
     )
@@ -282,7 +284,8 @@ class Company(models.Model):
 
     registered_address_country = models.ForeignKey(
         Country,
-        _('Country'),
+        verbose_name=_('Country'),
+        on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
         related_name='+',

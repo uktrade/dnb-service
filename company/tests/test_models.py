@@ -38,6 +38,6 @@ class TestCompany:
         )
 
         company.full_clean()
-        assert company.parent_duns_number is '123456789'
+        assert company.parent_duns_number == '123456789'
 
 
