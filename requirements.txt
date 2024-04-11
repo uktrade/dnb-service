@@ -84,7 +84,7 @@ elastic-apm==6.2.0
     # via -r requirements.in
 gunicorn==20.1.0
     # via -r requirements.in
-idna==2.10
+idna==3.7
     # via requests
 inflection==0.5.1
     # via drf-spectacular
