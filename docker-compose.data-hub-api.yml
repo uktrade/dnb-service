@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   api-dnb:
     build:
@@ -39,7 +39,7 @@ services:
       - POSTGRES_PASSWORD=dnbservice
 
   redis-dnb:
-    image: redis:3.2.10
+    image: redis:7.2.4
     restart: always
 
 # Note: The `data-infrastructure-shared-network` network is created by running `make start-*` within `data-hub-frontend`.
