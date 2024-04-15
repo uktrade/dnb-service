@@ -18,7 +18,11 @@ class Command(BaseCommand):
     s3_client = None
 
     def __init__(self):
-        self.s3_client = client('s3')
+        self.s3_client = client(
+            's3',
+            aws_access_key_id=settings.DEFAULT_AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.DEFAULT_AWS_SECRET_ACCESS_KEY,
+        )
 
         super().__init__()
 
