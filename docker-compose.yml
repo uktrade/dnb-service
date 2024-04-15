@@ -1,6 +1,5 @@
-version: '2'
+version: "2"
 services:
-
   api:
     build:
       context: .
@@ -32,5 +31,5 @@ services:
       - POSTGRES_PASSWORD=dnbservice
 
   redis:
-    image: redis:3.2.10
+    image: redis:7.2.4
     restart: always
