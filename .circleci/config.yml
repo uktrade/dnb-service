@@ -11,7 +11,7 @@ jobs:
         environment:
           POSTGRES_DB: dnb-service
           POSTGRES_PASSWORD: dnb-service
-      - image: cimg/redis:6.2.12
+      - image: cimg/redis:7.2.4
 
     working_directory: ~/repo
 
@@ -51,4 +51,3 @@ jobs:
       - store_artifacts:
           path: test-reports
           destination: test-reports
-
