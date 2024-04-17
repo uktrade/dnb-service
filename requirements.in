@@ -17,6 +17,7 @@ django-prometheus==2.3.1
 smart-open
 notifications-python-client==6.2.1
 elastic-apm
+django-log-formatter-asim==0.0.4
 
 whitenoise
 gunicorn

@@ -1,10 +1,12 @@
 import os
+import sys
 
 import dj_database_url
 import environ
 
 import sentry_sdk
 from celery.schedules import crontab
+from django_log_formatter_asim import ASIMFormatter
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -174,6 +176,43 @@ DNB_ARCHIVE_PATH = env('DNB_ARCHIVE_PATH', default='archive/')
 DEFAULT_AWS_ACCESS_KEY_ID = env('DEFAULT_AWS_ACCESS_KEY_ID')
 DEFAULT_AWS_SECRET_ACCESS_KEY = env('DEFAULT_AWS_SECRET_ACCESS_KEY')
 
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
+        },
+        'asim_formatter': {
+            '()': ASIMFormatter,
+        },
+    },
+    'handlers': {
+        'asim': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'asim_formatter',
+            'stream': sys.stdout,
+        },
+    },
+    'root': {
+        'level': 'INFO',
+        'handlers': ['asim'],
+    },
+    'loggers': {
+        'django': {
+            'level': 'INFO',
+            'handlers': ['asim'],
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['asim'],
+            'propagate': False,
+        },
+    },
+}
+
 # Redis
 
 if 'redis' in VCAP_SERVICES:
@@ -263,6 +302,6 @@ ELASTIC_APM_ENVIRONMENT = env('SENTRY_ENVIRONMENT')
 ELASTIC_APM = {
   'SERVICE_NAME': 'dnb-service',
   'SECRET_TOKEN': env('ELASTIC_APM_SECRET_TOKEN'),
-  'SERVER_URL' : env('ELASTIC_APM_URL'),
+  'SERVER_URL': env('ELASTIC_APM_URL'),
   'ENVIRONMENT': ELASTIC_APM_ENVIRONMENT,
 }
