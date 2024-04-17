@@ -150,7 +150,7 @@ flake8-quotes==2.0.1
     # via -r requirements-dev.in
 freezegun==0.3.12
     # via -r requirements-dev.in
-gunicorn==20.1.0
+gunicorn==22.0.0
     # via -r requirements.txt
 idna==3.7
     # via
@@ -189,8 +189,11 @@ oauthlib==3.2.2
     # via
     #   -r requirements.txt
     #   requests-oauthlib
-packaging==21.0
-    # via pytest
+packaging==24.0
+    # via
+    #   -r requirements.txt
+    #   gunicorn
+    #   pytest
 pathtools==0.1.2
     # via watchdog
 pluggy==0.13.1
@@ -219,8 +222,6 @@ pyjwt==2.4.0
     # via
     #   -r requirements.txt
     #   notifications-python-client
-pyparsing==2.4.7
-    # via packaging
 pytest==4.6.3
     # via
     #   -r requirements-dev.in

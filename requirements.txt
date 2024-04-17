@@ -82,7 +82,7 @@ drf-spectacular==0.27.1
     # via -r requirements.in
 elastic-apm==6.2.0
     # via -r requirements.in
-gunicorn==20.1.0
+gunicorn==22.0.0
     # via -r requirements.in
 idna==3.7
     # via requests
@@ -102,6 +102,8 @@ notifications-python-client==6.2.1
     # via -r requirements.in
 oauthlib==3.2.2
     # via requests-oauthlib
+packaging==24.0
+    # via gunicorn
 prometheus-client==0.11.0
     # via django-prometheus
 prompt-toolkit==3.0.18
@@ -176,6 +178,3 @@ wcwidth==0.2.5
     # via prompt-toolkit
 whitenoise==5.2.0
     # via -r requirements.in
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
