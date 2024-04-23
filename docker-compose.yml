@@ -29,8 +29,6 @@ services:
     environment:
       - POSTGRES_DB=dnb-service
       - POSTGRES_PASSWORD=dnbservice
-    ports:
-      - "2345:5432"
 
   redis:
     image: redis:7.2.4
