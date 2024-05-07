@@ -16,7 +16,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      DATABASE_URL: postgresql://postgres:dnb-service@localhost/dnb-service
+      DATABASE_CREDENTIALS: '{"username": "postgres", "password": "dnbservice", "engine": "postgres", "port": 5432, "dbname": "dnb-service", "host": "localhost", "dbInstanceIdentifier": "db-instance"}'
       REDIS_URL: redis://localhost:6379
 
     steps:

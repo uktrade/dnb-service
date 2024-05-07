@@ -2,6 +2,7 @@ import os
 import sys
 
 import dj_database_url
+from dbt_copilot_python.database import database_url_from_env
 import environ
 
 import sentry_sdk
@@ -98,7 +99,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config()
+    'default': dj_database_url.config(
+        default=database_url_from_env("DATABASE_CREDENTIALS")
+    )
 }
 
 # Password validation

@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Python 3.9.7
+Python 3.10
 Django 4.2.11+  
 Postgres 10  
 
