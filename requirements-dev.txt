@@ -266,7 +266,7 @@ referencing==0.34.0
     #   -r requirements.txt
     #   jsonschema
     #   jsonschema-specifications
-requests==2.31.0
+requests==2.32.0
     # via
     #   -r requirements.txt
     #   codecov
