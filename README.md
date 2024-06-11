@@ -48,6 +48,55 @@ Postgres 10
 
 Run `py.test` from the project's root directory
 
+## Creating the `DNB_SERVICE_TOKEN` for data-hub-api
+
+For data-hub-api to connect to dnb-service, it must be provided with a token which is set inside the data-hub-api .env file under `DNB_SERVICE_TOKEN`.
+
+### Local development token
+
+1. Create a user in dnb-service.
+2. Log into the admin with this user.
+3. Go to tokens.
+4. Add a token.
+5. Select your user and save.
+6. Copy your token key into the data-hub-api `DNB_SERVICE_TOKEN` environment variable.
+
+### UAT, dev, staging and prod token
+
+#### Using the current api user
+
+1. There is a default user set for these environments with the username: api-user@digital.trade.gov.uk
+2. You can find this users token in the Django Admin and selecting the token model or by accessing the django shell for the environment you require.
+3. For getting the token in the Django shell run the following:
+   ```
+   from rest_framework.authtoken.models import Token
+   from django.contrib.auth import get_user_model
+
+   User = get_user_model()
+   user = User.objects.get(email='api-user@digital.trade.gov.uk')
+
+   token = Token.objects.get(user=user)
+   print(token.key)
+   ```
+4. Copy the token printed above into data-hub-api `DNB_SERVICE_TOKEN` environment variable.
+
+#### Creating a new api user
+
+1. Access the Django shell for the environment you want to create a user for.
+2. Run the following, you can change the email if required:
+   ```
+   from rest_framework.authtoken.models import Token
+   from django.contrib.auth import get_user_model
+
+   User = get_user_model()
+
+   user = User.objects.create(email='api-user@digital.trade.gov.uk')
+   token = Token.objects.create(user=user)
+
+   print(token.key)
+   ```
+4. Copy the token printed above into data-hub-api `DNB_SERVICE_TOKEN` environment variable.
+
 ## DIT staff-sso integration
 
 The admin section is protected by the DIT's internal SSO application.  To run a local development environment with admin
