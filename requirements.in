@@ -11,7 +11,7 @@ redis
 celery
 django_celery_beat==2.6.0
 django-celery-results
-sentry-sdk
+sentry-sdk==2.5.1
 backoff
 django-prometheus==2.3.1
 smart-open

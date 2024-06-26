@@ -198,7 +198,8 @@ sentry_sdk.init(
     integrations=[
         DjangoIntegration(),
         CeleryIntegration()
-    ]
+    ],
+    enable_tracing=True,
 )
 
 # DRF config
