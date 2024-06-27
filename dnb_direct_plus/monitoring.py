@@ -137,6 +137,8 @@ def add_companies_to_monitoring_registration():
 
     total = pending_registrations.count()
 
+    logger.info(f"Attemping to register {total} companies for monitoring.")
+
     if pending_registrations.count() > 0:
         duns_list = '\n'.join(pending_registrations.values_list('duns_number', flat=True))
 
@@ -148,9 +150,11 @@ def add_companies_to_monitoring_registration():
 
         if response.status_code == 202:
             pending_registrations.update(monitoring_status=MonitoringStatusChoices.enabled.name)
-
         else:
             response_data = response.json()
+            logger.info(
+                f"Failed to register {total} companies for monitoring, these will be added to exceptions file."
+            )
             raise DNBApiError(response_data)
 
     return total
