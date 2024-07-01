@@ -256,6 +256,26 @@ if env.bool('ENABLE_INVESTIGATION_REQUESTS_SUBMISSION', False):
         'schedule': crontab(minute=0, hour=2,),
     }
 
+if env.bool("ENABLE_DNB_MONITORING_DATA", False):
+    # Companies searched by DUNS number are registered for monitoring updates
+    # with the external D&B API.
+    CELERY_BEAT_SCHEDULE["register_companies_to_be_monitored_by_dnb_api"] = {
+        "task": "dnb_direct_plus.tasks.register_companies_for_dnb_api_monitoring",
+        "schedule": crontab(
+            minute=0,
+            hour=1,
+        ),
+    }
+    # Processes any company updates received by the external D&B API for companies
+    # registered for monitoring updates.
+    CELERY_BEAT_SCHEDULE["process_company_updates_from_dnb_api"] = {
+        "task": "dnb_direct_plus.tasks.process_updates_from_dnb_api_monitoring_data",
+        "schedule": crontab(
+            minute=0,
+            hour=20,
+        ),
+    }
+
 
 # Elastic APM settings
 
