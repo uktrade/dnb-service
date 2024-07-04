@@ -60,7 +60,7 @@ def process_updates_from_dnb_api_monitoring_data():
     Processes exception files for any companies which failed to be registered
     to the external D&B API.
     """
-    logger.info(f"Checking for company updates or exceptions received from D&B.")
+    logger.info("Checking for company updates or exceptions received from D&B.")
 
     s3_client = S3Client()
     files = s3_client.list_files(settings.DNB_MONITORING_S3_BUCKET)
