@@ -25,4 +25,4 @@ urllib3>=1.26.5
 drf-spectacular==0.27.1
 
 sqlparse==0.5.0
-certifi==2023.07.22
+certifi==2024.7.4
