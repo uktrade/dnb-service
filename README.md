@@ -2,6 +2,8 @@
 
 [![codecov](https://codecov.io/gh/uktrade/dnb-service/branch/master/graph/badge.svg)](https://codecov.io/gh/uktrade/dnb-service)
 
+test
+
 ## Dependencies
 
 Python 3.9.7
