@@ -96,7 +96,7 @@ def process_updates_from_dnb_api_monitoring_data():
 
         logger.info(f"Processing: {file_name}")
 
-        total, total_success = handler(bucket_path)
+        total, total_success = handler(bucket_path, s3_client)
 
         summary.append(dict(file=file_name, total=total, failed=total - total_success))
         MonitoringFileRecord.objects.create(
