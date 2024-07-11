@@ -200,6 +200,7 @@ sentry_sdk.init(
         CeleryIntegration()
     ],
     enable_tracing=True,
+    sample_rate=0.01,
 )
 
 # DRF config
