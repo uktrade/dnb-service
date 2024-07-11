@@ -1,13 +1,10 @@
-from io import StringIO
 import json
 
 import pytest
 from django.conf import settings
-from django.core.management import call_command
 
 from dnb_direct_plus.tasks import (
     process_updates_from_dnb_api_monitoring_data,
-    register_companies_for_dnb_api_monitoring,
 )
 from company.tests.factories import CompanyFactory
 from ..models import MonitoringFileRecord
