@@ -30,12 +30,14 @@ DNB_MONITORING_ADD_ENDPOINT = \
 
 
 @contextmanager
-def open_zip_file(file_path):
+def open_zip_file(file_path, s3_client):
     """Open a zip archive and extract a file inside of the same name but with a .txt extension"""
 
     extracted_file_name = os.path.basename(file_path).replace('.zip', '.txt')
 
-    with smart_open(file_path, 'rb') as file_:
+    with smart_open(
+        file_path, 'rb', transport_params={'client': s3_client.s3_client}
+    ) as file_:
         with zipfile.ZipFile(file_) as zip_archive:
             with zip_archive.open(extracted_file_name, 'r') as extracted_file:
                 yield extracted_file
@@ -137,6 +139,8 @@ def add_companies_to_monitoring_registration():
 
     total = pending_registrations.count()
 
+    logger.info(f"Attemping to register {total} companies for monitoring.")
+
     if pending_registrations.count() > 0:
         duns_list = '\n'.join(pending_registrations.values_list('duns_number', flat=True))
 
@@ -148,9 +152,11 @@ def add_companies_to_monitoring_registration():
 
         if response.status_code == 202:
             pending_registrations.update(monitoring_status=MonitoringStatusChoices.enabled.name)
-
         else:
             response_data = response.json()
+            logger.info(
+                f"Failed to register {total} companies for monitoring, these will be added to exceptions file."
+            )
             raise DNBApiError(response_data)
 
     return total
@@ -201,7 +207,7 @@ def apply_update_to_company(update_data, timestamp):
     return True, ''
 
 
-def process_exception_file(file_path):
+def process_exception_file(file_path, s3_client):
     """Process a DNB monitoring exceptions file and update Company.monitoring_status"""
     required_header = ['DUNS', 'Code', 'Information']
 
@@ -211,7 +217,7 @@ def process_exception_file(file_path):
 
     total, total_success = 0, 0
 
-    with open_zip_file(file_path) as file_data:
+    with open_zip_file(file_path, s3_client) as file_data:
         csv_data = csv.reader(io.TextIOWrapper(file_data), delimiter='\t')
         for line in csv_data:
 
@@ -241,7 +247,7 @@ def process_exception_file(file_path):
     return total, total_success
 
 
-def process_notification_file(file_path):
+def process_notification_file(file_path, s3_client):
     """Process an update file"""
 
     timestamp = _parse_timestamp_from_file(file_path)
@@ -250,7 +256,7 @@ def process_notification_file(file_path):
 
     total, total_success = 0, 0
 
-    with open_zip_file(file_path) as file_data:
+    with open_zip_file(file_path, s3_client) as file_data:
         for line_number, line in enumerate(file_data, 1):
             update_data = json.loads(line)
 
