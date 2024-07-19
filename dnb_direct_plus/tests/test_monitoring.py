@@ -42,7 +42,7 @@ class TestProcessExceptionsFile:
         mocked.return_value.__exit__.return_value = False
 
         with pytest.raises(ValueError):
-            process_exception_file('dummy_file.zip')
+            process_exception_file('dummy_file.zip', 'DummyS3Client')
 
     def test_company_status_is_updated_to_failure(self, mocker):
         duns_number = '12345678'
@@ -55,7 +55,7 @@ class TestProcessExceptionsFile:
         mocked.return_value.__enter__.return_value = header
         mocked.return_value.__exit__.return_value = False
 
-        process_exception_file('dummy_file.zip')
+        process_exception_file('dummy_file.zip', 'DummyS3Client')
 
         company.refresh_from_db()
 
@@ -552,7 +552,9 @@ class TestProcessNotificationFile:
 
         mocked_logger = mocker.patch('dnb_direct_plus.monitoring.logger')
 
-        total, total_success = process_notification_file('DITCompanyService_20191113000016_NOTIFICATION_1.zip')
+        total, total_success = process_notification_file(
+            'DITCompanyService_20191113000016_NOTIFICATION_1.zip', 'DummyS3Client'
+        )
 
         assert total == 1
         assert total_success == 0
@@ -597,7 +599,9 @@ class TestProcessNotificationFile:
         mocked.return_value.__enter__.return_value = data
         mocked.return_value.__exit__.return_value = False
 
-        total, total_success = process_notification_file('DITCompanyService_20191113000016_NOTIFICATION_1.zip')
+        total, total_success = process_notification_file(
+            'DITCompanyService_20191113000016_NOTIFICATION_1.zip', 'DummyS3Client'
+        )
 
         assert total == 1
         assert total_success == 1
@@ -619,7 +623,7 @@ class TestProcessNotificationFile:
 
         assert Company.objects.count() == 0
 
-        total, total_success = process_notification_file(file_name)
+        total, total_success = process_notification_file(file_name, 'DummyS3Client')
 
         assert Company.objects.count() == 1
         company = Company.objects.first()

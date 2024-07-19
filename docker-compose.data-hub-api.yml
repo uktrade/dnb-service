@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   api-dnb:
     build:
@@ -11,7 +11,7 @@ services:
     env_file: .env
     # We inject some custom environment variables here to retain compatibility with existing .env
     environment:
-      - DATABASE_URL=postgres://postgres:dnbservice@postgres-dnb/dnb-service
+      - 'DATABASE_CREDENTIALS={"username": "postgres", "password": "dnbservice", "engine": "postgres", "port": 5432, "dbname": "dnb-service", "host": "postgres", "dbInstanceIdentifier": "postgres-dnb"}'
       - REDIS_URL=redis://redis-dnb:6379
     depends_on:
       - postgres-dnb
@@ -29,7 +29,7 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:dnbservice@postgres-dnb/dnb-service
       - REDIS_URL=redis://redis-dnb:6379
-    command: watchmedo auto-restart -d . -R -p '*.py' -- celery worker -A config -l info -Q celery -B
+    command: watchmedo auto-restart -d . -R -p '*.py' -- celery -A worker config -l info -Q celery -B
 
   postgres-dnb:
     image: postgres:10
@@ -39,7 +39,7 @@ services:
       - POSTGRES_PASSWORD=dnbservice
 
   redis-dnb:
-    image: redis:3.2.10
+    image: redis:7.2.4
     restart: always
 
 # Note: The `data-infrastructure-shared-network` network is created by running `make start-*` within `data-hub-frontend`.

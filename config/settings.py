@@ -1,10 +1,13 @@
 import os
+import sys
 
 import dj_database_url
+from dbt_copilot_python.database import database_url_from_env
 import environ
 
 import sentry_sdk
 from celery.schedules import crontab
+from django_log_formatter_asim import ASIMFormatter
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -96,7 +99,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config()
+    'default': dj_database_url.config(
+        default=database_url_from_env("DATABASE_CREDENTIALS")
+    )
 }
 
 # Password validation
@@ -171,8 +176,45 @@ DNB_MONITORING_REGISTRATION_REFERENCE = env('DNB_MONITORING_REGISTRATION_REFEREN
 DNB_MONITORING_S3_BUCKET = env('DNB_S3_MONITORING_BUCKET')
 DNB_ARCHIVE_PROCESSED_FILES = env.bool('DNB_ARCHIVE_PROCESSED_FILES')
 DNB_ARCHIVE_PATH = env('DNB_ARCHIVE_PATH', default='archive/')
-AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+DEFAULT_AWS_ACCESS_KEY_ID = env('DEFAULT_AWS_ACCESS_KEY_ID')
+DEFAULT_AWS_SECRET_ACCESS_KEY = env('DEFAULT_AWS_SECRET_ACCESS_KEY')
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
+        },
+        'asim_formatter': {
+            '()': ASIMFormatter,
+        },
+    },
+    'handlers': {
+        'asim': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'asim_formatter',
+            'stream': sys.stdout,
+        },
+    },
+    'root': {
+        'level': 'INFO',
+        'handlers': ['asim'],
+    },
+    'loggers': {
+        'django': {
+            'level': 'INFO',
+            'handlers': ['asim'],
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['asim'],
+            'propagate': False,
+        },
+    },
+}
 
 # Redis
 
@@ -259,6 +301,26 @@ if env.bool('ENABLE_INVESTIGATION_REQUESTS_SUBMISSION', False):
         'schedule': crontab(minute=0, hour=2,),
     }
 
+if env.bool("ENABLE_DNB_MONITORING_DATA", False):
+    # Companies searched by DUNS number are registered for monitoring updates
+    # with the external D&B API.
+    CELERY_BEAT_SCHEDULE["register_companies_to_be_monitored_by_dnb_api"] = {
+        "task": "dnb_direct_plus.tasks.register_companies_for_dnb_api_monitoring",
+        "schedule": crontab(
+            minute=0,
+            hour=1,
+        ),
+    }
+    # Processes any company updates received by the external D&B API for companies
+    # registered for monitoring updates.
+    CELERY_BEAT_SCHEDULE["process_company_updates_from_dnb_api"] = {
+        "task": "dnb_direct_plus.tasks.process_updates_from_dnb_api_monitoring_data",
+        "schedule": crontab(
+            minute=0,
+            hour=20,
+        ),
+    }
+
 
 # Elastic APM settings
 
@@ -267,6 +329,6 @@ ELASTIC_APM_ENVIRONMENT = env('SENTRY_ENVIRONMENT')
 ELASTIC_APM = {
   'SERVICE_NAME': 'dnb-service',
   'SECRET_TOKEN': env('ELASTIC_APM_SECRET_TOKEN'),
-  'SERVER_URL' : env('ELASTIC_APM_URL'),
+  'SERVER_URL': env('ELASTIC_APM_URL'),
   'ENVIRONMENT': ELASTIC_APM_ENVIRONMENT,
 }
