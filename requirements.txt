@@ -237,7 +237,7 @@ rpds-py==0.18.0
     #   referencing
 s3transfer==0.4.2
     # via boto3
-sentry-sdk==2.5.1
+sentry-sdk==2.8.0
     # via -r requirements.in
 six==1.16.0
     # via
