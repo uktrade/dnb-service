@@ -209,8 +209,7 @@ python-dateutil==2.9.0.post0
     #   celery
     #   python-crontab
 pytz==2022.1
-    # via
-    #   django-timezone-field
+    # via django-timezone-field
 pyyaml==6.0.1
     # via
     #   -r requirements.in
@@ -281,7 +280,7 @@ wrapt==1.16.0
     # via
     #   deprecated
     #   opentelemetry-instrumentation
-zipp==3.18.1
+zipp==3.19.1
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
