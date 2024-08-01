@@ -172,7 +172,7 @@ flake8-debugger==3.1.0
     # via -r requirements-dev.in
 flake8-import-order==0.18.1
     # via -r requirements-dev.in
-flake8-print==3.1.0
+flake8-print==5.0.0
     # via -r requirements-dev.in
 flake8-quotes==2.0.1
     # via -r requirements-dev.in
@@ -428,7 +428,6 @@ six==1.16.0
     #   -r requirements.txt
     #   click-repl
     #   faker
-    #   flake8-print
     #   freezegun
     #   pytest
     #   python-dateutil
