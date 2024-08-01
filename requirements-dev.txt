@@ -14,7 +14,7 @@ asgiref==3.8.1
     # via
     #   -r requirements.txt
     #   django
-async-timeout==4.0.2
+async-timeout==4.0.3
     # via
     #   -r requirements.txt
     #   redis
@@ -390,7 +390,7 @@ pyyaml==6.0.1
     #   drf-spectacular
     #   pre-commit
     #   watchdog
-redis==4.5.4
+redis==5.0.8
     # via -r requirements.txt
 referencing==0.34.0
     # via
