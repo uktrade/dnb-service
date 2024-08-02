@@ -150,7 +150,9 @@ drf-spectacular==0.27.1
     #   -r requirements.txt
 elastic-apm==6.2.0
     # via -r requirements.txt
-factory-boy==2.12.0
+entrypoints==0.3
+    # via flake8
+factory-boy==3.3.0
     # via -r requirements-dev.in
 faker==2.0.4
     # via factory-boy
