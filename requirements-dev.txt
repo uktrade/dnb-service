@@ -150,8 +150,6 @@ drf-spectacular==0.27.1
     #   -r requirements.txt
 elastic-apm==6.2.0
     # via -r requirements.txt
-entrypoints==0.3
-    # via flake8
 factory-boy==2.12.0
     # via -r requirements-dev.in
 faker==2.0.4
@@ -160,7 +158,7 @@ filelock==3.13.4
     # via
     #   -r requirements.txt
     #   virtualenv
-flake8==3.7.7
+flake8==7.1.0
     # via
     #   -r requirements-dev.in
     #   flake8-debugger
@@ -223,7 +221,7 @@ kombu==5.3.7
     # via
     #   -r requirements.txt
     #   celery
-mccabe==0.6.1
+mccabe==0.7.0
     # via flake8
 more-itertools==7.0.0
     # via pytest
@@ -341,13 +339,13 @@ psycopg2==2.9.9
     # via -r requirements.txt
 py==1.10.0
     # via pytest
-pycodestyle==2.5.0
+pycodestyle==2.12.0
     # via
     #   flake8
     #   flake8-debugger
     #   flake8-import-order
     #   flake8-print
-pyflakes==2.1.1
+pyflakes==3.2.0
     # via flake8
 pyjwt==2.4.0
     # via
