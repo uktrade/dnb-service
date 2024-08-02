@@ -337,7 +337,7 @@ protobuf==4.25.3
     #   -r requirements.txt
     #   googleapis-common-protos
     #   opentelemetry-proto
-psycopg2==2.8.6
+psycopg2==2.9.9
     # via -r requirements.txt
 py==1.10.0
     # via pytest
