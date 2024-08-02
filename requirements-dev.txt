@@ -433,7 +433,7 @@ six==1.16.0
     #   pytest
     #   python-dateutil
     #   requests-mock
-smart-open==5.1.0
+smart-open==7.0.4
     # via -r requirements.txt
 sqlparse==0.5.0
     # via
@@ -486,6 +486,7 @@ wrapt==1.16.0
     #   -r requirements.txt
     #   deprecated
     #   opentelemetry-instrumentation
+    #   smart-open
 zipp==3.19.1
     # via
     #   -r requirements.txt
