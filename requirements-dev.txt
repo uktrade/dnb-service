@@ -142,7 +142,7 @@ docopt==0.6.2
     # via
     #   -r requirements.txt
     #   notifications-python-client
-docutils==0.14
+docutils==0.21.2
     # via -r requirements-dev.in
 drf-spectacular==0.27.1
     # via
@@ -150,8 +150,6 @@ drf-spectacular==0.27.1
     #   -r requirements.txt
 elastic-apm==6.2.0
     # via -r requirements.txt
-entrypoints==0.3
-    # via flake8
 factory-boy==3.3.0
     # via -r requirements-dev.in
 faker==2.0.4
