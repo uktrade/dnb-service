@@ -148,10 +148,12 @@ drf-spectacular==0.27.1
     # via
     #   -r requirements-dev.in
     #   -r requirements.txt
-elastic-apm==6.2.0
+ecs-logging==2.2.0
+    # via
+    #   -r requirements.txt
+    #   elastic-apm
+elastic-apm==6.23.0
     # via -r requirements.txt
-entrypoints==0.3
-    # via flake8
 factory-boy==3.3.0
     # via -r requirements-dev.in
 faker==2.0.4
@@ -486,6 +488,7 @@ wrapt==1.16.0
     # via
     #   -r requirements.txt
     #   deprecated
+    #   elastic-apm
     #   opentelemetry-instrumentation
     #   smart-open
 zipp==3.19.1
