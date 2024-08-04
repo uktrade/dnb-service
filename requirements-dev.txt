@@ -110,6 +110,7 @@ django==4.2.14
     # via
     #   -r requirements.txt
     #   django-celery-beat
+    #   django-celery-results
     #   django-extensions
     #   django-log-formatter-asim
     #   django-staff-sso-client
@@ -117,7 +118,7 @@ django==4.2.14
     #   drf-spectacular
 django-celery-beat==2.6.0
     # via -r requirements.txt
-django-celery-results==2.4.0
+django-celery-results==2.5.1
     # via -r requirements.txt
 django-environ==0.4.5
     # via -r requirements.txt
@@ -150,8 +151,6 @@ drf-spectacular==0.27.1
     #   -r requirements.txt
 elastic-apm==6.2.0
     # via -r requirements.txt
-entrypoints==0.3
-    # via flake8
 factory-boy==3.3.0
     # via -r requirements-dev.in
 faker==2.0.4
