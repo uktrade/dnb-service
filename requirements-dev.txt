@@ -172,7 +172,7 @@ flake8==7.1.0
     #   flake8-quotes
 flake8-blind-except==0.1.1
     # via -r requirements-dev.in
-flake8-debugger==3.1.0
+flake8-debugger==4.1.2
     # via -r requirements-dev.in
 flake8-import-order==0.18.1
     # via -r requirements-dev.in
