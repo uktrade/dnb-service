@@ -279,7 +279,7 @@ virtualenv==20.25.2
     # via pre-commit
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2.0
+whitenoise==6.7.0
     # via -r requirements.in
 wrapt==1.16.0
     # via
