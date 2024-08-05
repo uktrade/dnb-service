@@ -121,7 +121,7 @@ django-celery-beat==2.6.0
     # via -r requirements.txt
 django-celery-results==2.5.1
     # via -r requirements.txt
-django-environ==0.4.5
+django-environ==0.11.2
     # via -r requirements.txt
 django-extensions==3.2.3
     # via -r requirements-dev.in
