@@ -74,13 +74,14 @@ django==4.2.14
     #   -r requirements.in
     #   dj-database-url
     #   django-celery-beat
+    #   django-celery-results
     #   django-log-formatter-asim
     #   django-staff-sso-client
     #   djangorestframework
     #   drf-spectacular
 django-celery-beat==2.6.0
     # via -r requirements.in
-django-celery-results==2.4.0
+django-celery-results==2.5.1
     # via -r requirements.in
 django-environ==0.4.5
     # via -r requirements.in
