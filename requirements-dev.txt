@@ -104,11 +104,12 @@ distlib==0.3.8
     # via
     #   -r requirements.txt
     #   virtualenv
-dj-database-url==0.5.0
+dj-database-url==2.2.0
     # via -r requirements.txt
 django==4.2.14
     # via
     #   -r requirements.txt
+    #   dj-database-url
     #   django-celery-beat
     #   django-extensions
     #   django-log-formatter-asim
@@ -448,6 +449,7 @@ typing-extensions==4.11.0
     # via
     #   -r requirements.txt
     #   asgiref
+    #   dj-database-url
     #   opentelemetry-sdk
 tzdata==2024.1
     # via
