@@ -104,12 +104,14 @@ distlib==0.3.8
     # via
     #   -r requirements.txt
     #   virtualenv
-dj-database-url==0.5.0
+dj-database-url==2.2.0
     # via -r requirements.txt
 django==4.2.14
     # via
     #   -r requirements.txt
+    #   dj-database-url
     #   django-celery-beat
+    #   django-celery-results
     #   django-extensions
     #   django-log-formatter-asim
     #   django-staff-sso-client
@@ -117,9 +119,9 @@ django==4.2.14
     #   drf-spectacular
 django-celery-beat==2.6.0
     # via -r requirements.txt
-django-celery-results==2.4.0
+django-celery-results==2.5.1
     # via -r requirements.txt
-django-environ==0.4.5
+django-environ==0.11.2
     # via -r requirements.txt
 django-extensions==3.2.3
     # via -r requirements-dev.in
@@ -142,16 +144,18 @@ docopt==0.6.2
     # via
     #   -r requirements.txt
     #   notifications-python-client
-docutils==0.14
+docutils==0.21.2
     # via -r requirements-dev.in
 drf-spectacular==0.27.1
     # via
     #   -r requirements-dev.in
     #   -r requirements.txt
-elastic-apm==6.2.0
+ecs-logging==2.2.0
+    # via
+    #   -r requirements.txt
+    #   elastic-apm
+elastic-apm==6.23.0
     # via -r requirements.txt
-entrypoints==0.3
-    # via flake8
 factory-boy==3.3.0
     # via -r requirements-dev.in
 faker==2.0.4
@@ -168,7 +172,7 @@ flake8==7.1.0
     #   flake8-quotes
 flake8-blind-except==0.1.1
     # via -r requirements-dev.in
-flake8-debugger==3.1.0
+flake8-debugger==4.1.2
     # via -r requirements-dev.in
 flake8-import-order==0.18.1
     # via -r requirements-dev.in
@@ -176,7 +180,7 @@ flake8-print==5.0.0
     # via -r requirements-dev.in
 flake8-quotes==3.4.0
     # via -r requirements-dev.in
-freezegun==0.3.12
+freezegun==1.5.1
     # via -r requirements-dev.in
 googleapis-common-protos==1.63.0
     # via
@@ -428,7 +432,6 @@ six==1.16.0
     #   -r requirements.txt
     #   click-repl
     #   faker
-    #   freezegun
     #   pytest
     #   python-dateutil
     #   requests-mock
@@ -446,6 +449,7 @@ typing-extensions==4.11.0
     # via
     #   -r requirements.txt
     #   asgiref
+    #   dj-database-url
     #   opentelemetry-sdk
 tzdata==2024.1
     # via
@@ -480,12 +484,13 @@ wcwidth==0.2.5
     #   -r requirements.txt
     #   prompt-toolkit
     #   pytest
-whitenoise==5.2.0
+whitenoise==6.7.0
     # via -r requirements.txt
 wrapt==1.16.0
     # via
     #   -r requirements.txt
     #   deprecated
+    #   elastic-apm
     #   opentelemetry-instrumentation
     #   smart-open
 zipp==3.19.1
