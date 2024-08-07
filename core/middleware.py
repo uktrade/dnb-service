@@ -28,7 +28,7 @@ def _get_client_ip(request):
     client_ip_index = getattr(settings, 'IP_SAFELIST_XFF_INDEX', -2)
 
     try:
-        return request.META['HTTP_X_FORWARDED_FOR'].split(',')[client_ip_index].strip()
+        return request.headers['x-forwarded-for'].split(',')[client_ip_index].strip()
     except (IndexError, KeyError):
         logger.warning(
             'X-Forwarded-For header is missing or does not '
