@@ -5,7 +5,7 @@
 ## Dependencies
 
 Python 3.10
-Django 4.2.11+  
+Django 5.0.8+
 Postgres 10  
 
 ## Prerequisites
