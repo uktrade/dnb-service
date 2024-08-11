@@ -366,7 +366,7 @@ pytest-django==4.8.0
     # via -r requirements-dev.in
 pytest-env==0.6.2
     # via -r requirements-dev.in
-pytest-mock==1.10.4
+pytest-mock==3.14.0
     # via -r requirements-dev.in
 python-crontab==2.5.1
     # via
