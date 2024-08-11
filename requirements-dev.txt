@@ -191,7 +191,7 @@ grpcio==1.63.0
     # via
     #   -r requirements.txt
     #   opentelemetry-exporter-otlp-proto-grpc
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via -r requirements.txt
 identify==2.5.35
     # via
