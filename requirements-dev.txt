@@ -143,7 +143,7 @@ docopt==0.6.2
     #   notifications-python-client
 docutils==0.21.2
     # via -r requirements-dev.in
-drf-spectacular==0.27.1
+drf-spectacular==0.27.2
     # via
     #   -r requirements-dev.in
     #   -r requirements.txt
@@ -163,7 +163,7 @@ filelock==3.13.4
     # via
     #   -r requirements.txt
     #   virtualenv
-flake8==7.1.0
+flake8==7.1.1
     # via
     #   -r requirements-dev.in
     #   flake8-debugger
@@ -190,7 +190,7 @@ grpcio==1.63.0
     # via
     #   -r requirements.txt
     #   opentelemetry-exporter-otlp-proto-grpc
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via -r requirements.txt
 identify==2.5.35
     # via
@@ -366,7 +366,7 @@ pytest-django==4.8.0
     # via -r requirements-dev.in
 pytest-env==0.6.2
     # via -r requirements-dev.in
-pytest-mock==1.10.4
+pytest-mock==3.14.0
     # via -r requirements-dev.in
 python-crontab==2.5.1
     # via
@@ -384,7 +384,7 @@ pytz==2022.1
     # via
     #   -r requirements.txt
     #   django-timezone-field
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via
     #   -r requirements.txt
     #   drf-spectacular
@@ -397,7 +397,7 @@ referencing==0.34.0
     #   -r requirements.txt
     #   jsonschema
     #   jsonschema-specifications
-requests==2.32.0
+requests==2.32.3
     # via
     #   -r requirements.txt
     #   codecov
@@ -406,7 +406,7 @@ requests==2.32.0
     #   opentelemetry-exporter-otlp-proto-http
     #   requests-mock
     #   requests-oauthlib
-requests-mock==1.6.0
+requests-mock==1.12.1
     # via -r requirements-dev.in
 requests-oauthlib==1.3.0
     # via
@@ -421,7 +421,7 @@ s3transfer==0.4.2
     # via
     #   -r requirements.txt
     #   boto3
-sentry-sdk==2.8.0
+sentry-sdk==2.12.0
     # via -r requirements.txt
 six==1.16.0
     # via
@@ -429,7 +429,6 @@ six==1.16.0
     #   click-repl
     #   faker
     #   python-dateutil
-    #   requests-mock
 smart-open==7.0.4
     # via -r requirements.txt
 sqlparse==0.5.0
