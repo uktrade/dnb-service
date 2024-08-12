@@ -6,7 +6,7 @@ dbt-copilot-python==0.2.1
 django-environ
 psycopg2
 django-staff-sso-client==4.2.2
-pyyaml==6.0.1
+pyyaml==6.0.2
 requests
 redis
 celery==5.4.0
