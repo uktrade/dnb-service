@@ -155,7 +155,7 @@ elastic-apm==6.23.0
     # via -r requirements.txt
 exceptiongroup==1.2.2
     # via pytest
-factory-boy==3.3.0
+factory-boy==3.3.1
     # via -r requirements-dev.in
 faker==2.0.4
     # via factory-boy
