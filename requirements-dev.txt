@@ -8,8 +8,6 @@ amqp==5.2.0
     # via
     #   -r requirements.txt
     #   kombu
-argh==0.26.2
-    # via watchdog
 asgiref==3.8.1
     # via
     #   -r requirements.txt
@@ -314,8 +312,6 @@ packaging==24.0
     #   -r requirements.txt
     #   gunicorn
     #   pytest
-pathtools==0.1.2
-    # via watchdog
 platformdirs==4.2.0
     # via
     #   -r requirements.txt
@@ -473,7 +469,7 @@ virtualenv==20.25.2
     # via
     #   -r requirements.txt
     #   pre-commit
-watchdog[watchmedo]==0.10.2
+watchdog[watchmedo]==4.0.2
     # via -r requirements-dev.in
 wcwidth==0.2.5
     # via
