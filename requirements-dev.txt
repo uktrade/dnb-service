@@ -126,7 +126,7 @@ django-log-formatter-asim==0.0.5
     # via -r requirements.txt
 django-prometheus==2.3.1
     # via -r requirements.txt
-django-staff-sso-client==4.2.2
+django-staff-sso-client==4.3.0
     # via -r requirements.txt
 django-timezone-field==5.0
     # via
