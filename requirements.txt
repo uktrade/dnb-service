@@ -22,9 +22,9 @@ backoff==1.10.0
     #   opentelemetry-exporter-otlp-proto-http
 billiard==4.2.0
     # via celery
-boto3==1.17.85
+boto3==1.35.0
     # via -r requirements.in
-botocore==1.20.85
+botocore==1.35.0
     # via
     #   boto3
     #   s3transfer
@@ -89,7 +89,7 @@ django-log-formatter-asim==0.0.5
     # via -r requirements.in
 django-prometheus==2.3.1
     # via -r requirements.in
-django-staff-sso-client==4.2.2
+django-staff-sso-client==4.3.0
     # via -r requirements.in
 django-timezone-field==5.0
     # via django-celery-beat
@@ -238,9 +238,9 @@ rpds-py==0.18.0
     # via
     #   jsonschema
     #   referencing
-s3transfer==0.4.2
+s3transfer==0.10.2
     # via boto3
-sentry-sdk==2.12.0
+sentry-sdk==2.13.0
     # via -r requirements.in
 six==1.16.0
     # via
@@ -248,7 +248,7 @@ six==1.16.0
     #   python-dateutil
 smart-open==7.0.4
     # via -r requirements.in
-sqlparse==0.5.0
+sqlparse==0.5.1
     # via
     #   -r requirements.in
     #   django
