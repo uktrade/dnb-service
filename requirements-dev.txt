@@ -21,7 +21,7 @@ attrs==23.2.0
     #   -r requirements.txt
     #   jsonschema
     #   referencing
-backoff==1.10.0
+backoff==2.2.1
     # via
     #   -r requirements.txt
     #   opentelemetry-exporter-otlp-proto-common
