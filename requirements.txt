@@ -79,7 +79,7 @@ django==4.2.15
     #   django-staff-sso-client
     #   djangorestframework
     #   drf-spectacular
-django-celery-beat==2.6.0
+django-celery-beat==2.7.0
     # via -r requirements.in
 django-celery-results==2.5.1
     # via -r requirements.in
