@@ -44,7 +44,7 @@ celery==5.4.0
     #   dbt-copilot-python
     #   django-celery-beat
     #   django-celery-results
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   -r requirements.txt
     #   elastic-apm
