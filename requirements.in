@@ -10,7 +10,7 @@ pyyaml==6.0.2
 requests
 redis
 celery==5.4.0
-django_celery_beat==2.6.0
+django_celery_beat==2.7.0
 django-celery-results
 sentry-sdk==2.13.0
 backoff
@@ -27,4 +27,4 @@ urllib3>=1.26.5
 drf-spectacular==0.27.2
 
 sqlparse==0.5.1
-certifi==2024.7.4
+certifi==2024.8.30

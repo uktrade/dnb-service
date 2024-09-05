@@ -31,9 +31,9 @@ billiard==4.2.0
     # via
     #   -r requirements.txt
     #   celery
-boto3==1.35.0
+boto3==1.35.10
     # via -r requirements.txt
-botocore==1.35.0
+botocore==1.35.10
     # via
     #   -r requirements.txt
     #   boto3
@@ -44,7 +44,7 @@ celery==5.4.0
     #   dbt-copilot-python
     #   django-celery-beat
     #   django-celery-results
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   -r requirements.txt
     #   elastic-apm
@@ -112,7 +112,7 @@ django==4.2.15
     #   django-staff-sso-client
     #   djangorestframework
     #   drf-spectacular
-django-celery-beat==2.6.0
+django-celery-beat==2.7.0
     # via -r requirements.txt
 django-celery-results==2.5.1
     # via -r requirements.txt
@@ -167,7 +167,7 @@ flake8==7.1.1
     #   flake8-debugger
     #   flake8-print
     #   flake8-quotes
-flake8-blind-except==0.1.1
+flake8-blind-except==0.2.1
     # via -r requirements-dev.in
 flake8-debugger==4.1.2
     # via -r requirements-dev.in
@@ -453,7 +453,7 @@ uritemplate==3.0.1
     # via
     #   -r requirements.txt
     #   drf-spectacular
-urllib3==1.26.19
+urllib3==2.2.2
     # via
     #   -r requirements.txt
     #   botocore
@@ -470,7 +470,7 @@ virtualenv==20.25.2
     # via
     #   -r requirements.txt
     #   pre-commit
-watchdog[watchmedo]==4.0.2
+watchdog[watchmedo]==5.0.0
     # via -r requirements-dev.in
 wcwidth==0.2.5
     # via
