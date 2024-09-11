@@ -1,4 +1,0 @@
----
-applications:
-  - name: external-company-service
-    stack: cflinuxfs4
