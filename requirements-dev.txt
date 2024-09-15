@@ -87,7 +87,7 @@ cron-descriptor==1.4.3
     # via
     #   -r requirements.txt
     #   django-celery-beat
-dbt-copilot-python==0.2.1
+dbt-copilot-python==0.2.2
     # via -r requirements.txt
 deprecated==1.2.14
     # via
