@@ -31,9 +31,9 @@ billiard==4.2.0
     # via
     #   -r requirements.txt
     #   celery
-boto3==1.35.14
+boto3==1.35.19
     # via -r requirements.txt
-botocore==1.35.14
+botocore==1.35.19
     # via
     #   -r requirements.txt
     #   boto3
@@ -87,7 +87,7 @@ cron-descriptor==1.4.3
     # via
     #   -r requirements.txt
     #   django-celery-beat
-dbt-copilot-python==0.2.1
+dbt-copilot-python==0.2.2
     # via -r requirements.txt
 deprecated==1.2.14
     # via
@@ -101,7 +101,7 @@ distlib==0.3.8
     #   virtualenv
 dj-database-url==2.2.0
     # via -r requirements.txt
-django==4.2.15
+django==5.1.1
     # via
     #   -r requirements.txt
     #   dj-database-url
@@ -120,7 +120,7 @@ django-environ==0.11.2
     # via -r requirements.txt
 django-extensions==3.2.3
     # via -r requirements-dev.in
-django-log-formatter-asim==0.0.5
+django-log-formatter-asim==0.0.6
     # via -r requirements.txt
 django-prometheus==2.3.1
     # via -r requirements.txt
@@ -349,7 +349,7 @@ pyjwt==2.4.0
     # via
     #   -r requirements.txt
     #   notifications-python-client
-pytest==8.3.2
+pytest==8.3.3
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -417,7 +417,7 @@ s3transfer==0.10.2
     # via
     #   -r requirements.txt
     #   boto3
-sentry-sdk==2.13.0
+sentry-sdk==2.14.0
     # via -r requirements.txt
 six==1.16.0
     # via
@@ -453,7 +453,7 @@ uritemplate==3.0.1
     # via
     #   -r requirements.txt
     #   drf-spectacular
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   -r requirements.txt
     #   botocore

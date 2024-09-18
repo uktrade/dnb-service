@@ -22,9 +22,9 @@ backoff==1.10.0
     #   opentelemetry-exporter-otlp-proto-http
 billiard==4.2.0
     # via celery
-boto3==1.35.14
+boto3==1.35.19
     # via -r requirements.in
-botocore==1.35.14
+botocore==1.35.19
     # via
     #   boto3
     #   s3transfer
@@ -58,7 +58,7 @@ click-repl==0.2.0
     # via celery
 cron-descriptor==1.4.3
     # via django-celery-beat
-dbt-copilot-python==0.2.1
+dbt-copilot-python==0.2.2
     # via -r requirements.in
 deprecated==1.2.14
     # via
@@ -69,7 +69,7 @@ distlib==0.3.8
     # via virtualenv
 dj-database-url==2.2.0
     # via -r requirements.in
-django==4.2.15
+django==5.1.1
     # via
     #   -r requirements.in
     #   dj-database-url
@@ -85,7 +85,7 @@ django-celery-results==2.5.1
     # via -r requirements.in
 django-environ==0.11.2
     # via -r requirements.in
-django-log-formatter-asim==0.0.5
+django-log-formatter-asim==0.0.6
     # via -r requirements.in
 django-prometheus==2.3.1
     # via -r requirements.in
@@ -240,7 +240,7 @@ rpds-py==0.18.0
     #   referencing
 s3transfer==0.10.2
     # via boto3
-sentry-sdk==2.13.0
+sentry-sdk==2.14.0
     # via -r requirements.in
 six==1.16.0
     # via
@@ -263,7 +263,7 @@ tzdata==2024.1
     #   django-celery-beat
 uritemplate==3.0.1
     # via drf-spectacular
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   -r requirements.in
     #   botocore
