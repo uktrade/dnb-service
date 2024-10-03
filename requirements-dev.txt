@@ -31,9 +31,9 @@ billiard==4.2.0
     # via
     #   -r requirements.txt
     #   celery
-boto3==1.35.24
+boto3==1.35.29
     # via -r requirements.txt
-botocore==1.35.24
+botocore==1.35.29
     # via
     #   -r requirements.txt
     #   boto3
@@ -386,7 +386,7 @@ pyyaml==6.0.2
     #   drf-spectacular
     #   pre-commit
     #   watchdog
-redis==5.0.8
+redis==5.1.0
     # via -r requirements.txt
 referencing==0.34.0
     # via
@@ -470,7 +470,7 @@ virtualenv==20.25.2
     # via
     #   -r requirements.txt
     #   pre-commit
-watchdog[watchmedo]==5.0.2
+watchdog[watchmedo]==5.0.3
     # via -r requirements-dev.in
 wcwidth==0.2.5
     # via
