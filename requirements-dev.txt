@@ -425,7 +425,7 @@ six==1.16.0
     #   click-repl
     #   faker
     #   python-dateutil
-smart-open==7.0.4
+smart-open==7.0.5
     # via -r requirements.txt
 sqlparse==0.5.1
     # via
