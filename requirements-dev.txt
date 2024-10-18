@@ -31,9 +31,9 @@ billiard==4.2.0
     # via
     #   -r requirements.txt
     #   celery
-boto3==1.35.29
+boto3==1.35.39
     # via -r requirements.txt
-botocore==1.35.29
+botocore==1.35.39
     # via
     #   -r requirements.txt
     #   boto3
@@ -101,7 +101,7 @@ distlib==0.3.8
     #   virtualenv
 dj-database-url==2.2.0
     # via -r requirements.txt
-django==5.1.1
+django==5.1.2
     # via
     #   -r requirements.txt
     #   dj-database-url
@@ -386,7 +386,7 @@ pyyaml==6.0.2
     #   drf-spectacular
     #   pre-commit
     #   watchdog
-redis==5.1.0
+redis==5.1.1
     # via -r requirements.txt
 referencing==0.34.0
     # via
@@ -417,7 +417,7 @@ s3transfer==0.10.2
     # via
     #   -r requirements.txt
     #   boto3
-sentry-sdk==2.14.0
+sentry-sdk==2.16.0
     # via -r requirements.txt
 six==1.16.0
     # via
@@ -425,7 +425,7 @@ six==1.16.0
     #   click-repl
     #   faker
     #   python-dateutil
-smart-open==7.0.4
+smart-open==7.0.5
     # via -r requirements.txt
 sqlparse==0.5.1
     # via
