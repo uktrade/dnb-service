@@ -201,7 +201,7 @@ protobuf==4.25.3
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
-psycopg2==2.9.9
+psycopg2==2.9.10
     # via -r requirements.in
 pyjwt==2.4.0
     # via notifications-python-client
