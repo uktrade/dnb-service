@@ -386,7 +386,7 @@ pyyaml==6.0.2
     #   drf-spectacular
     #   pre-commit
     #   watchdog
-redis==5.1.1
+redis==5.2.0
     # via -r requirements.txt
 referencing==0.34.0
     # via
