@@ -22,9 +22,9 @@ backoff==1.10.0
     #   opentelemetry-exporter-otlp-proto-http
 billiard==4.2.0
     # via celery
-boto3==1.35.44
+boto3==1.35.49
     # via -r requirements.in
-botocore==1.35.44
+botocore==1.35.49
     # via
     #   boto3
     #   s3transfer
@@ -67,7 +67,7 @@ deprecated==1.2.14
     #   opentelemetry-exporter-otlp-proto-http
 distlib==0.3.8
     # via virtualenv
-dj-database-url==2.2.0
+dj-database-url==2.3.0
     # via -r requirements.in
 django==5.1.2
     # via
@@ -219,7 +219,7 @@ pyyaml==6.0.2
     #   -r requirements.in
     #   drf-spectacular
     #   pre-commit
-redis==5.1.1
+redis==5.2.0
     # via -r requirements.in
 referencing==0.34.0
     # via

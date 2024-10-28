@@ -31,9 +31,9 @@ billiard==4.2.0
     # via
     #   -r requirements.txt
     #   celery
-boto3==1.35.44
+boto3==1.35.49
     # via -r requirements.txt
-botocore==1.35.44
+botocore==1.35.49
     # via
     #   -r requirements.txt
     #   boto3
@@ -99,7 +99,7 @@ distlib==0.3.8
     # via
     #   -r requirements.txt
     #   virtualenv
-dj-database-url==2.2.0
+dj-database-url==2.3.0
     # via -r requirements.txt
 django==5.1.2
     # via
@@ -386,7 +386,7 @@ pyyaml==6.0.2
     #   drf-spectacular
     #   pre-commit
     #   watchdog
-redis==5.1.1
+redis==5.2.0
     # via -r requirements.txt
 referencing==0.34.0
     # via
