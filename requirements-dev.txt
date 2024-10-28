@@ -99,7 +99,7 @@ distlib==0.3.8
     # via
     #   -r requirements.txt
     #   virtualenv
-dj-database-url==2.2.0
+dj-database-url==2.3.0
     # via -r requirements.txt
 django==5.1.2
     # via
