@@ -470,7 +470,7 @@ virtualenv==20.25.2
     # via
     #   -r requirements.txt
     #   pre-commit
-watchdog[watchmedo]==5.0.3
+watchdog[watchmedo]==6.0.0
     # via -r requirements-dev.in
 wcwidth==0.2.5
     # via
