@@ -22,9 +22,9 @@ backoff==1.10.0
     #   opentelemetry-exporter-otlp-proto-http
 billiard==4.2.0
     # via celery
-boto3==1.35.49
+boto3==1.35.54
     # via -r requirements.in
-botocore==1.35.49
+botocore==1.35.54
     # via
     #   boto3
     #   s3transfer
@@ -279,7 +279,7 @@ virtualenv==20.25.2
     # via pre-commit
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==6.7.0
+whitenoise==6.8.2
     # via -r requirements.in
 wrapt==1.16.0
     # via
