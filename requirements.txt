@@ -22,9 +22,9 @@ backoff==1.10.0
     #   opentelemetry-exporter-otlp-proto-http
 billiard==4.2.0
     # via celery
-boto3==1.35.57
+boto3==1.35.63
     # via -r requirements.in
-botocore==1.35.57
+botocore==1.35.63
     # via
     #   boto3
     #   s3transfer
@@ -248,7 +248,7 @@ six==1.16.0
     #   python-dateutil
 smart-open==7.0.5
     # via -r requirements.in
-sqlparse==0.5.1
+sqlparse==0.5.2
     # via
     #   -r requirements.in
     #   django

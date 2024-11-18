@@ -31,9 +31,9 @@ billiard==4.2.0
     # via
     #   -r requirements.txt
     #   celery
-boto3==1.35.57
+boto3==1.35.63
     # via -r requirements.txt
-botocore==1.35.57
+botocore==1.35.63
     # via
     #   -r requirements.txt
     #   boto3
@@ -427,7 +427,7 @@ six==1.16.0
     #   python-dateutil
 smart-open==7.0.5
     # via -r requirements.txt
-sqlparse==0.5.1
+sqlparse==0.5.2
     # via
     #   -r requirements.txt
     #   django
