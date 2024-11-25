@@ -31,9 +31,9 @@ billiard==4.2.0
     # via
     #   -r requirements.txt
     #   celery
-boto3==1.35.63
+boto3==1.35.68
     # via -r requirements.txt
-botocore==1.35.63
+botocore==1.35.68
     # via
     #   -r requirements.txt
     #   boto3
@@ -417,7 +417,7 @@ s3transfer==0.10.2
     # via
     #   -r requirements.txt
     #   boto3
-sentry-sdk==2.18.0
+sentry-sdk==2.19.0
     # via -r requirements.txt
 six==1.16.0
     # via
