@@ -14,7 +14,7 @@ pytest-cov
 pytest-django==4.9.0
 pytest-env
 pytest-mock
-pytest==8.3.3
+pytest==8.3.4
 requests-mock
 factory_boy
 
