@@ -14,7 +14,7 @@ pytest-cov
 pytest-django==4.9.0
 pytest-env
 pytest-mock
-pytest==8.3.3
+pytest==8.3.4
 requests-mock
 factory_boy
 
@@ -24,4 +24,4 @@ django-extensions>=3.0.0
 djangorestframework==3.15.2
 watchdog[watchmedo]
 codecov
-drf-spectacular==0.27.2
+drf-spectacular==0.28.0
