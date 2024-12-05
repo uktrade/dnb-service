@@ -132,9 +132,11 @@ def _fatal_code(e):
 
 @backoff.on_exception(
     backoff.expo,
-    requests.exceptions.Timeout,
-    requests.exceptions.ConnectionError,
-    requests.exceptions.HTTPError,
+    (
+        requests.exceptions.Timeout,
+        requests.exceptions.ConnectionError,
+        requests.exceptions.HTTPError
+    ),
     giveup=_fatal_code,
     logger=logger,
 )
