@@ -105,7 +105,12 @@ class TestSendPendingChangeRequests:
                     template_id=TEMPLATE_IDS['change-request'],
                     personalisation={
                         'batch_identifier': 'Monday 25 November 2019',
-                        'link_to_file': {'file': expected_batch_1_encoded, 'is_csv': True},
+                        'link_to_file': {
+                            'confirm_email_before_download': None,
+                            'file': expected_batch_1_encoded,
+                            'filename': None,
+                            'retention_period': None,
+                        },
                     },
                 ),
                 mock.call(
@@ -113,7 +118,12 @@ class TestSendPendingChangeRequests:
                     template_id=TEMPLATE_IDS['change-request'],
                     personalisation={
                         'batch_identifier': 'Monday 25 November 2019 Part 2',
-                        'link_to_file': {'file': expected_batch_2_encoded, 'is_csv': True},
+                        'link_to_file': {
+                            'confirm_email_before_download': None,
+                            'file': expected_batch_2_encoded,
+                            'filename': None,
+                            'retention_period': None,
+                        },
                     },
                 ),
             ],
@@ -228,7 +238,12 @@ class TestSendPendingInvestigationRequests:
             template_id=TEMPLATE_IDS['investigation-request'],
             personalisation={
                 'batch_identifier': 'Monday 25 November 2019',
-                'link_to_file': {'file': b64encode(csv_bytes).decode('ascii'), 'is_csv': True},
+                'link_to_file': {
+                    'confirm_email_before_download': None,
+                    'file': b64encode(csv_bytes).decode('ascii'),
+                    'filename': None,
+                    'retention_period': None,
+                },
             },
         )
 
