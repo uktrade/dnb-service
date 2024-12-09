@@ -219,7 +219,7 @@ pyyaml==6.0.2
     #   -r requirements.in
     #   drf-spectacular
     #   pre-commit
-redis==5.2.0
+redis==5.2.1
     # via -r requirements.in
 referencing==0.34.0
     # via
