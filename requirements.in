@@ -26,5 +26,5 @@ gunicorn
 urllib3>=1.26.5
 drf-spectacular==0.28.0
 
-sqlparse==0.5.2
-certifi==2024.8.30
+sqlparse==0.5.3
+certifi==2024.12.14
