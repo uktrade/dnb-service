@@ -453,7 +453,7 @@ uritemplate==3.0.1
     # via
     #   -r requirements.txt
     #   drf-spectacular
-urllib3==2.2.3
+urllib3==2.3.0
     # via
     #   -r requirements.txt
     #   botocore
