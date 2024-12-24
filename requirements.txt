@@ -246,7 +246,7 @@ six==1.16.0
     # via
     #   click-repl
     #   python-dateutil
-smart-open==7.0.5
+smart-open==7.1.0
     # via -r requirements.in
 sqlparse==0.5.3
     # via
