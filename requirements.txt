@@ -22,9 +22,9 @@ backoff==2.2.1
     #   opentelemetry-exporter-otlp-proto-http
 billiard==4.2.0
     # via celery
-boto3==1.35.81
+boto3==1.35.86
     # via -r requirements.in
-botocore==1.35.81
+botocore==1.35.86
     # via
     #   boto3
     #   s3transfer
@@ -135,7 +135,7 @@ kombu==5.3.7
     # via celery
 nodeenv==1.8.0
     # via pre-commit
-notifications-python-client==10.0.0
+notifications-python-client==10.0.1
     # via -r requirements.in
 oauthlib==3.2.2
     # via requests-oauthlib
@@ -246,7 +246,7 @@ six==1.16.0
     # via
     #   click-repl
     #   python-dateutil
-smart-open==7.0.5
+smart-open==7.1.0
     # via -r requirements.in
 sqlparse==0.5.3
     # via
@@ -263,7 +263,7 @@ tzdata==2024.1
     #   django-celery-beat
 uritemplate==3.0.1
     # via drf-spectacular
-urllib3==2.2.3
+urllib3==2.3.0
     # via
     #   -r requirements.in
     #   botocore
