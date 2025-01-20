@@ -231,7 +231,7 @@ nodeenv==1.8.0
     # via
     #   -r requirements.txt
     #   pre-commit
-notifications-python-client==10.0.0
+notifications-python-client==10.0.1
     # via -r requirements.txt
 oauthlib==3.2.2
     # via
