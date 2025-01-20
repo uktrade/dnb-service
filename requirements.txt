@@ -22,9 +22,9 @@ backoff==2.2.1
     #   opentelemetry-exporter-otlp-proto-http
 billiard==4.2.0
     # via celery
-boto3==1.35.97
+boto3==1.36.2
     # via -r requirements.in
-botocore==1.35.97
+botocore==1.36.2
     # via
     #   boto3
     #   s3transfer
@@ -69,7 +69,7 @@ distlib==0.3.8
     # via virtualenv
 dj-database-url==2.3.0
     # via -r requirements.in
-django==5.1.4
+django==5.1.5
     # via
     #   -r requirements.in
     #   dj-database-url
@@ -83,7 +83,7 @@ django-celery-beat==2.7.0
     # via -r requirements.in
 django-celery-results==2.5.1
     # via -r requirements.in
-django-environ==0.11.2
+django-environ==0.12.0
     # via -r requirements.in
 django-log-formatter-asim==0.0.6
     # via -r requirements.in
@@ -238,9 +238,9 @@ rpds-py==0.18.0
     # via
     #   jsonschema
     #   referencing
-s3transfer==0.10.2
+s3transfer==0.11.1
     # via boto3
-sentry-sdk==2.19.2
+sentry-sdk==2.20.0
     # via -r requirements.in
 six==1.16.0
     # via
