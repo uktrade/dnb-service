@@ -114,6 +114,7 @@ class TestSendChangeRequestBatch:
                         'batch_identifier': 'Batch 1',
                         'link_to_file': mocked_generate_change_request_csv.return_value,
                     },
+                    is_csv=True,
                 ),
                 mock.call(
                     'bar@example.net',
@@ -122,6 +123,7 @@ class TestSendChangeRequestBatch:
                         'batch_identifier': 'Batch 1',
                         'link_to_file': mocked_generate_change_request_csv.return_value,
                     },
+                    is_csv=True,
                 ),
             ]
         )
@@ -256,6 +258,7 @@ class TestSendInvestigationRequestBatch:
                 'batch_identifier': 'Batch 1',
                 'link_to_file': mock.ANY,
             },
+            is_csv=True,
         )
         assert mock_notify.call_count == 2
         assert mock_notify.call_args[0][2]['link_to_file'].getvalue() == csv_bytes
