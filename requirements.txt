@@ -135,7 +135,7 @@ kombu==5.3.7
     # via celery
 nodeenv==1.8.0
     # via pre-commit
-notifications-python-client==10.0.0
+notifications-python-client==6.2.1
     # via -r requirements.in
 oauthlib==3.2.2
     # via requests-oauthlib

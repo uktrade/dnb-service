@@ -84,7 +84,7 @@ def send_change_request_batch(change_requests, batch_identifier):
         'link_to_file': generate_change_request_csv(change_requests),
     }
     for email_address in settings.CHANGE_REQUESTS_RECIPIENTS:
-        notify_by_email(email_address, TEMPLATE_IDS['change-request'], context)
+        notify_by_email(email_address, TEMPLATE_IDS['change-request'], context, is_csv=True)
     submitted_on = now()
     for change_request in change_requests:
         change_request.mark_as_submitted(submitted_on)
@@ -151,6 +151,7 @@ def send_investigation_request_batch(investigation_requests, batch_identifier):
             email_address,
             TEMPLATE_IDS['investigation-request'],
             context,
+            is_csv=True,
         )
 
     submitted_on = now()

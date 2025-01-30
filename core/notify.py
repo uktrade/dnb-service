@@ -15,7 +15,7 @@ TEMPLATE_IDS = {
 }
 
 
-def notify_by_email(email_address, template_identifier, context):
+def notify_by_email(email_address, template_identifier, context, is_csv=False):
     """
     Notify an email address, using a GOVUK notify template and some template
     context.
@@ -24,7 +24,7 @@ def notify_by_email(email_address, template_identifier, context):
     # to an uploadable string
     for key, value in context.items():
         if isinstance(value, io.IOBase):
-            context[key] = prepare_upload(value)
+            context[key] = prepare_upload(value, is_csv=is_csv)
     response = notifications_client.send_email_notification(
         email_address=email_address,
         template_id=template_identifier,
