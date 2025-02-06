@@ -22,9 +22,9 @@ backoff==2.2.1
     #   opentelemetry-exporter-otlp-proto-http
 billiard==4.2.0
     # via celery
-boto3==1.36.11
+boto3==1.36.14
     # via -r requirements.in
-botocore==1.36.11
+botocore==1.36.14
     # via
     #   boto3
     #   s3transfer

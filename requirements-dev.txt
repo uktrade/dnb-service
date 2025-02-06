@@ -31,9 +31,9 @@ billiard==4.2.0
     # via
     #   -r requirements.txt
     #   celery
-boto3==1.36.11
+boto3==1.36.14
     # via -r requirements.txt
-botocore==1.36.11
+botocore==1.36.14
     # via
     #   -r requirements.txt
     #   boto3
