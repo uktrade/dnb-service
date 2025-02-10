@@ -476,7 +476,7 @@ wcwidth==0.2.5
     # via
     #   -r requirements.txt
     #   prompt-toolkit
-whitenoise==6.8.2
+whitenoise==6.9.0
     # via -r requirements.txt
 wrapt==1.16.0
     # via
