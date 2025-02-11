@@ -22,9 +22,9 @@ backoff==2.2.1
     #   opentelemetry-exporter-otlp-proto-http
 billiard==4.2.0
     # via celery
-boto3==1.36.11
+boto3==1.36.16
     # via -r requirements.in
-botocore==1.36.11
+botocore==1.36.16
     # via
     #   boto3
     #   s3transfer
@@ -69,7 +69,7 @@ distlib==0.3.8
     # via virtualenv
 dj-database-url==2.3.0
     # via -r requirements.in
-django==5.1.5
+django==5.1.6
     # via
     #   -r requirements.in
     #   dj-database-url
@@ -279,7 +279,7 @@ virtualenv==20.26.6
     # via pre-commit
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==6.8.2
+whitenoise==6.9.0
     # via -r requirements.in
 wrapt==1.16.0
     # via
