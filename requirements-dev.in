@@ -11,7 +11,7 @@ flake8
 # Testing utilities
 freezegun
 pytest-cov
-pytest-django==4.9.0
+pytest-django==4.10.0
 pytest-env
 pytest-mock
 pytest==8.3.4
