@@ -161,7 +161,7 @@ filelock==3.13.4
     # via
     #   -r requirements.txt
     #   virtualenv
-flake8==7.1.1
+flake8==7.1.2
     # via
     #   -r requirements-dev.in
     #   flake8-debugger
