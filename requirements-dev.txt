@@ -349,7 +349,7 @@ pyjwt==2.4.0
     # via
     #   -r requirements.txt
     #   notifications-python-client
-pytest==8.3.4
+pytest==8.3.5
     # via
     #   -r requirements-dev.in
     #   pytest-cov
