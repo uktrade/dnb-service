@@ -31,9 +31,9 @@ billiard==4.2.0
     # via
     #   -r requirements.txt
     #   celery
-boto3==1.37.4
+boto3==1.37.13
     # via -r requirements.txt
-botocore==1.37.4
+botocore==1.37.13
     # via
     #   -r requirements.txt
     #   boto3
@@ -101,7 +101,7 @@ distlib==0.3.8
     #   virtualenv
 dj-database-url==2.3.0
     # via -r requirements.txt
-django==5.1.6
+django==5.1.7
     # via
     #   -r requirements.txt
     #   dj-database-url
@@ -124,7 +124,7 @@ django-log-formatter-asim==0.0.6
     # via -r requirements.txt
 django-prometheus==2.3.1
     # via -r requirements.txt
-django-staff-sso-client==4.3.0
+django-staff-sso-client==4.4.0
     # via -r requirements.txt
 django-timezone-field==5.0
     # via

@@ -1,11 +1,11 @@
-django==5.1.6
+django==5.1.7
 djangorestframework==3.15.2
 boto3
 dj-database-url
 dbt-copilot-python==0.2.2
 django-environ
 psycopg2
-django-staff-sso-client==4.3.0
+django-staff-sso-client==4.4.0
 pyyaml==6.0.2
 requests
 redis
