@@ -4,9 +4,9 @@
 
 ## Dependencies
 
-Python 3.10
-Django 4.2.11+  
-Postgres 10  
+Python 3.12.5
+Django 5.1.7  
+Postgres 16  
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ Postgres 10
 
 2. Set up and activate a virtual env  
    ````
-   python3.10 -m venv env
+   python3.12.5 -m venv env
    source env/bin/activate
    ````
 
@@ -46,7 +46,7 @@ Postgres 10
 
 ## Run tests
 
-Run `py.test` from the project's root directory
+Run `pytest` from the project's root directory
 
 ## Creating the `DNB_SERVICE_TOKEN` for data-hub-api
 
