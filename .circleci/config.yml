@@ -8,6 +8,9 @@ jobs:
     docker:
       - image: cimg/python:3.12.5
       - image: postgres:16
+        environment:
+          POSTGRES_DB: dnb-service
+          POSTGRES_PASSWORD: dnb-service
       - image: cimg/redis:7.2.4
 
     working_directory: ~/repo
