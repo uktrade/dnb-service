@@ -16,7 +16,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      DATABASE_CREDENTIALS: '{"username": "postgres", "password": "dnbservice", "engine": "postgres", "port": 5432, "dbname": "dnb-service", "host": "localhost", "dbInstanceIdentifier": "db-instance"}'
+      DATABASE_CREDENTIALS: '{"username": "postgres", "password": "dnb-service", "engine": "postgres", "port": 5432, "dbname": "dnb-service", "host": "localhost", "dbInstanceIdentifier": "db-instance"}'
       REDIS_URL: redis://localhost:6379
 
     steps:
@@ -32,7 +32,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            python3 -m venv venv
+            python -m venv venv
             . venv/bin/activate
             pip install -r requirements-dev.txt
 
@@ -45,8 +45,8 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            py.test --cov-report xml --cov=.
-            codecov
+            python -m pytest --cov-report xml --cov=.
+            python -m codecov
 
       - store_artifacts:
           path: test-reports
