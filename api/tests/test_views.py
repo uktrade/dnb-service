@@ -21,11 +21,11 @@ class TestSwagger(APITestCase):
 
     def test_get_json_format(self):
         response = self.client.get('/api/swagger.json', follow=True)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_get_yaml_format(self):
         response = self.client.get('/api/swagger.yaml', follow=True)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
 
 class TestCompanySearchView:

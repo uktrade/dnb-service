@@ -1,12 +1,12 @@
-# Python CircleCI 2.0 configuration file
+# Python CircleCI 2.1 configuration file
 #
-# Check https://circleci.com/docs/2.0/language-python/ for more details
+# Check https://circleci.com/docs/2.1/language-python/ for more details
 #
 version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/python:3.10.14
+      - image: cimg/python:3.12.5
       - image: postgres:16
         environment:
           POSTGRES_DB: dnb-service
@@ -16,37 +16,39 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      DATABASE_CREDENTIALS: '{"username": "postgres", "password": "dnbservice", "engine": "postgres", "port": 5432, "dbname": "dnb-service", "host": "localhost", "dbInstanceIdentifier": "db-instance"}'
+      DATABASE_CREDENTIALS: '{"username": "postgres", "password": "dnb-service", "engine": "postgres", "port": 5432, "dbname": "dnb-service", "host": "localhost", "dbInstanceIdentifier": "db-instance"}'
       REDIS_URL: redis://localhost:6379
 
     steps:
       - checkout
 
-      # Download and cache dependencies
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "requirements-dev.txt" }}
+            - dependencies-{{ checksum "requirements-dev.txt" }}
             # fallback to using the latest cache if no exact match is found
-            - v2-dependencies-
+            - dependencies-
 
       - run:
-          name: install dependencies
+          name: Create and activate virtual environment
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
+            python -m venv venv
+            source venv/bin/activate
+
+      - run:
+          name: Install dependencies
+          command: |
             pip install -r requirements-dev.txt
 
       - save_cache:
           paths:
             - ./venv
-          key: v2-dependencies-{{ checksum "requirements-dev.txt" }}
+          key: dependencies-{{ checksum "requirements-dev.txt" }}
 
       - run:
-          name: run tests
+          name: Run tests
           command: |
-            . venv/bin/activate
-            py.test --cov-report xml --cov=.
-            codecov
+            python -m pytest --cov-report xml --cov=.
+            python -m codecov
 
       - store_artifacts:
           path: test-reports
