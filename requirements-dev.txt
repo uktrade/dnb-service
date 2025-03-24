@@ -12,8 +12,6 @@ asgiref==3.8.1
     # via
     #   -r requirements.txt
     #   django
-async-timeout==4.0.3
-    # via -r requirements.txt
 attrs==23.2.0
     # via
     #   -r requirements.txt
@@ -130,8 +128,8 @@ django-timezone-field==5.0
     #   django-celery-beat
 djangorestframework==3.15.2
     # via
-    #   -r requirements.txt
     #   -r requirements-dev.in
+    #   -r requirements.txt
     #   drf-spectacular
 docopt==0.6.2
     # via
@@ -141,8 +139,8 @@ docutils==0.21.2
     # via -r requirements-dev.in
 drf-spectacular==0.28.0
     # via
-    #   -r requirements.txt
     #   -r requirements-dev.in
+    #   -r requirements.txt
 ecs-logging==2.2.0
     # via
     #   -r requirements.txt
@@ -413,7 +411,7 @@ s3transfer==0.11.1
     # via
     #   -r requirements.txt
     #   boto3
-sentry-sdk==2.22.0
+sentry-sdk==2.24.0
     # via -r requirements.txt
 six==1.16.0
     # via
