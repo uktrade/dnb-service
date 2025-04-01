@@ -27,9 +27,9 @@ billiard==4.2.0
     # via
     #   -r requirements.txt
     #   celery
-boto3==1.37.18
+boto3==1.37.23
     # via -r requirements.txt
-botocore==1.37.18
+botocore==1.37.23
     # via
     #   -r requirements.txt
     #   boto3
@@ -134,7 +134,7 @@ django-timezone-field==5.0
     # via
     #   -r requirements.txt
     #   django-celery-beat
-djangorestframework==3.15.2
+djangorestframework==3.16.0
     # via
     #   -r requirements-dev.in
     #   -r requirements.txt
@@ -167,7 +167,7 @@ filelock==3.13.4
     # via
     #   -r requirements.txt
     #   virtualenv
-flake8==7.1.2
+flake8==7.2.0
     # via
     #   -r requirements-dev.in
     #   flake8-debugger
@@ -345,13 +345,13 @@ protobuf==4.25.3
     #   opentelemetry-proto
 psycopg2==2.9.10
     # via -r requirements.txt
-pycodestyle==2.12.0
+pycodestyle==2.13.0
     # via
     #   flake8
     #   flake8-debugger
     #   flake8-import-order
     #   flake8-print
-pyflakes==3.2.0
+pyflakes==3.3.1
     # via flake8
 pyjwt==2.4.0
     # via
@@ -425,7 +425,7 @@ s3transfer==0.11.1
     # via
     #   -r requirements.txt
     #   boto3
-sentry-sdk==2.24.0
+sentry-sdk==2.24.1
     # via -r requirements.txt
 six==1.16.0
     # via
