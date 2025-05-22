@@ -105,7 +105,7 @@ distlib==0.3.8
     #   virtualenv
 dj-database-url==2.3.0
     # via -r requirements.txt
-django==5.1.9
+django==5.2.1
     # via
     #   -r requirements.txt
     #   dj-database-url
@@ -136,8 +136,8 @@ django-timezone-field==5.0
     #   django-celery-beat
 djangorestframework==3.16.0
     # via
-    #   -r requirements-dev.in
     #   -r requirements.txt
+    #   -r requirements-dev.in
     #   drf-spectacular
 docopt==0.6.2
     # via
@@ -147,8 +147,8 @@ docutils==0.21.2
     # via -r requirements-dev.in
 drf-spectacular==0.28.0
     # via
-    #   -r requirements-dev.in
     #   -r requirements.txt
+    #   -r requirements-dev.in
 ecs-logging==2.2.0
     # via
     #   -r requirements.txt
