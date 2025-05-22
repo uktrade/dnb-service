@@ -1,4 +1,4 @@
-FROM python:3.12.10
+FROM python:3.12.8
 
 RUN apt-get update && apt-get install -y wget
 

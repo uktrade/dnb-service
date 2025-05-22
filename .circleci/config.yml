@@ -6,7 +6,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/python:3.12.10
+      - image: cimg/python:3.12.8
       - image: postgres:16
         environment:
           POSTGRES_DB: dnb-service
@@ -24,9 +24,9 @@ jobs:
 
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "requirements-dev.txt" }}
+            - v2-dependencies-{{ checksum "requirements-dev.txt" }}
             # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+            - v2-dependencies-
 
       - run:
           name: Create and activate virtual environment
@@ -42,7 +42,7 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
+          key: v2-dependencies-{{ checksum "requirements-dev.txt" }}
 
       - run:
           name: Run tests
