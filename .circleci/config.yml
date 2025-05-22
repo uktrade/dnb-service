@@ -24,9 +24,9 @@ jobs:
 
       - restore_cache:
           keys:
-            - dependencies-{{ checksum "requirements-dev.txt" }}
+            - v1-dependencies-{{ checksum "requirements-dev.txt" }}
             # fallback to using the latest cache if no exact match is found
-            - dependencies-
+            - v1-dependencies-
 
       - run:
           name: Create and activate virtual environment
@@ -42,7 +42,7 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: dependencies-{{ checksum "requirements-dev.txt" }}
+          key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
 
       - run:
           name: Run tests
