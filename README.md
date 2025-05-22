@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Python 3.12.10
+Python 3.12.8
 Django 5.2.1  
 Postgres 16  
 
@@ -14,7 +14,7 @@ Postgres 16
 
 2. Set up and activate a virtual env  
    ````
-   python3.12.10 -m venv env
+   python3.12.8 -m venv env
    source env/bin/activate
    ````
 
