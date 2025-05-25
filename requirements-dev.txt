@@ -183,7 +183,7 @@ flake8-print==5.0.0
     # via -r requirements-dev.in
 flake8-quotes==3.4.0
     # via -r requirements-dev.in
-freezegun==1.5.1
+freezegun==1.5.2
     # via -r requirements-dev.in
 googleapis-common-protos==1.63.0
     # via
