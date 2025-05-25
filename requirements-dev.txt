@@ -136,8 +136,8 @@ django-timezone-field==5.0
     #   django-celery-beat
 djangorestframework==3.16.0
     # via
-    #   -r requirements.txt
     #   -r requirements-dev.in
+    #   -r requirements.txt
     #   drf-spectacular
 docopt==0.6.2
     # via
@@ -147,8 +147,8 @@ docutils==0.21.2
     # via -r requirements-dev.in
 drf-spectacular==0.28.0
     # via
-    #   -r requirements.txt
     #   -r requirements-dev.in
+    #   -r requirements.txt
 ecs-logging==2.2.0
     # via
     #   -r requirements.txt
@@ -183,7 +183,7 @@ flake8-print==5.0.0
     # via -r requirements-dev.in
 flake8-quotes==3.4.0
     # via -r requirements-dev.in
-freezegun==1.5.1
+freezegun==1.5.2
     # via -r requirements-dev.in
 googleapis-common-protos==1.63.0
     # via
