@@ -339,8 +339,20 @@ class TestCompanyHierarchySearchView:
 
 
     def test_404_returns_empty_data(self, auth_client, mocker):
+        mock_response = mocker.Mock()
+        mock_response.status_code = 404
+        mock_response.json.return_value = {
+            "error": {
+                "errorCode": "Code",
+                "errorMessage": "Message",
+            }
+        }
+
+        http_error = HTTPError()
+        http_error.response = mock_response
+
         mock_api_request = mocker.patch('dnb_direct_plus.api.api_request')
-        mock_api_request.side_effect = HTTPError(response=mocker.Mock(status_code=404))
+        mock_api_request.side_effect = http_error
 
         response = auth_client.post(
             reverse('api:company-hierarchy-search'),
