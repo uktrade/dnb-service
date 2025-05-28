@@ -168,17 +168,31 @@ def company_hierarchy_list_initial_request(query):
 def company_hierarchy_api_request(url):
     """
     Request logic for company_hierarchy_list_search()
+
+    Returns:
+        dict: Company hierarchy data if found, empty dict if not
+
+    Raises:
+        HTTPError: For non-404 HTTP errors
     """
     try:
         response = api_request("GET", url)
-    except HTTPError as ex:
-        logger.exception("HTTP error occurred")
-        if ex.response.status_code == 404:
-            return {}
-        else:
-            raise
-    else:
         return response.json()
+
+    except HTTPError as ex:
+        status_code = ex.response.status_code
+        error_json = ex.response.json()['error']
+
+        if status_code == 404:
+            logger.info(
+                f'Company hierarchy not found - {url} - '
+                f'D&B error {error_json['errorCode']}: {error_json['errorMessage']}'
+            )
+            return {}
+
+        else:
+            logger.error(f'D&B error {error_json['errorCode']}: {error_json['errorMessage']}')
+            raise
 
 
 def company_hierarchy_list_search(query):
